@@ -1,0 +1,11 @@
+.DS_Store
+externaldata
+build
+pycinema.egg-info
+dist
+**/__pycache__
+wbenv
+testing/scratch
+icsenv
+csenv
+examples/.ipynb_checkpoints
