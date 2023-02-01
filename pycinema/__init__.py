@@ -11,7 +11,6 @@ from .ColorSource import *
 from .DatabaseQuery import *
 from .DemoScene import *
 from .DepthCompositing import *
-from .HybridArtifactSource import *
 from .ImageCanny import *
 from .ImageConvert import *
 from .ImageGeneratorCNN import *
