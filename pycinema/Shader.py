@@ -4,35 +4,51 @@ import numpy
 import moderngl
 
 class Shader(Filter):
-    def __init__(self):
+
+    ctx = None
+    quad = None
+    fbo = None
+
+    def __init__(self, textures=[], varyings=['uv']):
         super().__init__()
 
-        # create context
-        self.ctx = moderngl.create_standalone_context(require=330)
-        # self.ctx.release()
-
-        # fullscreen quad
-        self.quad = self.ctx.buffer(
-            numpy.array([
-                 1.0,  1.0,
-                -1.0,  1.0,
-                -1.0, -1.0,
-                 1.0, -1.0,
-                 1.0,  1.0
-            ]).astype('f4').tobytes()
-        )
-
-    def init(self,textureNames):
         # program
-        self.program = self.ctx.program(
+        self.program = Shader.ctx.program(
             vertex_shader=self.getVertexShaderCode(),
             fragment_shader=self.getFragmentShaderCode(),
-            varyings=["uv"]
+            varyings=varyings
         )
-        for i, name in enumerate(textureNames):
+
+        # textures
+        for i, name in enumerate(textures):
             self.program[name] = i
 
-        self.vao = self.ctx.simple_vertex_array(self.program, self.quad, 'position')
+        # Geometry
+        self.vao = Shader.ctx.simple_vertex_array(self.program, Shader.quad, 'position')
+
+    def initFramebuffer(self,res,components=[1],dtypes=['f1']):
+        if Shader.fbo==None or Shader.fbo.size!=res:
+            if Shader.fbo!=None:
+                Shader.fbo.release()
+            if len(components)==1:
+                Shader.fbo = Shader.ctx.simple_framebuffer(res)
+            else:
+                attachments = []
+                for a in range(len(components)):
+                    attachments.append( Shader.ctx.renderbuffer(size=res, components=components[a], dtype=dtypes[a]) )
+                Shader.fbo = Shader.ctx.framebuffer( color_attachments=attachments )
+            Shader.fbo.use()
+        return Shader.fbo
+
+    def readFramebuffer(self,attachment=0,components=4,dtype=numpy.uint8):
+        b = self.fbo.read(attachment=attachment,components=components, dtype = dtype==numpy.uint8 and 'f1' or 'f4' )
+        fa = numpy.frombuffer(b, dtype=dtype)
+        a = fa.view()
+        if components > 1:
+          a.shape = (self.fbo.size[1],self.fbo.size[0],components)
+        else:
+          a.shape = (self.fbo.size[1],self.fbo.size[0])
+        return a
 
     def getVertexShaderCode(self):
         return """
@@ -57,3 +73,14 @@ void main(){
         tex.repeat_y = False
         tex.use(location=location)
         return tex
+
+Shader.ctx = moderngl.create_standalone_context(require=330)
+Shader.quad = Shader.ctx.buffer(
+            numpy.array([
+                 1.0,  1.0,
+                -1.0,  1.0,
+                -1.0, -1.0,
+                 1.0, -1.0,
+                 1.0,  1.0
+            ]).astype('f4').tobytes()
+        )

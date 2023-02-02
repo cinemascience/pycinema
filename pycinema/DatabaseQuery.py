@@ -45,7 +45,7 @@ class DatabaseQuery(Filter):
         for i in range(1, len(table)):
             row = '('
             for v in table[i]:
-                row += '"' + v + '",'
+                row += '"' + str(v) + '",'
             sql += row[0:-1] + '),\n'
         sql = sql[0:-2];
         self.executeSQL(db,sql)
@@ -60,7 +60,7 @@ class DatabaseQuery(Filter):
         res.insert(0,columns);
         return res;
 
-    def update(self):
+    def _update(self):
 
       db = sqlite3.connect(":memory:");
 

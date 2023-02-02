@@ -1,10 +1,10 @@
-from .Core import *
+from .Shader import *
 
 import numpy
 import moderngl
 import PIL
 
-class DemoScene(Filter):
+class DemoScene(Shader):
     def __init__(self):
         super().__init__()
         self.addInputPort("resolution", (256,256))
@@ -13,29 +13,6 @@ class DemoScene(Filter):
         self.addInputPort("time_samples", (0,0,1))
         self.addInputPort("objects", (1,1,1))
         self.addOutputPort("images", [])
-
-        # create context
-        self.ctx = moderngl.create_standalone_context(require=330)
-
-        # fullscreen quad
-        self.quad = self.ctx.buffer(
-            numpy.array([
-                 1.0,  1.0,
-                -1.0,  1.0,
-                -1.0, -1.0,
-                 1.0, -1.0,
-                 1.0,  1.0
-            ]).astype('f4').tobytes()
-        )
-
-        # program
-        self.program = self.ctx.program(
-            vertex_shader=self.getVertexShaderCode(),
-            fragment_shader=self.getFragmentShaderCode(),
-            varyings=["uv"]
-        )
-        self.program['NAN'].value = numpy.nan
-        self.vao = self.ctx.simple_vertex_array(self.program, self.quad, 'position')
 
     def getVertexShaderCode(self):
         return """
@@ -193,19 +170,9 @@ void main() {
 }
         """
 
-    def getArray(self,fbo,attachment,components,dtype):
-        b = fbo.read(attachment=attachment,components=components, dtype = dtype==numpy.uint8 and 'f1' or 'f4', alignment=1 )
-        fa = numpy.frombuffer(b, dtype=dtype)
-        a = fa.view()
-        if components > 1:
-          a.shape = (fbo.size[1],fbo.size[0],components)
-        else:
-          a.shape = (fbo.size[1],fbo.size[0])
-        return a
+    def render(self,phi,theta,time,objects_meta):
 
-    def render(self,fbo,phi,theta,time,objects_meta):
-
-        fbo.clear(0.0, 0.0, 0.0, 1.0)
+        Shader.fbo.clear(0.0, 0.0, 0.0, 1.0)
 
         phi_rad = phi/360.0*2.0*numpy.pi
         theta_rad = (90-theta)/180.0*numpy.pi
@@ -220,10 +187,10 @@ void main() {
         # create output image
         image = Image(
             {
-                'rgba': self.getArray(fbo,0,4,numpy.uint8),
-                'depth': self.getArray(fbo,1,1,numpy.float32),
-                'id': self.getArray(fbo,2,1,numpy.float32),
-                'y': self.getArray(fbo,3,1,numpy.float32)
+                'rgba': self.readFramebuffer(0,4,numpy.uint8),
+                'depth': self.readFramebuffer(1,1,numpy.float32),
+                'id': self.readFramebuffer(2,1,numpy.float32),
+                'y': self.readFramebuffer(3,1,numpy.float32)
             },
             {
                 'time': time,
@@ -246,7 +213,7 @@ void main() {
 
         return array
 
-    def update(self):
+    def _update(self):
 
         phi_samples = self.getRange(self.inputs.phi_samples.get(),360)
         theta_samples = self.getRange(self.inputs.theta_samples.get(),360)
@@ -254,18 +221,10 @@ void main() {
 
         # create framebuffer
         res = self.inputs.resolution.get()
-        self.program['iResolution'].value = res
+        self.initFramebuffer(res,[4,1,1,1],['f1','f4','f4','f4'])
 
-        # fbo = self.ctx.simple_framebuffer(res)
-        fbo = self.ctx.framebuffer(
-          color_attachments = [
-            self.ctx.renderbuffer(size=res, components=4, dtype='f1'),
-            self.ctx.renderbuffer(size=res, components=1, dtype='f4'),
-            self.ctx.renderbuffer(size=res, components=1, dtype='f4'),
-            self.ctx.renderbuffer(size=res, components=1, dtype='f4')
-          ]
-        )
-        fbo.use()
+        self.program['iResolution'].value = res
+        self.program['NAN'].value = numpy.nan
 
         objects = self.inputs.objects.get()
         objects_meta = ['p','s0','s1']
@@ -278,19 +237,8 @@ void main() {
             for theta in theta_samples:
                 for phi in phi_samples:
                     results.append(
-                        self.render(
-                            fbo,
-                            phi,
-                            theta,
-                            time,
-                            objects_meta
-                        )
+                        self.render(phi, theta, time, objects_meta)
                     )
-
-        # release resources
-        fbo.release()
-
-        # self.ctx.release()
 
         self.outputs.images.set(results);
 

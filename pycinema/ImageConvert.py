@@ -10,7 +10,7 @@ class ImageConvert(Filter):
         self.addInputPort("images", []);
         self.addOutputPort("images", []);
 
-    def update(self):
+    def _update(self):
         result = []
         for image in self.inputs.images.get():
 

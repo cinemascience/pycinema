@@ -12,7 +12,7 @@ class Border(Filter):
         self.addInputPort("images", [])
         self.addOutputPort("images", [])
 
-    def update(self):
+    def _update(self):
 
         images = self.inputs.images.get()
 
