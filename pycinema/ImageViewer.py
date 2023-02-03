@@ -1,7 +1,11 @@
 from .Core import *
 
-import matplotlib.pyplot as plt
-import math
+# import math
+import IPython
+from ipycanvas import Canvas
+import ipywidgets
+
+import numpy
 
 class ImageViewer(Filter):
 
@@ -13,54 +17,35 @@ class ImageViewer(Filter):
 
         self.nImages = -1
 
-        plt.ioff()
-        self.fig = plt.figure()
-        self.fig.tight_layout()
+        self.canvases = []
 
-    def update(self):
+    def _update(self):
 
         container = self.inputs.container.get()
-        if container == None:
-            self.fig.show()
-        else:
-            with container:
-                self.fig.show()
+        if container==None:
+            container = ipywidgets.HBox()
+            IPython.display.display(container)
 
         images = self.inputs.images.get()
         nImages = len(images)
 
         if self.nImages != nImages:
             self.nImages = nImages
-            self.fig.clear()
-            self.plots = []
-            dim = math.ceil(math.sqrt(self.nImages))
-            for i,image in enumerate(images):
-                axis = self.fig.add_subplot(dim, dim, i+1)
-                axis.set_axis_off()
 
-                if not 'rgba' in image.channels:
-                    self.plots.append( [axis,None] )
-                else:
-                    im = axis.imshow(image.channels['rgba'])
-                    self.plots.append( [axis,im] )
+            canvases = []
+            container.layout.flex_flow='row wrap'
+            for i,image in enumerate(images):
+                canvas = Canvas(width=image.shape[1], height=image.shape[0])
+                canvas.layout.min_width=str(image.shape[1])+"px"
+                canvas.layout.min_height=str(image.shape[0])+"px"
+                canvas.layout.object_fit= 'contain'
+                canvas.layout.margin= '0 0.5em 1em 0.5em'
+                canvas.layout.border= '0.01em solid #ccc'
+                canvases.append(canvas)
+            container.children = canvases
 
         for i,image in enumerate(images):
-            if not 'rgba' in image.channels:
-                continue
-            if self.plots[i][1] == None:
-                self.plots[i][1] = self.plots[i][0].imshow(image.channels['rgba'])
-            else:
-                self.plots[i][1].set_data(image.channels['rgba'])
-
-        self.fig.subplots_adjust(
-            left=0,
-            bottom=0,
-            right=1,
-            top=1,
-            wspace=0.05,
-            hspace=0.05
-        )
-
-        self.fig.canvas.draw()
+            # container.children[i].clear_rect(0, 0, image.channels['rgba'].shape[1], image.channels['rgba'].shape[0])
+            container.children[i].put_image_data(image.channels['rgba'], 0, 0)
 
         return 1

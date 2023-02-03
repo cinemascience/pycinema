@@ -11,8 +11,7 @@ class NumberWidget(Filter):
 
         def on_change(change):
             if change['type'] == 'change' and change['name'] == 'value':
-                if self.outputs.number.get() != change['new']:
-                    self.outputs.number.set(change['new'])
+                self.update()
 
         if range:
             self.widget = ipywidgets.FloatSlider(
@@ -30,8 +29,8 @@ class NumberWidget(Filter):
 
         self.widget.observe(on_change)
 
-        port.set(self.outputs.number)
+        port.set(self.outputs.number, False)
 
-    def update(self):
-
+    def _update(self):
+        self.outputs.number.set(float(self.widget.value))
         return 1

@@ -112,7 +112,7 @@ void main(){
 
         return outImage
 
-    def update(self):
+    def _update(self):
 
         results = []
 

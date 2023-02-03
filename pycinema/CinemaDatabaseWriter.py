@@ -32,6 +32,9 @@ class CinemaDatabaseWriter(Filter):
         fMeta = file.create_group('meta')
         for k in image.meta:
             data = image.meta[k]
+            if type(data) is set:
+                continue
+
             if type(data) is numpy.ndarray and data.size>1:
                 fMeta.create_dataset(k,data=data, compression='gzip', compression_opts=9)
             elif isinstance(data, str):
@@ -41,7 +44,7 @@ class CinemaDatabaseWriter(Filter):
 
         file.close()
 
-    def update(self):
+    def _update(self):
 
         images = self.inputs.images.get()
         path = self.inputs.path.get()
