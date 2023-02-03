@@ -7,10 +7,10 @@ class CinemaDatabaseReader(Filter):
     def __init__(self):
         super().__init__();
         self.addInputPort("path", "./");
-        self.addInputPort("file_column", "FILE");
+        self.addInputPort("file_column", "file");
         self.addOutputPort("table", []);
 
-    def update(self):
+    def _update(self):
 
         table = [];
         dbPath = self.inputs.path.get();
@@ -22,6 +22,9 @@ class CinemaDatabaseReader(Filter):
 
         # remove empty lines
         table = list(filter(lambda row: len(row)>0, table))
+
+        # force lower case header
+        table[0] = list(map(str.lower,table[0]))
 
         # add dbPath prefix to file column
         fileColumnIdx = table[0].index( self.inputs.file_column.get() );

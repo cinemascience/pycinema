@@ -16,7 +16,7 @@ class ImageReader(Filter):
 
         self.cache = {}
 
-    def update(self):
+    def _update(self):
 
         table = self.inputs.table.get()
         fileColumn = self.inputs.file_column.get()
@@ -50,7 +50,6 @@ class ImageReader(Filter):
                     if group==None:
                         raise ValueError('h5 file not formatted correctly')
                     for k in group.keys():
-                        # print(k.lower(),group.get(k))
                         data = numpy.array(group.get(k))
                         if data.dtype == '|S10' and len(data)==1:
                             data = data[0].decode('UTF-8')
@@ -69,8 +68,7 @@ class ImageReader(Filter):
             # add meta data from data.csv
             for j in range(0, len(row)):
                 key = table[0][j]
-                if not key.lower() in image.meta:
-                    image.meta[key.lower()] = row[j]
+                image.meta[key] = row[j]
 
             if cache:
                 self.cache[path] = image

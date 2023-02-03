@@ -6,7 +6,8 @@ from .DepthCompositing import *
 from .ParameterWidgets import *
 from .Annotation import *
 from .ImageViewer import *
-from .ShaderSSAO import *
+from .ShaderIBS import *
+from .ShaderFXAA import *
 from .ColorMappingWidgets import *
 from .ColorMapping import *
 from .NumberWidget import *
@@ -16,10 +17,8 @@ import ipywidgets
 
 class CinemaDatabaseViewer(Filter):
 
-    def __init__(self, path, preload_query="SELECT * FROM input"):
+    def __init__(self, path):
         super().__init__()
-
-        self.addInputPort("path", "./")
 
         # Layout
         self.parameterWidgetsContainer = ipywidgets.VBox();
@@ -31,23 +30,20 @@ class CinemaDatabaseViewer(Filter):
             ipywidgets.Accordion(children=[self.colorMappingWidgetsContainer]),
             ipywidgets.Accordion(children=[self.shadingWidgetsContainer])
         ]);
+        self.leftColumn.layout.min_width = '28em'
+        self.leftColumn.layout.max_width = '28em'
         self.leftColumn.children[0].set_title(0,'Parameters')
         self.leftColumn.children[1].set_title(0,'Color Mapping')
         self.leftColumn.children[2].set_title(0,'Shading')
 
-        self.imageContainer = ipywidgets.Output()
+        self.imageContainer = ipywidgets.HBox()
         self.globalContainer = ipywidgets.HBox([self.leftColumn,self.imageContainer]);
 
         # Pipeline
         self.cinemaDatabaseReader  = CinemaDatabaseReader()
-        self.cinemaDatabaseReader.inputs.path.set(self.inputs.path, False)
-
-        preload_results = DatabaseQuery();
-        preload_results.inputs.table.set(self.cinemaDatabaseReader.outputs.table, False);
-        preload_results.inputs.sql.set(preload_query, False);
 
         self.parameterWidgets = ParameterWidgets()
-        self.parameterWidgets.inputs.table.set(preload_results.outputs.table,False)
+        self.parameterWidgets.inputs.table.set(self.cinemaDatabaseReader.outputs.table,False)
         self.parameterWidgets.inputs.container.set(self.parameterWidgetsContainer,False)
 
         self.databaseQuery = DatabaseQuery()
@@ -59,6 +55,7 @@ class CinemaDatabaseViewer(Filter):
 
         self.depthCompositing = DepthCompositing()
         self.depthCompositing.inputs.images_a.set(self.imageReader.outputs.images,False)
+        self.depthCompositing.inputs.composite_by_meta.set(self.parameterWidgets.outputs.composite_by_meta,False)
 
         self.colorMappingWidgets = ColorMappingWidgets()
         self.colorMappingWidgets.inputs.images.set(self.depthCompositing.outputs.images,False)
@@ -69,17 +66,24 @@ class CinemaDatabaseViewer(Filter):
         self.colorMapping.inputs.map.set(self.colorMappingWidgets.outputs.map,False)
         self.colorMapping.inputs.range.set(self.colorMappingWidgets.outputs.range,False)
         self.colorMapping.inputs.channel.set(self.colorMappingWidgets.outputs.channel,False)
+        self.colorMapping.inputs.nan.set(self.colorMappingWidgets.outputs.nan,False)
 
-        self.shaderSSAO = ShaderSSAO()
-        self.shaderSSAO.inputs.images.set(self.colorMapping.outputs.images,False)
+        self.shaderIBS = ShaderIBS()
+        self.shaderIBS.inputs.images.set(self.colorMapping.outputs.images,False)
 
         self.shadingWidgetsContainer.children = [
-            NumberWidget(self.shaderSSAO.inputs.radius, range=[0,1,0.01]).widget,
-            NumberWidget(self.shaderSSAO.inputs.samples, range=[1,256,1]).widget,
+            NumberWidget(self.shaderIBS.inputs.radius, range=[0,1,0.01]).widget,
+            NumberWidget(self.shaderIBS.inputs.samples, range=[1,256,1]).widget,
+            NumberWidget(self.shaderIBS.inputs.silhouette, range=[0.01,1,0.01]).widget,
+            NumberWidget(self.shaderIBS.inputs.luminance, range=[0,2,0.01]).widget,
+            NumberWidget(self.shaderIBS.inputs.ambient, range=[0,2,0.01]).widget,
         ]
 
+        self.shaderFXAA = ShaderFXAA()
+        self.shaderFXAA.inputs.images.set(self.shaderIBS.outputs.images,False)
+
         self.annotation = Annotation()
-        self.annotation.inputs.images.set(self.shaderSSAO.outputs.images,False)
+        self.annotation.inputs.images.set(self.shaderFXAA.outputs.images,False)
 
         self.imageViewer = ImageViewer()
         self.imageViewer.inputs.images.set( self.annotation.outputs.images, False )
@@ -87,7 +91,4 @@ class CinemaDatabaseViewer(Filter):
 
         IPython.display.display(self.globalContainer)
 
-        self.inputs.path.set(path)
-
-    def update(self):
-        return 1
+        self.cinemaDatabaseReader.inputs.path.set(path)

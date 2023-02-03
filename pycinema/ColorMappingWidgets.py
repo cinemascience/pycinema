@@ -1,6 +1,7 @@
 from .Core import *
 
 import ipywidgets
+import matplotlib.colors as colors
 
 class ColorMappingWidgets(Filter):
 
@@ -14,8 +15,10 @@ class ColorMappingWidgets(Filter):
         self.addOutputPort("range", (0,1))
         self.addOutputPort("channel", "depth")
 
-        def on_change(change):
-            if change['type'] == 'change' and change['name'] == 'value':
+        self.mute = False
+
+        def change_observer(change):
+            if not self.mute and change['type'] == 'change' and change['name'] == 'value':
                 self.update()
         def rgba_observer(change):
             if change['type'] == 'change' and change['name'] == 'value':
@@ -23,50 +26,80 @@ class ColorMappingWidgets(Filter):
                 self.mapWidget.disabled = disabled
                 self.minWidget.disabled = disabled
                 self.maxWidget.disabled = disabled
+        def fixed_observer(change):
+            if change['type'] == 'change' and change['name'] == 'value':
+                self.fixedColorWidget.disabled = change['new'] != 'fixed'
 
         self.mapWidget = ipywidgets.Dropdown(
             description='Colormap:',
             options=[
+                'plasma',
+
                 'Greys', 'Purples', 'Blues', 'Greens', 'Oranges', 'Reds',
                 'YlOrBr', 'YlOrRd', 'OrRd', 'PuRd', 'RdPu', 'BuPu',
                 'GnBu', 'PuBu', 'YlGnBu', 'PuBuGn', 'BuGn', 'YlGn',
-                'plasma'
-            ]
+
+                'PiYG', 'PRGn', 'BrBG', 'PuOr', 'RdGy', 'RdBu', 'RdYlBu',
+                'RdYlGn', 'Spectral', 'coolwarm', 'bwr', 'seismic',
+
+                'fixed'
+            ],
+            value='plasma'
         )
-        self.mapWidget.observe(on_change)
+        self.mapWidget.observe(change_observer)
+        self.mapWidget.observe(fixed_observer)
 
         self.minWidget = ipywidgets.FloatText(
             value=0,
             step=0.05,
             description='Min:'
         )
-        self.minWidget.observe(on_change)
+        self.minWidget.observe(change_observer)
         self.maxWidget = ipywidgets.FloatText(
             value=1,
             step=0.05,
             description='Max:'
         )
-        self.maxWidget.observe(on_change)
+        self.maxWidget.observe(change_observer)
+
+        self.fixedColorWidget = ipywidgets.ColorPicker(
+            concise=False,
+            description='Fixed Color',
+            value='#f00',
+            disabled=True
+        )
+        self.fixedColorWidget.observe(change_observer)
+
+        self.nanColorWidget = ipywidgets.ColorPicker(
+            concise=False,
+            description='Nan Color',
+            value='#fff'
+        )
+        self.nanColorWidget.observe(change_observer)
 
         self.channelWidget = ipywidgets.Dropdown(
             description='Channel:'
         )
-        self.channelWidget.observe(on_change)
+        self.channelWidget.observe(change_observer)
         self.channelWidget.observe(rgba_observer)
 
-    def update(self):
+    def _update(self):
 
         images = self.inputs.images.get()
 
         # update channels if necessary
         if len(images):
-            firstImage = images[0]
-            if len(self.channelWidget.options)<1:
-                channels = list(firstImage.channels.keys())
-                channels.sort()
+            channels = list(images[0].channels.keys())
+            channels.sort()
+            channels = tuple(channels)
+            if self.channelWidget.options!=channels:
+                self.mute = True
                 self.channelWidget.options = channels
+                self.mute = False
                 if 'rgba' in channels:
                     self.channelWidget.value = 'rgba'
+                elif 'depth' in channels:
+                    self.channelWidget.value = 'depth'
                 else:
                     self.channelWidget.value = channels[0]
 
@@ -77,16 +110,21 @@ class ColorMappingWidgets(Filter):
               self.channelWidget,
               self.mapWidget,
               self.minWidget,
-              self.maxWidget
+              self.maxWidget,
+              self.nanColorWidget,
+              self.fixedColorWidget
             ]
 
         # sync outputs with widgets
-        if self.outputs.map.get() != self.mapWidget.value:
+        if self.mapWidget.value == 'fixed':
+            self.outputs.map.set(colors.to_rgba(self.fixedColorWidget.value))
+        else:
             self.outputs.map.set(self.mapWidget.value)
-        if self.outputs.channel.get() != self.channelWidget.value:
-            self.outputs.channel.set(self.channelWidget.value)
+
+        self.outputs.channel.set(self.channelWidget.value)
+        self.outputs.nan.set(colors.to_rgba(self.nanColorWidget.value))
+
         range = self.outputs.range.get()
-        if range[0] != self.minWidget.value or range[1] != self.maxWidget.value:
-            self.outputs.range.set((self.minWidget.value,self.maxWidget.value))
+        self.outputs.range.set((self.minWidget.value,self.maxWidget.value))
 
         return 1

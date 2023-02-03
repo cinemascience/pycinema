@@ -1,12 +1,15 @@
 from .Shader import *
 
-class ShaderSSAO(Shader):
+class ShaderIBS(Shader):
     def __init__(self):
         super().__init__(['rgbaTex','depthTex'])
         self.addInputPort("images", [])
         self.addInputPort("radius", 0.03)
         self.addInputPort("samples", 32)
         self.addInputPort("diff", 0.5)
+        self.addInputPort("silhouette", 0.01)
+        self.addInputPort("ambient", 0.2)
+        self.addInputPort("luminance", 0.2)
         self.addOutputPort("images", [])
 
     def getFragmentShaderCode(self):
@@ -19,6 +22,10 @@ uniform float radius;
 uniform float diff_area;
 uniform int samples;
 uniform vec2 resolution;
+
+uniform float silhouette;
+uniform float ambient;
+uniform float luminance;
 
 in vec2 uv;
 out vec4 color;
@@ -64,8 +71,8 @@ float calcAO( float depth, float dw, float dh, vec2 uv ) {
     return temp1;
 }
 
-void main(){
-    float depth = readDepth( uv );
+float computeSSAO(vec2 coord){
+    float depth = readDepth( coord );
 
     float samplesF = samples;
     float occlusion = 0.0;
@@ -80,15 +87,68 @@ void main(){
         float r = sqrt( 1.0 - z ) * radius;
         float pw = cos( l ) * r;
         float ph = sin( l ) * r;
-        occlusion += calcAO( depth, pw * aspect, ph, uv );
+        occlusion += calcAO( depth, pw * aspect, ph, coord );
         z = z - dz;
         l = l + DL;
     }
 
-    float ao = depth>0.99 ? 1.0 : 1.-occlusion/samplesF;
+    return depth>0.99 ? 1.0 : 1.-occlusion/samplesF;
+}
 
-    vec4 rgba = texture(rgbaTex,uv);
-    color = vec4(mix(vec3(0),rgba.rgb,ao+0.2),rgba.a);
+vec3 computeIBS(vec2 coord){
+  vec4 rgba = texture(rgbaTex,coord);
+
+  float ao = computeSSAO(coord);
+  float depth = readDepth(coord);
+
+  // Compute Luminance
+  vec3 lumcoeff = vec3( 0.299, 0.587, 0.114 );
+  vec3 luminanceF = vec3( dot( rgba.rgb, lumcoeff ) );
+
+  // Silhouette Effect
+  vec2 pixelSize = 1./resolution;
+  vec3 eps = 2.0*vec3( pixelSize.x, pixelSize.y, 0 );
+  float depthN = readDepth(coord + eps.zy);
+  float depthE = readDepth(coord + eps.xz);
+  float depthS = readDepth(coord - eps.zy);
+  float depthW = readDepth(coord - eps.xz);
+
+  float dxdz = abs(depthE-depthW);
+  float dydz = abs(depthN-depthS);
+  // float dxdz = dFdx(depth);
+  // float dydz = dFdy(depth);
+
+  vec3 n = normalize( vec3(dxdz, dydz, 1./silhouette) );
+  vec3 lightPos = vec3(0,0,1);
+  float lightInt = 1.0*dot(n,normalize(lightPos));
+
+  vec3 outputColor = vec3( rgba.rgb * mix( vec3(ao), vec3(1.0), luminanceF * luminance ) );
+
+  return outputColor*ambient + outputColor*lightInt;
+}
+
+void main(){
+
+    vec2 pixelSize = 1./resolution;
+    // vec3 eps = 0.5*0.5*vec3( pixelSize.x, pixelSize.y, 0 );
+
+    float dx = pixelSize.x/8.0;
+    float dy = pixelSize.y/8.0;
+
+    // |- - x -|
+    // |x - - -|
+    // |- - - x|
+    // |- x - -|
+
+    vec3 c0 = computeIBS(uv + vec2(     dx, 3.0*dy) );
+    vec3 c1 = computeIBS(uv + vec2(-3.0*dx,     dy) );
+    vec3 c2 = computeIBS(uv + vec2( 3.0*dx,    -dy) );
+    vec3 c3 = computeIBS(uv + vec2(    -dx,-3.0*dy) );
+
+    vec3 c = (c0+c1+c2+c3)/4.0;
+
+    //color = vec4(c, rgba.a);
+    color = vec4(c, 1.0);
 }
 
 """
@@ -135,6 +195,9 @@ void main(){
         self.program['radius'].value = float(self.inputs.radius.get())
         self.program['samples'].value = int(self.inputs.samples.get())
         self.program['diff_area'].value = float(self.inputs.diff.get())
+        self.program['silhouette'].value = float(self.inputs.silhouette.get()*500)
+        self.program['ambient'].value = float(self.inputs.ambient.get())
+        self.program['luminance'].value = float(self.inputs.luminance.get())
 
         # create textures
         self.rgbaTex = self.createTexture(0,res,shape[2],dtype='f1')

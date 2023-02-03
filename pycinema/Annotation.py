@@ -14,7 +14,7 @@ class Annotation(Filter):
         self.addInputPort("spacing", 0)
         self.addInputPort("color", 'AUTO')
         self.addInputPort("images", [])
-        self.addInputPort("ignore", ['FILE','id'])
+        self.addInputPort("ignore", ['file','id'])
         self.addOutputPort("images", [])
 
     #
@@ -45,7 +45,7 @@ class Annotation(Filter):
 
         return font
 
-    def update(self):
+    def _update(self):
 
         images = self.inputs.images.get()
 
@@ -69,7 +69,7 @@ class Annotation(Filter):
 
         font = self.__get_font(self.inputs.size.get())
 
-        ignoreList = list(map(str.lower, self.inputs.ignore.get()))
+        ignoreList = self.inputs.ignore.get()
 
         for image in images:
             if not 'rgba' in image.channels:
@@ -80,7 +80,7 @@ class Annotation(Filter):
             rgbImage = PIL.Image.fromarray( rgba )
             text = ''
             for t in image.meta:
-                if t.lower() in ignoreList:
+                if t in ignoreList:
                     continue
                 m = image.meta[t]
                 if isinstance(m, numpy.ndarray):

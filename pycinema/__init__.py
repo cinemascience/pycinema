@@ -22,4 +22,6 @@ from .Shader import *
 from .ShaderPBR import *
 from .ShaderPhong import *
 from .ShaderSSAO import *
+from .ShaderFXAA import *
+from .ShaderIBS import *
 

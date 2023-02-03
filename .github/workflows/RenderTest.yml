@@ -42,7 +42,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Dependencies
         run: |
-          python -m pip install scikit-build
+          python -m pip install --upgrade pip setuptools
           python -m pip install pytest
           python setup.py install
       - name: Test using ModernGL

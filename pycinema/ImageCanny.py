@@ -13,7 +13,7 @@ class ImageCanny(Filter):
         self.addInputPort("images", []);
         self.addOutputPort("images", []);
 
-    def update(self):
+    def _update(self):
         result = []
         # iterate over all the images in the input images
         for image in self.inputs.images.get():
