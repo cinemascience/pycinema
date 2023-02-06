@@ -25,7 +25,7 @@ setuptools.setup(
         "numpy==1.24.2",
         "scipy==1.10.0",
         "h5py==3.8.0",
-        "matplotlib==3.7.0",
+        "matplotlib==3.6.0",
         "py==1.11.0",
         "Pillow==9.4.0",
         "ipywidgets==8.0.4",
