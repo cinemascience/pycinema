@@ -30,6 +30,7 @@ setuptools.setup(
         "Pillow",
         "ipywidgets",
         "ipycanvas",
+        "jupyterlab_widgets",
         "moderngl<6",
         "opencv-python"
     ],
