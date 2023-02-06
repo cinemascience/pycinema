@@ -7,7 +7,7 @@ The code in this repository is released under open source license. See the licen
 
 All code and examples are prototype and for design purposes only
 
-# Creating a local python environment for the workbench
+# Creating a local python environment
 
 To create a local python environment for this project, run the following commands within the repository directory:
 ```
@@ -43,7 +43,7 @@ make module-upload
 
 - [CIS image proposal](doc/cis_proposal.md)
 
-# Contributing to the workbench
+# Contributing
 
 Contributions can be made by submitting issues and contributing code through pull requests. The code shall be reviewed by the core Cinema team, and accepted when both content and code standards are met.
 
