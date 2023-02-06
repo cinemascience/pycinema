@@ -14,7 +14,7 @@ To create a local python environment for this project, run the following command
 python3 -m venv csenv
 source csenv/bin/activate
 python setup.py install
-pip install jupyterlab
+pip install jupyter-lab
 jupyter labextension install @jupyter-widgets/jupyterlab-manager ipycanvas
 ```
 
@@ -24,7 +24,7 @@ You can now use this python environment to run several examples, using `make`. R
 
 ```
 source csenv/bin/activate
-make example
+jupyter-lab
 ```
 
 # Making and uploading the python module
