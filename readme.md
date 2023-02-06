@@ -7,6 +7,9 @@ The code in this repository is released under open source license. See the licen
 
 All code and examples are prototype and for design purposes only
 
+# Requirements
+The `jupyterlab` extensions that `pycinema` uses require that *node.js* be installed on your system.
+
 # Creating a local python environment
 
 To create a local python environment for this project, run the following commands within the repository directory:
@@ -14,6 +17,7 @@ To create a local python environment for this project, run the following command
 python3 -m venv csenv
 source csenv/bin/activate
 python setup.py install
+pip install --upgrade pip
 pip install jupyterlab
 jupyter labextension install @jupyter-widgets/jupyterlab-manager ipycanvas
 ```
