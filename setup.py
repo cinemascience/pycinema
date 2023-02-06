@@ -22,17 +22,17 @@ setuptools.setup(
     include_package_data=True,
     packages=[  "pycinema"  ],
     install_requires=[
-        "numpy",
-        "scipy",
-        "h5py",
-        "matplotlib",
-        "py",
-        "Pillow",
-        "ipywidgets",
-        "ipycanvas",
-        "jupyterlab_widgets",
+        "numpy==1.24.2",
+        "scipy==1.10.0",
+        "h5py==3.8.0",
+        "matplotlib==3.7.0",
+        "py==1.11.0",
+        "Pillow==9.4.0",
+        "ipywidgets==8.0.4",
+        "ipycanvas==0.13.1",
+        "jupyterlab_widgets==3.0.5",
         "moderngl<6",
-        "opencv-python"
+        "opencv-python==4.7.0.68"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
