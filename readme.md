@@ -1,5 +1,5 @@
 # Cinema Engine repository 
-![smoke](https://github.com/cinemascience/workbench/actions/workflows/RenderTest.yml/badge.svg)
+![smoke](https://github.com/cinemascience/pycinema/actions/workflows/RenderTest.yml/badge.svg)
 
 Cinema v2.0 is a newly designed toolkit of python-based components for creating, filtering, transforming and viewing Cinema databases. The toolkit shall maintain compatibility with Cinema data specifications.
 
