@@ -24,7 +24,7 @@ jupyter labextension install @jupyter-widgets/jupyterlab-manager ipycanvas
 
 # Running examples
 
-You can now use this python environment to run several examples, using `make`. Running `make example` will create a directory under `testing/`, copy files, and run a jupyter notebook example:
+You can now use this python environment to run examples from the repository. Run `jupyter-lab` and select a file from the `examples` directory:
 
 ```
 source csenv/bin/activate
