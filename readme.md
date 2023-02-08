@@ -15,12 +15,11 @@ python3 -m venv csenv
 source csenv/bin/activate
 python setup.py install
 pip install --upgrade pip
-pip uninstall ipycanvas
+pip uninstall jupyterlab_widgets 
 pip uninstall ipywidgets
-pip install jupyterlab
-pip install ipycanvas
-pip install ipywidgets
-pip install jupyter_widgets
+pip uninstall ipycanvas
+pip install   jupyterlab
+pip install   ipycanvas
 ```
 
 # Running examples
