@@ -30,9 +30,8 @@ setuptools.setup(
         "Pillow==9.4.0",
         "moderngl<6",
         "opencv-python==4.7.0.68",
-        "ipywidgets==8.0.4",
         "ipycanvas==0.13.1",
-        "jupyterlab_widgets==3.0.5"
+        "ipywidgets==8.0.4"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
