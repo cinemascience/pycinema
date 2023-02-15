@@ -18,3 +18,6 @@ module:
 
 module-upload:
 	twine upload dist/*
+
+module-test-upload:
+	twine upload --repository testpypi dist/* 

@@ -7,6 +7,13 @@ The code in this repository is released under open source license. See the licen
 
 All code and examples are prototype and for design purposes only
 
+# Installing and running with the pycinema module
+
+```
+pip install pycinema 
+pip install jupyterlab
+pip install .
+
 # Creating a local python environment
 
 To create a local python environment for this project, run the following commands within the repository directory:
