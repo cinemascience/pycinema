@@ -10,6 +10,8 @@ All code and examples are prototype and for design purposes only
 # Installing and running with the pycinema module
 
 ```
+python3 -m venv pcenv
+source pcenv/bin/activate
 pip install --upgrade pip
 pip install pycinema 
 pip install jupyterlab
@@ -18,6 +20,8 @@ pip install jupyterlab
 # Installing and running with the test pycinema module
 
 ```
+python3 -m venv pcenv
+source pcenv/bin/activate
 pip install --upgrade pip
 pip install -i https://test.pypi.org/simple/ --extra-index https://pypi.org/simple pycinema
 pip install jupyterlab
@@ -27,8 +31,8 @@ pip install jupyterlab
 
 To create a local python environment for this project, run the following commands within the repository directory:
 ```
-python3 -m venv csenv
-source csenv/bin/activate
+python3 -m venv pcenv
+source pcenv/bin/activate
 pip install --upgrade pip
 pip install jupyterlab
 pip install .
@@ -39,7 +43,7 @@ pip install .
 You can now use this python environment to run examples from the repository. Run `jupyter-lab` and select a file from the `examples` directory:
 
 ```
-source csenv/bin/activate
+source pcenv/bin/activate
 jupyter-lab
 ```
 
