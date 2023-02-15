@@ -15,6 +15,14 @@ pip install pycinema
 pip install jupyterlab
 ```
 
+# Installing and running with the test pycinema module
+
+```
+pip install --upgrade pip
+pip install -i https://test.pypi.org/simple/ --extra-index https://pypi.org/simple pycinema
+pip install jupyterlab
+```
+
 # Creating a local python environment
 
 To create a local python environment for this project, run the following commands within the repository directory:
@@ -45,7 +53,14 @@ And then to upload it to `pypi` (assuming you have permission):
 
 ```
 make module-upload
+
+To upload it to `testpypi` (assuming you have permission):
+
 ```
+make module-test-upload
+```
+
+``
 
 # Design proposals
 
