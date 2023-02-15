@@ -13,7 +13,6 @@ All code and examples are prototype and for design purposes only
 pip install --upgrade pip
 pip install pycinema 
 pip install jupyterlab
-pip install .
 ```
 
 # Creating a local python environment
