@@ -5,7 +5,7 @@ Cinema v2.0 is a newly designed toolkit of python-based components for creating,
 
 The code in this repository is released under open source license. See the license file for more information.
 
-# Installing and running with the pycinema module
+## Installing and running with the pycinema module
 
 ```
 python3 -m venv pcenv
@@ -15,7 +15,7 @@ pip install pycinema
 pip install jupyterlab
 ```
 
-# Installing and running with the test pycinema module
+## Installing and running with the test pycinema module
 
 ```
 python3 -m venv pcenv
