@@ -10,9 +10,11 @@ All code and examples are prototype and for design purposes only
 # Installing and running with the pycinema module
 
 ```
+pip install --upgrade pip
 pip install pycinema 
 pip install jupyterlab
 pip install .
+```
 
 # Creating a local python environment
 
