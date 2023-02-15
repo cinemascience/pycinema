@@ -53,14 +53,13 @@ And then to upload it to `pypi` (assuming you have permission):
 
 ```
 make module-upload
+```
 
 To upload it to `testpypi` (assuming you have permission):
 
 ```
 make module-test-upload
 ```
-
-``
 
 # Design proposals
 
