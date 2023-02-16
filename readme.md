@@ -9,7 +9,7 @@ Cinema databases are a compact and interactive output format that can be created
 
 |![workflow](doc/img/workflow.png)|
 | ---- |
-|*Diagram of a Cinema Engine pipeline, showing how a Cinema database is read from disk, rendered and then viewed with filers in the toolkit. UI widgets in a jupyter-lab notebook allow the user to control colors, objects, and rendering paramters to create a finished image.*\
+|*Diagram of a Cinema Engine pipeline, showing how a Cinema database is read from disk, rendered and then viewed with filers in the toolkit. UI widgets in a jupyter-lab notebook allow the user to control colors, objects, and rendering paramters to create a finished image.*|
 
 # Working with the code and the `pycinema` module
 
