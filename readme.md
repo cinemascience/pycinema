@@ -7,7 +7,7 @@ Cinema v2.0 is a newly designed toolkit of python-based components for creating,
 
 Cinema databases are a compact and interactive output format that can be created from scientific visualization tools and infrastructures (ParaView, Ascent, etc.) or created through other code by writing to the common output format. 
 
-[workflow](doc/img/workflow.png)
+![workflow](doc/img/workflow.png)
 
 # Working with the code and the `pycinema` module
 
