@@ -18,7 +18,8 @@ python3 -m venv pcenv
 source pcenv/bin/activate
 pip install --upgrade pip
 pip install pycinema 
-pip install jupyterlab ```
+pip install jupyterlab 
+```
 
 ## Installing and running with the test pycinema module
 
