@@ -1,9 +1,15 @@
 # Cinema Engine repository 
 ![smoke](https://github.com/cinemascience/pycinema/actions/workflows/RenderTest.yml/badge.svg)
 
-Cinema v2.0 is a newly designed toolkit of python-based components for creating, filtering, transforming and viewing Cinema databases. There is more information about the Cinema project [here](https://cinemascience.github.io) 
+Cinema v2.0 is a newly designed toolkit of python-based components for creating, filtering, transforming and viewing Cinema databases. There is more information about the Cinema project [here](https://cinemascience.github.io).
 
-The code in this repository is released under open source license. See the license file for more information.
+## Overview
+
+Cinema databases are a compact and interactive output format that can be created from scientific visualization tools and infrastructures (ParaView, Ascent, etc.) or created through other code by writing to the common output format. 
+
+[workflow](doc/img/workflow.png)
+
+# Working with the code and the `pycinema` module
 
 ## Installing and running with the pycinema module
 
@@ -12,8 +18,7 @@ python3 -m venv pcenv
 source pcenv/bin/activate
 pip install --upgrade pip
 pip install pycinema 
-pip install jupyterlab
-```
+pip install jupyterlab ```
 
 ## Installing and running with the test pycinema module
 
@@ -70,5 +75,3 @@ make module-test-upload
 # Contributing
 
 Contributions can be made by submitting issues and contributing code through pull requests. The code shall be reviewed by the core Cinema team, and accepted when both content and code standards are met.
-
-
