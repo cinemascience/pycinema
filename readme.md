@@ -17,7 +17,7 @@ Cinema databases are a compact and interactive output format that can be created
 python3 -m venv pcenv
 source pcenv/bin/activate
 pip install --upgrade pip
-pip install pycinema 
+pip install . 
 pip install jupyterlab 
 ```
 
