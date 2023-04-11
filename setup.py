@@ -31,7 +31,7 @@ setuptools.setup(
         "moderngl<6",
         "opencv-python==4.7.0.68",
         "ipycanvas==0.13.1",
-        "ipywidgets==8.0.4"
+        "ipywidgets==8.0.6"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
