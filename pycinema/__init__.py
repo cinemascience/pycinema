@@ -14,6 +14,7 @@ from .DepthCompositing import *
 from .ImageCanny import *
 from .ImageConvert import *
 from .ImageGeneratorCNN import *
+from .ImageGeneratorXinemax2D import *
 from .ImageReader import *
 from .ImageViewer import *
 from .MaskCompositing import *
