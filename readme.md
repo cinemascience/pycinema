@@ -1,4 +1,4 @@
-# Cinema Engine repository 
+# Cinema Engine
 ![smoke](https://github.com/cinemascience/pycinema/actions/workflows/RenderTest.yml/badge.svg)
 
 Cinema v2.0 is a newly designed toolkit of python-based components for creating, filtering, transforming and viewing Cinema databases. There is more information about the Cinema project [here](https://cinemascience.github.io).
@@ -72,6 +72,11 @@ make module-test-upload
 # Design proposals
 
 - [CIS image proposal](doc/cis_proposal.md)
+
+# Citing this work
+
+- Cinema paper (2014): James Ahrens, Sébastien Jourdain, Patrick O'Leary, John Patchett, David H. Rogers, and Mark Petersen. *An image-based approach to extreme scale in situ visualization and analysis*. In Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis (SC '14). IEEE Press, Piscataway, NJ, USA, 424-434, 2014. 
+- ```pycinema``` (this toolkit): Cite this web page
 
 # Contributing
 
