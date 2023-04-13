@@ -29,6 +29,8 @@ jobs:
           whereis cuda
           whereis cudnn
           find /usr/lib/cuda -name "*cudnn.so*"
+          ls -la /usr/lib/cuda
+          ls -la /usr/lib/cuda/*
           python setup.py install
       - name: Test using ModernGL
         run: |
