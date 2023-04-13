@@ -24,7 +24,7 @@ jobs:
           python -m pip install pytest pytest-xvfb
       - name: Dependencies
         run: |
-          nvdd --version
+          nvcc --version
           python setup.py install
       - name: Test using ModernGL
         run: |
