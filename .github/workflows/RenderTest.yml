@@ -21,6 +21,7 @@ jobs:
           python -m pip install --upgrade pip
           sudo apt-get install libglu1-mesa-dev xvfb
           sudo apt-get install nvidia-cuda-toolkit
+          nvcc --version
           python -m pip install pytest pytest-xvfb
       - name: Dependencies
         run: |
