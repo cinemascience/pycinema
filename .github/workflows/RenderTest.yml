@@ -28,10 +28,10 @@ jobs:
           nvcc --version
           whereis cuda
           whereis cudnn
-          find /usr/lib/cuda -name "*cudnn.so*"
+          find /usr/local/cuda -name "*cudnn.so*"
           ls -la /usr/lib/cuda
           ls -la /usr/lib/cuda/*
-          export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/lib/cuda/lib64"
+          export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/cuda/lib64"
           python setup.py install
       - name: Test using ModernGL
         run: |
