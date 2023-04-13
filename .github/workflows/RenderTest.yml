@@ -26,6 +26,7 @@ jobs:
       - name: Dependencies
         run: |
           nvcc --version
+          whereis cuda
           python setup.py install
       - name: Test using ModernGL
         run: |
