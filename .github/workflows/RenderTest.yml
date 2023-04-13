@@ -28,6 +28,7 @@ jobs:
           nvcc --version
           whereis cuda
           whereis cudnn
+          find /usr/lib/cuda -name "*cudnn.so*"
           python setup.py install
       - name: Test using ModernGL
         run: |
