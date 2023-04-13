@@ -27,6 +27,7 @@ jobs:
         run: |
           nvcc --version
           whereis cuda
+          whereis cudnn
           python setup.py install
       - name: Test using ModernGL
         run: |
