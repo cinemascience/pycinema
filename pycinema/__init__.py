@@ -15,13 +15,14 @@ from .ImageCanny import *
 from .ImageConvert import *
 from .ImageReader import *
 from .ImageViewer import *
+from .LineAOViewer import *
 from .MaskCompositing import *
 from .NumberWidget import *
 from .ParameterWidgets import *
 from .Shader import *
+from .ShaderLineAO import *
 from .ShaderPBR import *
 from .ShaderPhong import *
 from .ShaderSSAO import *
 from .ShaderFXAA import *
 from .ShaderIBS import *
-
