@@ -84,11 +84,16 @@ class Filter():
 
     _debug = False
     _processing = False
+    _filters = {}
 
     def __init__(self):
         self.inputs = PortList()
         self.outputs = PortList()
         self.time = -2
+        self._filters[self] = self
+
+    def __del__(self):
+        del self._filters[self]
 
     def addInputPort(self, name, value):
         setattr(self.inputs, name, Port(name, value, self, True))
@@ -101,28 +106,31 @@ class Filter():
         return 1
 
     def computeDAG(self,edges):
-        if self in edges:
-            return 1
+        for f in self._filters:
+            edges[f] = set({})
 
-        edges[self] = set({})
-
-        for name in [o for o in dir(self.outputs) if not o.startswith('__')]:
-            port = getattr(self.outputs, name)
-            for listener in port.connections:
-                edges[self].add(listener.parent)
-                listener.parent.computeDAG(edges)
+        for f in self._filters:
+            for name in [o for o in dir(f.outputs) if not o.startswith('__')]:
+                port = getattr(f.outputs, name)
+                for listener in port.connections:
+                    edges[f].add(listener.parent)
 
         return 1
 
     def computeTopologicalOrdering(self,edges):
-      L = []
-      S = [self]
+
       edgesR = {}
       for n in edges:
         for m in edges[n]:
           if not m in edgesR:
               edgesR[m] = 0
           edgesR[m]+=1
+
+      L = []
+      S = []
+      for f in self._filters:
+          if f not in edgesR or not edgesR[f]:
+              S.append(f)
 
       while len(S)>0:
           n = S.pop()
@@ -142,7 +150,10 @@ class Filter():
         edges = {}
         self.computeDAG(edges)
         filters = self.computeTopologicalOrdering(edges)
+
         if Filter._debug:
+            for k, v in edges.items():
+              print(k,v)
             print("DAG (%.2fs)" % (time.time()-dagt))
 
         for i,f in enumerate(filters):
@@ -152,7 +163,7 @@ class Filter():
                 iport = getattr(f.inputs, name)
                 if lt<iport.getTime():
                     needsUpdate = True
-            if i==0 or needsUpdate:
+            if f==self or needsUpdate:
                 t0 = time.time()
                 if Filter._debug:
                     print('PROCESS',f)

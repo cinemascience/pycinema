@@ -9,6 +9,7 @@ from .ColorMapping import *
 from .ColorMappingWidgets import *
 from .ColorSource import *
 from .DatabaseQuery import *
+from .DatabaseMerger import *
 from .DemoScene import *
 from .DepthCompositing import *
 from .ImageCanny import *
