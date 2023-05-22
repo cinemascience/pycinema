@@ -43,6 +43,9 @@ class ParameterWidgets(Filter):
     def generateWidgets(self):
 
         table = self.inputs.table.get()
+        if len(table)<1:
+          return 0
+
         header = table[0]
         self.widgets = []
 
@@ -187,22 +190,20 @@ class ParameterWidgets(Filter):
     def _update(self):
 
         table = self.inputs.table.get()
-        header = table[0]
-
-        sql = 'SELECT * FROM input WHERE '
+        if len(table)<1:
+          return 0
 
         # compute widgets
         if len(self.widgets) < 1:
             self.generateWidgets()
 
+        sql = {}
         for i,wt in enumerate(self.widgets):
             wsql = self.widgetToSQL(wt)
             if len(wsql)>0:
-                sql += wsql+ ' AND '
+                sql[wt['parameter']] = wsql
 
-        sql += ' '
-
-        self.outputs.sql.set(sql[:-6])
+        self.outputs.sql.set(sql)
 
         composite_by_meta = (None,{})
         for i,wt in enumerate(self.widgets):
