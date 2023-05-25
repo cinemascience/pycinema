@@ -28,7 +28,7 @@ jobs:
         run: |
           python -m pytest -s testing/RenderTest.py
 
-  macos11:
+  macos:
     strategy:
       matrix:
         python-version: [3.9]
