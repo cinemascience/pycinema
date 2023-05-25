@@ -28,7 +28,7 @@ parser = argparse.ArgumentParser( description="cinema: transform input data to c
                                   epilog=helptext,
                                   formatter_class=argparse.RawDescriptionHelpFormatter )
 
-parser.add_argument( "--version", action="version", version=__version__)
+parser.add_argument( "--version", action="version", version=pycinema.__version__)
 
 parser.parse_args()
 
