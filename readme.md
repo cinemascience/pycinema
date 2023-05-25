@@ -1,25 +1,45 @@
-# Cinema Engine repository 
+# Cinema Engine
 ![smoke](https://github.com/cinemascience/pycinema/actions/workflows/RenderTest.yml/badge.svg)
 
-Cinema v2.0 is a newly designed toolkit of python-based components for creating, filtering, transforming and viewing Cinema databases. The toolkit shall maintain compatibility with Cinema data specifications.
+Cinema v2.0 is a newly designed toolkit of python-based components for creating, filtering, transforming and viewing Cinema databases. There is more information about the Cinema project [here](https://cinemascience.github.io).
 
-The code in this repository is released under open source license. See the license file for more information.
+Cinema databases are a compact and interactive output format that can be created from scientific visualization tools and infrastructures (ParaView, Ascent, etc.) or created through other code by writing to the common output format. 
 
-All code and examples are prototype and for design purposes only
+|![workflow](doc/img/workflow.png)|
+| ---- |
+|*Diagram of a Cinema Engine pipeline, showing how a Cinema database is read from disk, rendered and then viewed with filers in the toolkit. UI widgets in a jupyter-lab notebook allow the user to control colors, objects, and rendering paramters to create a finished image.*|
+
+# Working with the code and the `pycinema` module
+
+## Installing and running with the pycinema module
+
+```
+python3 -m venv pcenv
+source pcenv/bin/activate
+pip install --upgrade pip
+pip install . 
+pip install jupyterlab 
+```
+
+## Installing and running with the test pycinema module
+
+```
+python3 -m venv pcenv
+source pcenv/bin/activate
+pip install --upgrade pip
+pip install -i https://test.pypi.org/simple/ --extra-index https://pypi.org/simple pycinema
+pip install jupyterlab
+```
 
 # Creating a local python environment
 
 To create a local python environment for this project, run the following commands within the repository directory:
 ```
-python3 -m venv csenv
-source csenv/bin/activate
-python setup.py install
+python3 -m venv pcenv
+source pcenv/bin/activate
 pip install --upgrade pip
-pip uninstall jupyterlab_widgets 
-pip uninstall ipywidgets
-pip uninstall ipycanvas
-pip install   jupyterlab
-pip install   ipycanvas
+pip install jupyterlab
+pip install .
 ```
 
 # Running examples
@@ -27,7 +47,7 @@ pip install   ipycanvas
 You can now use this python environment to run examples from the repository. Run `jupyter-lab` and select a file from the `examples` directory:
 
 ```
-source csenv/bin/activate
+source pcenv/bin/activate
 jupyter-lab
 ```
 
@@ -43,12 +63,21 @@ And then to upload it to `pypi` (assuming you have permission):
 make module-upload
 ```
 
+To upload it to `testpypi` (assuming you have permission):
+
+```
+make module-test-upload
+```
+
 # Design proposals
 
 - [CIS image proposal](doc/cis_proposal.md)
 
+# Citing this work
+
+- Cinema paper (2014): James Ahrens, Sébastien Jourdain, Patrick O'Leary, John Patchett, David H. Rogers, and Mark Petersen. *An image-based approach to extreme scale in situ visualization and analysis*. In Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis (SC '14). IEEE Press, Piscataway, NJ, USA, 424-434, 2014. 
+- ```pycinema``` (this toolkit): Cite this web page
+
 # Contributing
 
 Contributions can be made by submitting issues and contributing code through pull requests. The code shall be reviewed by the core Cinema team, and accepted when both content and code standards are met.
-
-

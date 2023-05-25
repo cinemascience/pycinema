@@ -51,26 +51,32 @@ class DatabaseQuery(Filter):
         self.executeSQL(db,sql)
 
     def queryData(self, db, sqlQuery):
-        c = db.cursor();
-        c.execute(sqlQuery);
-        res = c.fetchall();
-        columns = [];
+        c = db.cursor()
+        c.execute(sqlQuery)
+        res = c.fetchall()
+        columns = []
         for d in c.description:
-            columns.append(d[0]);
-        res.insert(0,columns);
-        return res;
+            columns.append(d[0])
+        res.insert(0,columns)
+        return res
 
     def _update(self):
 
-      db = sqlite3.connect(":memory:");
+      db = sqlite3.connect(":memory:")
 
-      table = self.inputs.table.get();
+      table = self.inputs.table.get()
+      sql = self.inputs.sql.get()
 
-      self.createTable(db, table);
-      self.insertData(db, table);
+      if isinstance(sql, dict):
+        header = table[0]
+        sql2 = {k: v for k, v in sql.items() if k in header}
+        sql = 'SELECT * FROM input WHERE '+ ' AND '.join(sql2.values())
 
-      output = self.queryData(db, self.inputs.sql.get());
+      self.createTable(db, table)
+      self.insertData(db, table)
 
-      self.outputs.table.set(output);
+      output = self.queryData(db, sql)
+
+      self.outputs.table.set(output)
 
       return 1;
