@@ -18,3 +18,10 @@ module:
 
 module-upload:
 	twine upload dist/*
+
+module-test-upload:
+	twine upload --repository testpypi dist/* 
+
+how-to:
+	@echo "pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple pycinema" 
+
