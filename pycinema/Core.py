@@ -1,4 +1,5 @@
 import time
+import traceback
 
 class Image():
     def __init__(self, channels=None, meta=None):
@@ -64,6 +65,7 @@ class Port():
         # if old value is a port stop listing for push events
         if isinstance(self._value, Port):
             self._value.connections.remove(self)
+            Filter.trigger('connection_removed', [self._value,self])
 
         # replace old value with new value
         self._value = value
@@ -71,46 +73,78 @@ class Port():
         # if new value is a port listen for push events
         if isinstance(self._value, Port):
             self._value.connections.append(self)
+            Filter.trigger('connection_added', [self._value,self])
 
         # if value of a port was changed trigger update of listeners
         if update and not Filter._processing:
             self.parent.update()
 
 class PortList():
-    def __init__(self):
+    def __init__(self, filter, ports, areInputs=True):
+        self.__ports = []
+        for name in ports:
+            self.__ports.append(name)
+            setattr(self, name, Port(name, ports[name], filter, areInputs))
         return
+
+    def ports(self):
+        return self.__ports
+    # def ports(self):
+    #     return [p for p in dir(self) if not p.startswith('__') and p!='ports']
+
 
 class Filter():
 
     _debug = False
     _processing = False
+    _ID_COUNTER = {}
     _filters = {}
+    _listeners = {}
 
-    def __init__(self):
-        self.inputs = PortList()
-        self.outputs = PortList()
+    @staticmethod
+    def on(eventName,listener):
+        if not eventName in Filter._listeners:
+            Filter._listeners[eventName] = []
+        Filter._listeners[eventName].append(listener)
+
+    @staticmethod
+    def trigger(eventName, data):
+        if not eventName in Filter._listeners:
+            return
+        for listener in Filter._listeners[eventName]:
+            listener(data)
+
+    def __init__(self, inputs={}, outputs={}):
+        if Filter._debug:
+            print('created',self)
+        cls = self.__class__.__name__
+        if cls  not in Filter._ID_COUNTER:
+            Filter._ID_COUNTER[cls] = 0
+        self.id = self.__class__.__name__+'_'+str(Filter._ID_COUNTER[cls])+''
+        Filter._ID_COUNTER[cls] += 1
+
+        self.inputs = PortList(self, inputs)
+        self.outputs = PortList(self, outputs, False)
         self.time = -2
         self._filters[self] = self
 
+        self.trigger('filter_created',self)
+
     def __del__(self):
-        del self._filters[self]
-
-    def addInputPort(self, name, value):
-        setattr(self.inputs, name, Port(name, value, self, True))
-
-    def addOutputPort(self, name, value):
-        setattr(self.outputs, name, Port(name, value, self))
+        if Filter._debug:
+            print('deleted',self)
+        del Filter._filters[self]
 
     def _update(self):
         # needs to be overriden
         return 1
 
-    def computeDAG(self,edges):
-        for f in self._filters:
+    def computeDAG(edges):
+        for f in Filter._filters:
             edges[f] = set({})
 
-        for f in self._filters:
-            for name in [o for o in dir(f.outputs) if not o.startswith('__')]:
+        for f in Filter._filters:
+            for name in f.outputs.ports():
                 port = getattr(f.outputs, name)
                 for listener in port.connections:
                     edges[f].add(listener.parent)
@@ -148,7 +182,7 @@ class Filter():
 
         dagt = time.time()
         edges = {}
-        self.computeDAG(edges)
+        Filter.computeDAG(edges)
         filters = self.computeTopologicalOrdering(edges)
 
         if Filter._debug:
@@ -159,7 +193,7 @@ class Filter():
         for i,f in enumerate(filters):
             lt = f.time
             needsUpdate = False
-            for name in [o for o in dir(f.inputs) if not o.startswith('__')]:
+            for name in f.inputs.ports():
                 iport = getattr(f.inputs, name)
                 if lt<iport.getTime():
                     needsUpdate = True
@@ -167,7 +201,12 @@ class Filter():
                 t0 = time.time()
                 if Filter._debug:
                     print('PROCESS',f)
-                f._update()
+                try:
+                    f._update()
+                except Exception:
+                    traceback.print_exc()
+                    Filter._processing = False
+                    return 0
                 f.time = time.time()
                 if Filter._debug:
                     print(" -> Done (%.2fs)" % (f.time-t0))
