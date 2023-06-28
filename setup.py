@@ -6,13 +6,11 @@ this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, 'doc/description.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-version_text = ""
-with open(path.join(this_directory, 'version.md'), encoding='utf-8') as f:
-    version_text = f.read().strip()
+exec(open("pycinema/_version.py").read())
 
 setuptools.setup(
     name="pycinema",
-    version=version_text,
+    version=__version__,
     author="David H. Rogers",
     author_email="dhr@lanl.gov",
     description="Cinema scientific toolset.",
@@ -32,8 +30,7 @@ setuptools.setup(
         "opencv-python==4.7.0.68",
         "ipycanvas==0.13.1",
         "ipywidgets==8.0.6",
-        "PySide6==6.5.0",
-        "pygraphviz==1.11"
+        "PySide6>=6.0.0"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -42,6 +39,6 @@ setuptools.setup(
     ],
     scripts=[
         'doc/description.md',
-        'version.md'
+        'scripts/pycinema'
     ],
 )

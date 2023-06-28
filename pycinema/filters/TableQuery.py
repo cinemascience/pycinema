@@ -2,7 +2,9 @@ from pycinema import Filter, isNumber
 
 import sqlite3
 
-class DatabaseQuery(Filter):
+from pycinema import getTableExtent
+
+class TableQuery(Filter):
 
     def __init__(self):
         super().__init__(
@@ -57,7 +59,11 @@ class DatabaseQuery(Filter):
 
     def queryData(self, db, sqlQuery):
         c = db.cursor()
-        c.execute(sqlQuery)
+        try:
+            c.execute(sqlQuery)
+        except sqlite3.Error as er:
+            print('[SQL ERROR] %s' % (' '.join(er.args)))
+            return [[]]
         res = c.fetchall()
         columns = []
         for d in c.description:
@@ -70,14 +76,14 @@ class DatabaseQuery(Filter):
       db = sqlite3.connect(":memory:")
 
       table = self.inputs.table.get()
-      sql = self.inputs.sql.get()
-
-      if not table or len(table)<1:
-          return self.outputs.table.set([])
+      tableExtent = getTableExtent(table)
+      if tableExtent[0]<2 or tableExtent[1]<1:
+          return self.outputs.table.set([[]])
 
       self.createTable(db, table)
       self.insertData(db, table)
 
+      sql = self.inputs.sql.get()
       if isinstance(sql, dict):
         header = table[0]
         sql2 = {k: v for k, v in sql.items() if k in header}

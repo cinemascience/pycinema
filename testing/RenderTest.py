@@ -6,8 +6,8 @@ if testing:
     if platform in ["linux","linux2"]:
         import pytest_xvfb
         @pytest.fixture(autouse=True, scope='session')
-        def ensure_xvfb():
-            if not pytest_xvfb.xvfb_available():
+        def ensure_xvfb() -> None:
+            if not pytest_xvfb.has_executable("Xvfb"):
                 raise Exception("Tests need Xvfb to run.")
 
 import pycinema.filters
@@ -19,7 +19,7 @@ def test_render():
     theta_samples = (20,20,45)
     time_samples = 0.1
 
-    plane_images = pycinema.filters.DemoScene()
+    plane_images = pycinema.filters.ShaderDemoScene()
     plane_images.inputs.objects.set((1,0,0),False) # Plane Only
     plane_images.inputs.resolution.set(resolution,False)
     plane_images.inputs.phi_samples.set(phi_samples,False)
@@ -27,7 +27,7 @@ def test_render():
     plane_images.inputs.time_samples.set(time_samples,False)
     plane_images.update()
 
-    sphere_images = pycinema.filters.DemoScene()
+    sphere_images = pycinema.filters.ShaderDemoScene()
     sphere_images.inputs.objects.set((0,1,1),False) # Big and Small Sphere
     sphere_images.inputs.resolution.set(resolution,False)
     sphere_images.inputs.phi_samples.set(phi_samples,False)

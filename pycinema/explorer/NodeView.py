@@ -3,10 +3,14 @@ from PySide6 import QtCore, QtWidgets, QtGui
 from .View import *
 from .FilterBrowser import *
 
-from pycinema import Filter
+import pycinema
 import pycinema.filters
 
-import pygraphviz as pgv
+use_pgv = True
+try:
+    import pygraphviz as pgv
+except:
+    use_pgv = False
 
 from .NodeEditorStyle import *
 
@@ -14,12 +18,8 @@ from .Edge import Edge
 from .Port import Port, PortDisc
 from .Node import Node
 
-# COLOR_BASE = QtWidgets.QApplication.palette().dark().color()
-# COLOR_BORDER = QtWidgets.QApplication.palette().mid().color()
-
 class _NodeView(QtWidgets.QGraphicsView):
 
-    last_added_node = None
     mouse_pos0 = None
     mouse_pos1 = None
 
@@ -27,6 +27,11 @@ class _NodeView(QtWidgets.QGraphicsView):
         super().__init__()
         self._zoom = 1
         self._empty = True
+
+        self.timer = None
+        self.auto_layout = True
+        self.auto_connect = True
+        self.skip_layout_animation = False
 
         self.setRenderHints(QtGui.QPainter.Antialiasing)
         self.setTransformationAnchor(QtWidgets.QGraphicsView.ViewportAnchor.AnchorUnderMouse)
@@ -48,9 +53,10 @@ class _NodeView(QtWidgets.QGraphicsView):
 
         self._scene.addItem(PortDisc.port_connection_line)
 
-        Filter.on('filter_created', self.createNode)
-        Filter.on('connection_added', self.addEdge)
-        Filter.on('connection_removed', self.removeEdge)
+        pycinema.Filter.on('filter_created', self.createNode)
+        pycinema.Filter.on('filter_deleted', self.deleteNode)
+        pycinema.Filter.on('connection_added', self.addEdge)
+        pycinema.Filter.on('connection_removed', self.removeEdge)
 
     def addEdge(self, ports):
         self._scene.addItem(Edge(
@@ -61,10 +67,6 @@ class _NodeView(QtWidgets.QGraphicsView):
         self.computeLayout()
 
     def removeEdge(self, ports):
-        # print("remove")
-        # print(ports[0],Port.port_map[ports[0]])
-        # print(ports[1],Port.port_map[ports[1]])
-
         edge = Edge.edge_map[(ports[0],ports[1])]
         self._scene.removeItem(edge)
         del Edge.edge_map[(ports[0],ports[1])]
@@ -78,11 +80,18 @@ class _NodeView(QtWidgets.QGraphicsView):
 
         self._scene.addItem(node)
 
-        self.autoConnect(_NodeView.last_added_node,node)
+        selectedItems = self._scene.selectedItems()
+        if len(selectedItems)>0:
+            self.autoConnect(selectedItems[0],node)
 
-        _NodeView.last_added_node = node
+        self._scene.clearSelection()
+        node.setSelected(True)
 
         self.computeLayout()
+
+    def deleteNode(self,filter):
+        node = Node.node_map[filter]
+        self._scene.removeItem(node)
 
     # def drawBackground(self,painter,rect):
     #     gridSize = 25
@@ -103,17 +112,20 @@ class _NodeView(QtWidgets.QGraphicsView):
     #     painter.setPen(QtGui.QPen(COLOR_GRID, 1))
     #     painter.drawLines(lines)
 
-    def autoConnect(self,node_a,node_b):
-        if not node_a or not node_b:
+    def autoConnect(self,node_a,node_b,force=False):
+        if not node_a or not node_b or (not force and not self.auto_connect):
             return
 
-        for oport in node_a.filter.outputs.ports():
-            for iport in node_b.filter.inputs.ports():
-                if oport==iport:
-                    getattr(node_b.filter.inputs, iport).set(
-                        getattr(node_a.filter.outputs, oport )
-                    )
-        return
+        for o_portName, o_port in node_a.filter.outputs.ports():
+            for i_portName, i_port in node_b.filter.inputs.ports():
+                if o_portName==i_portName:
+                    bridge_ports = list(o_port.connections)
+                    i_port.set(o_port)
+
+                    for bridge_port in bridge_ports:
+                        for o_portName_, o_port_ in node_b.filter.outputs.ports():
+                            if bridge_port.name == o_portName_:
+                                bridge_port.set(o_port_)
 
     def fitInView(self):
         rect = QtCore.QRectF(self._scene.itemsBoundingRect())
@@ -122,7 +134,7 @@ class _NodeView(QtWidgets.QGraphicsView):
 
         self.resetTransform()
         self._zoom = 1.0
-        self.centerOn(rect.center())
+        super().fitInView(rect, QtCore.Qt.KeepAspectRatio)
 
     def wheelEvent(self, event):
         ZOOM_INCREMENT_RATIO = 0.1
@@ -182,84 +194,161 @@ class _NodeView(QtWidgets.QGraphicsView):
             super().mouseReleaseEvent(event)
 
     def keyPressEvent(self,event):
+        super().keyPressEvent(event)
+        if event.isAccepted():
+            return
 
-        if event.key()==32:
-            if event.modifiers() == QtCore.Qt.ControlModifier:
+        if event.modifiers() == QtCore.Qt.ControlModifier:
+            if event.key()==70:
                 dialog = FilterBrowser()
                 dialog.exec()
-            elif event.modifiers() == QtCore.Qt.ShiftModifier:
-                self.computeLayout()
-            else:
-                self.fitInView()
+            elif event.key()==76:
+                self.computeLayout(True)
+        elif event.key()==32:
+            self.fitInView()
+        elif event.key()==QtCore.Qt.Key_Delete:
+            for node in list(self._scene.selectedItems()):
+                node.filter.delete()
 
-    def computeLayout(self):
+    def computeLayout(self, force=False):
+        if not force and not self.auto_layout:
+            return
 
         filters = pycinema.Filter._filters
 
-        node_string = ''
-        edge_string = ''
-        for key in filters:
-            filter = filters[key]
+        if use_pgv:
+            node_string = ''
+            edge_string = ''
+            for key in filters:
+                filter = filters[key]
 
-            i_port_string = ''
-            o_port_string = ''
+                i_port_string = ''
+                o_port_string = ''
 
-            node = Node.node_map[filter]
-            br = node.boundingRect()
+                node = Node.node_map[filter]
+                br = node.boundingRect()
 
-            width = br.width() / 72 # POINTS_PER_INCH
-            height = br.height() / 72
+                width = br.width() / 72 # POINTS_PER_INCH
+                height = (br.height()+40) / 72
 
-            for name in filter.inputs.ports():
-                i_port_string += '<i_' + name + '>|'
-            for name in filter.outputs.ports():
-                o_port_string += '<o_' + name + '>|'
+                for name, _ in filter.inputs.ports():
+                    i_port_string += '<i_' + name + '>|'
+                for name, _ in filter.outputs.ports():
+                    o_port_string += '<o_' + name + '>|'
 
-            node_string += filter.id + '[shape=record, label="{{' + i_port_string[:-1] + '}|{' + o_port_string[:-1] + '}}",' + 'width=' + str(width) + ',' + 'height=' + str(height) + '];\n'
+                node_string += filter.id + '[shape=record, label="{{' + i_port_string[:-1] + '}|{' + o_port_string[:-1] + '}}",' + 'width=' + str(width) + ',' + 'height=' + str(height) + '];\n'
 
-            for name in filter.outputs.ports():
-                port = getattr(filter.outputs, name)
-                for iport in port.connections:
-                    edge_string += filter.id + ':<o_' + name + '> -> ' + iport.parent.id + ':<i_' +iport.name+ '>;\n'
+                for name, o_port in filter.outputs.ports():
+                    for i_port in o_port.connections:
+                        edge_string += filter.id + ':<o_' + name + '> -> ' + i_port.parent.id + ':<i_' +i_port.name+ '>;\n'
 
-        edges = {}
-        Filter.computeDAG(edges)
-        for s in edges:
-            for t in edges[s]:
-                edge_string += s.id + "->" + t.id + '[style = invis, weight= 10];\n'
+            edges = {}
+            pycinema.Filter.computeDAG(edges)
+            for s in edges:
+                for t in edges[s]:
+                    edge_string += s.id + "->" + t.id + '[style = invis, weight= 10];\n'
 
-        dotString = 'digraph g {\nrankdir=LR;overlap = true;splines = true;graph[pad="0.5", ranksep="0.5", nodesep="0.5"];\n' + node_string + edge_string + '\n}'
-        if Filter._debug:
-            print(dotString)
+            dotString = 'digraph g {\nrankdir=LR;overlap = true;splines = true;graph[pad="0.5", ranksep="0.5", nodesep="0.5"];\n' + node_string + edge_string + '}'
+            if pycinema.Filter._debug:
+                print(dotString)
 
-        G = pgv.AGraph(dotString)
-        G.layout(prog='dot')
-        for key in filters:
-            filter = filters[key]
-            node_ = G.get_node(str(filter.id))
-            pos = [float(x) for x in node_.attr['pos'].split(',')]
-            node = Node.node_map[filter]
-            # node.setPos(pos[0],pos[1])
+            G = pgv.AGraph(dotString)
+            G.layout(prog='dot')
 
-            timer = QtCore.QTimeLine(300,node)
-            timer.setFrameRange(0, 1)
-            animation = QtWidgets.QGraphicsItemAnimation(node)
-            animation.setItem(node)
-            animation.setTimeLine(timer)
-            animation.setPosAt(0, node.pos())
-            animation.setPosAt(1, QtCore.QPointF(pos[0],pos[1]))
-            timer.start()
+            for key in filters:
+                filter = filters[key]
+                node_ = G.get_node(str(filter.id))
+                pos = [float(x) for x in node_.attr['pos'].split(',')]
+                node = Node.node_map[filter]
+                node.target = QtCore.QPointF(pos[0],-pos[1])
+        else:
+            edges = {}
+            pycinema.Filter.computeDAG(edges)
+            ordered_filters = pycinema.Filter.computeTopologicalOrdering(edges)
+            layout = {}
+
+            edgesR = {}
+            for n in edges:
+              for m in edges[n]:
+                if m not in edgesR:
+                  edgesR[m] = set({})
+                edgesR[m].add(n)
+
+            processed = set({})
+            # x = 0
+            # for i,f in enumerate(ordered_filters):
+            #     node = Node.node_map[f]
+            #     Node.node_map[f].target = QtCore.QPointF(x,0)
+            #     x += 20 + node.boundingRect().width()
 
 
-        # dot = graphviz.Source(dotString)
-        # dot.
+            #     x = node.target.x() + 20 + node.boundingRect().width()
+            #     y = node.target.y()
 
-        # dot = graphviz.Digraph(comment='The Round Table')
+            #     for succ in edges[f]:
+            #         if succ not in processed:
+            #             succ_n = Node.node_map[succ]
+            #             succ_n.target =
+            #             processed.add(succ)
+            for i,f in enumerate(ordered_filters):
+                if f not in edgesR:
+                    Node.node_map[f].target = QtCore.QPointF(0,0)
+                    continue
+                # node = Node.node_map[f]
 
-        # dot.node('A', 'King Arthur')  # doctest: +NO_EXE
-        # dot.node('B', 'Sir Bedevere the Wise')
+                # x = node.target.x() + 20 + node.boundingRect().width()
+                # y = node.target.y()
 
-        # dot.edges(['AB', 'AL'])
+                # for succ in edges[f]:
+                #     if succ not in processed:
+                #         succ_n = Node.node_map[succ]
+                #         succ_n.target =
+                #         processed.add(succ)
+
+                previous_filter = None
+                x = -1
+                for _ in edgesR[f]:
+                    previous_node = Node.node_map[_]
+                    if x<previous_node.target.x():
+                        previous_filter = _
+                        x=previous_node.target.x()
+
+                previous_node = Node.node_map[previous_filter]
+                x = previous_node.target.x() + 50 + previous_node.boundingRect().width()
+                y = previous_node.target.y()
+
+                for _ in edges[previous_filter]:
+                    if f != _:
+                        y += Node.node_map[_].boundingRect().height() + 50
+                    else:
+                        break
+
+                Node.node_map[f].target = QtCore.QPointF(x,y)
+
+
+        if self.timer:
+              self.timer.stop()
+              self.timer.setParent(None)
+              self.timer = None
+        if self.skip_layout_animation:
+            for key in filters:
+              filter = filters[key]
+              node = Node.node_map[filter]
+              node.setPos(node.target)
+        else:
+            self.timer = QtCore.QTimeLine(300,self)
+            self.timer.setFrameRange(0, 1)
+            for key in filters:
+                filter = filters[key]
+                node = Node.node_map[filter]
+
+                animation = QtWidgets.QGraphicsItemAnimation(node)
+                animation.setItem(node)
+                animation.setTimeLine(self.timer)
+                animation.setPosAt(0, node.pos())
+                animation.setPosAt(1, node.target)
+            self.timer.start()
+
 
 class NodeView(View):
 
@@ -273,27 +362,3 @@ class NodeView(View):
         self.button_c.setParent(None)
 
         self.content.layout().addWidget(self.view,1)
-
-        # # Filter._debug = True
-        # x = pycinema.filters.CinemaDatabaseReader()
-        # # x.inputs.path.set('/home/jones/external/projects/cinema-lib/pycinema-data/Warp.cdb')
-        # x.inputs.path.set('/home/jones/external/projects/cinema-lib/pycinema/data/ScalarImages.cdb')
-
-        # y = pycinema.filters.DatabaseQuery()
-        # y.inputs.table.set(x.outputs.table)
-        # y.inputs.sql.set('SELECT * FROM input LIMIT 3')
-
-
-        # z = pycinema.filters.ImageReader()
-        # z.inputs.table.set(y.outputs.table)
-
-        # w = pycinema.filters.ColorMapping()
-        # w.inputs.channel.set('isovalue')
-        # w.inputs.map.set('RdYlBu')
-        # w.inputs.range.set((-9,9))
-        # w.inputs.images.set(z.outputs.images)
-
-        # z = pycinema.ImageReader()
-        # pycinema.Filter.trigger('filter_created',z)
-
-

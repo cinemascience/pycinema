@@ -18,6 +18,18 @@ class QueryWidget(QtWidgets.QLineEdit):
         elif event.key()==QtCore.Qt.Key_Down:
             self.s_down.emit()
 
+class FilterList(QtWidgets.QListWidget):
+
+    s_return = QtCore.Signal(name='return')
+
+    def __init__(self):
+        super().__init__()
+
+    def keyReleaseEvent(self,event):
+        super().keyReleaseEvent(event)
+        if event.key()==QtCore.Qt.Key_Return:
+            self.s_return.emit()
+
 class FilterBrowser(QtWidgets.QDialog):
 
     filters = dict([(name, cls) for name, cls in pycinema.filters.__dict__.items() if isinstance(cls,type) and issubclass(cls,pycinema.Core.Filter)])
@@ -41,7 +53,9 @@ class FilterBrowser(QtWidgets.QDialog):
             self.hiddenList.addItem(name)
         self.hiddenList.sortItems()
 
-        self.list = QtWidgets.QListWidget()
+        self.list = FilterList()
+        self.list.itemDoubleClicked.connect(lambda _: self.submit())
+        self.list.s_return.connect(lambda: self.submit())
         self.updateList()
 
         self.layout().addWidget(self.list,1)

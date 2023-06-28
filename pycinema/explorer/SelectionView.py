@@ -6,15 +6,13 @@ from .View import *
 # from .ParameterView import *
 
 from .NodeView import NodeView
-from .FilterView import *
 from .TableViewer import *
 from .ImageViewer import *
+from .ColorMappingViewer import *
 from .ParameterViewer import *
 
-import pycinema
-
 def _convert(obj,cls):
-  return lambda: obj.convert(cls)
+  return lambda: obj.parent().convert(cls)
 
 class SelectionView(View):
 
@@ -24,18 +22,9 @@ class SelectionView(View):
 
         self.content.layout().addWidget(QtWidgets.QLabel(),1)
 
-        for cls in [TableViewer,ImageViewer,ParameterViewer]:
+        for cls in [TableViewer,ImageViewer,ParameterViewer,ColorMappingViewer]:
             button = QtWidgets.QPushButton(cls.__name__, self)
             button.clicked.connect(_convert(self,cls))
             self.layout().addWidget(button)
 
         self.layout().addWidget(QtWidgets.QLabel(),1)
-
-    def convert(self,cls):
-        viewFrame = self.parent()
-        self.setParent(None)
-        if issubclass(cls,pycinema.Core.Filter):
-            return viewFrame.setView(FilterView(cls))
-        else:
-            return viewFrame.setView(cls())
-

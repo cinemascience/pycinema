@@ -1,6 +1,7 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
 from .NodeEditorStyle import *
+from .InputText import *
 
 class PortDisc(QtWidgets.QGraphicsEllipseItem):
 
@@ -52,6 +53,20 @@ PortDisc.port_connection_line.setPen(QtGui.QPen(COLOR_NORMAL, 2, QtCore.Qt.Solid
 PortDisc.port_connection_line.setZValue(1000)
 PortDisc.port_connection_line.hide()
 
+class WidgetFrame(QtWidgets.QGraphicsRectItem):
+    def __init__(self, width, height, parent=None):
+        super().__init__(parent)
+        self.width = width
+        self.height = height
+        self.setRect(QtCore.QRect(0,0,self.width,self.height))
+
+    def paint(self, painter, option, widget):
+        br = self.boundingRect()
+        path = QtGui.QPainterPath()
+        path.addRoundedRect(br,3,3)
+        painter.fillPath(path,QtGui.QBrush(COLOR_WIDGET))
+
+
 class Port(QtWidgets.QGraphicsItem):
 
     port_map = {}
@@ -62,22 +77,45 @@ class Port(QtWidgets.QGraphicsItem):
 
         Port.port_map[port] = self
 
-        self.label_ = QtWidgets.QLabel(port.name)
-        self.label_.setStyleSheet("background-color: transparent; color: "+COLOR_NORMAL_);
+        parentBR = parent.boundingRect()
 
-        self.label = QtWidgets.QGraphicsProxyWidget(self)
-        self.label.setWidget(self.label_)
-        portLabelBR = self.label.boundingRect()
+        self.widget_ = InputText(port, parentBR.width()-2*(PORT_SIZE))
+        self.widget = QtWidgets.QGraphicsProxyWidget(self)
+        self.widget.setWidget(self.widget_)
+
+        self.widget.setZValue(Z_NODE_LAYER+2)
+        portLabelBR = self.widget.boundingRect()
         if port.is_input:
-          self.label.setPos(
-            PORT_SIZE+3,
+          self.widget.setPos(
+            PORT_SIZE,
             -portLabelBR.height()/2-1
           )
         else:
-          self.label.setPos(
-            -PORT_SIZE-3-portLabelBR.width(),
+          self.widget.setPos(
+            -PORT_SIZE-portLabelBR.width(),
             -portLabelBR.height()/2-1
           )
+
+        self.widgetFrame = WidgetFrame(portLabelBR.width(), portLabelBR.height(), self)
+        self.widgetFrame.setZValue(Z_NODE_LAYER+1)
+        self.widgetFrame.setPos(self.widget.pos())
+
+        # self.label_ = QtWidgets.QLabel(port.name)
+        # self.label_.setStyleSheet("background-color: transparent; color: "+COLOR_NORMAL_);
+
+        # self.label = QtWidgets.QGraphicsProxyWidget(self)
+        # self.label.setWidget(self.label_)
+        # portLabelBR = self.label.boundingRect()
+        # if port.is_input:
+        #   self.label.setPos(
+        #     PORT_SIZE+3,
+        #     -portLabelBR.height()/2-1
+        #   )
+        # else:
+        #   self.label.setPos(
+        #     -PORT_SIZE-3-portLabelBR.width(),
+        #     -portLabelBR.height()/2-1
+        #   )
 
         self.disc = PortDisc(self)
         self.disc.setRect(-PORT_SIZE/2,-PORT_SIZE/2,PORT_SIZE,PORT_SIZE)
@@ -86,7 +124,7 @@ class Port(QtWidgets.QGraphicsItem):
         #   self.disc.setRect(-PORT_SIZE/2,-PORT_SIZE/2,PORT_SIZE,PORT_SIZE)
 
     def boundingRect(self):
-        return self.label.boundingRect().united(self.disc.boundingRect())
+        return self.widget.boundingRect().united(self.disc.boundingRect())
 
     def paint(self, painter, option, widget):
         return

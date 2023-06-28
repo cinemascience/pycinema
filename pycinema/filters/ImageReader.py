@@ -5,6 +5,8 @@ import numpy
 import h5py
 import os
 
+from pycinema import getTableExtent
+
 class ImageReader(Filter):
 
     def __init__(self):
@@ -24,7 +26,8 @@ class ImageReader(Filter):
     def _update(self):
 
         table = self.inputs.table.get()
-        if not table or len(table)==0:
+        tableExtent = getTableExtent(table)
+        if tableExtent[0]<1 or tableExtent[1]<1:
             return self.outputs.images.set([])
 
         fileColumn = self.inputs.file_column.get()

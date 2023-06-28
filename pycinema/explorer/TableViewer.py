@@ -1,4 +1,4 @@
-from pycinema import Filter
+from .FilterView import ViewFilter
 
 import numpy
 # import PIL
@@ -32,25 +32,22 @@ class TableModel(QtCore.QAbstractTableModel):
         else:
             return super().headerData(section,orientation,role)
 
-class TableViewer(Filter):
+class TableViewer(ViewFilter):
 
-    def __init__(self):
+    def __init__(self, view):
         self.model = TableModel()
         self.tableView = QtWidgets.QTableView()
         self.tableView.setModel(self.model)
 
+        view.content.layout().addWidget(self.tableView,1)
+
         super().__init__(
           inputs={
-            'table': [[]],
-            'container': None
+            'table': [[]]
           }
         )
 
     def _update(self):
-
-        container = self.inputs.container.get()
-        if container and container != self.tableView.parent():
-            container.layout().addWidget(self.tableView,1)
 
         table = self.inputs.table.get()
         self.model.setData(table)

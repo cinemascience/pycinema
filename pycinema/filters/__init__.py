@@ -4,7 +4,7 @@ from .CinemaDatabaseReader import *
 from .CinemaDatabaseWriter import *
 from .ColorMapping import *
 from .ColorSource import *
-from .DatabaseQuery import *
+from .TableQuery import *
 from .DepthCompositing import *
 from .ImageCanny import *
 from .ImageConvert import *
