@@ -39,6 +39,6 @@ setuptools.setup(
     ],
     scripts=[
         'doc/description.md',
-        'scripts/pycinema'
+        'scripts/cinema'
     ],
 )
