@@ -18,7 +18,7 @@ setuptools.setup(
     long_description_content_type='text/markdown',
     url="https://github.com/cinemascience/pycinema",
     include_package_data=True,
-    packages=[  "pycinema"  ],
+    packages=[  "pycinema", "pycinema.filters", "pycinema.explorer", "pycinema.ipy" ],
     install_requires=[
         "numpy==1.24.2",
         "scipy==1.10.0",
@@ -29,7 +29,8 @@ setuptools.setup(
         "moderngl<6",
         "opencv-python==4.7.0.68",
         "ipycanvas==0.13.1",
-        "ipywidgets==8.0.6"
+        "ipywidgets==8.0.6",
+        "PySide6>=6.0.0"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
