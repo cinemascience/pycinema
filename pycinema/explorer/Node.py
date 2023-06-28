@@ -26,6 +26,7 @@ class Node(QtWidgets.QGraphicsObject):
         self.setFlags(
               QtWidgets.QGraphicsItem.GraphicsItemFlag.ItemSendsGeometryChanges
             | QtWidgets.QGraphicsItem.GraphicsItemFlag.ItemIsMovable
+            | QtWidgets.QGraphicsItem.GraphicsItemFlag.ItemIsSelectable
         )
 
         # label
@@ -54,16 +55,14 @@ class Node(QtWidgets.QGraphicsObject):
         # output ports
         portY = NODE_PORT_Y
 
-        for name in self.outputPorts:
-            port = Port(self,getattr(self.filter.outputs, name))
-            port.setPos(brN.right(),portY)
-
+        for name, port in self.outputPorts:
+            qPort = Port(self,port)
+            qPort.setPos(brN.right(),portY)
             portY += NODE_PORT_SPACE
 
-        for name in self.inputPorts:
-            port = Port(self,getattr(self.filter.inputs, name))
-            port.setPos(brN.left(),portY)
-
+        for name, port in self.inputPorts:
+            qPort = Port(self,port)
+            qPort.setPos(brN.left(),portY)
             portY += NODE_PORT_SPACE
 
 
@@ -77,24 +76,31 @@ class Node(QtWidgets.QGraphicsObject):
         return QtCore.QRectF(
           0,0,
           NODE_WIDTH,
-          NODE_PORT_Y + (len(self.inputPorts)+len(self.outputPorts))*NODE_PORT_SPACE
+          NODE_PORT_Y + (len(self.inputPorts)+len(self.outputPorts))*NODE_PORT_SPACE - 10
         )
 
     def paint(self, painter, options, widget):
-
-        # borderOffset = 0.5 * NODE_BORDER_WIDTH
-        # br = self.boundingRect().adjusted(borderOffset, borderOffset, -borderOffset, -borderOffset)
 
         br = self.boundingRect()
         br2 = QtCore.QRect(br.x(),br.y(),br.width(),NODE_HEADER_HEIGHT)
         path = QtGui.QPainterPath()
         path.addRect(br2)
-        painter.fillPath(path,QtGui.QBrush(COLOR_BLUE_T))
+        if self.isSelected():
+            painter.fillPath(path,QtGui.QBrush(COLOR_RED_T))
+        else:
+            painter.fillPath(path,QtGui.QBrush(COLOR_BLUE_T))
 
         br2 = QtCore.QRect(br.x(),br.y()+NODE_HEADER_HEIGHT,br.width(),br.height()-NODE_HEADER_HEIGHT)
         path = QtGui.QPainterPath()
         path.addRect(br2)
         painter.fillPath(path,QtGui.QBrush(COLOR_BASE_T))
+
+        # if self.isSelected():
+        #     pen = QtGui.QPen(COLOR_BORDER, NODE_BORDER_WIDTH)
+        #     painter.setPen(pen)
+        #     path = QtGui.QPainterPath()
+        #     path.addRect(br)
+        #     painter.drawPath(path)
 
 
         # path.addRoundedRect(br,NODE_BORDER_RADIUS,NODE_BORDER_RADIUS)

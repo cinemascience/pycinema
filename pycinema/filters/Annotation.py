@@ -13,7 +13,7 @@ class Annotation(Filter):
             'xy': (20,20),
             'size': 20,
             'spacing': 0,
-            'color': 'AUTO',
+            'color': (),
             'ignore': ['file','id']
           },
           outputs={
@@ -59,7 +59,7 @@ class Annotation(Filter):
             return 1
 
         textColor = self.inputs.color.get()
-        if textColor=='AUTO':
+        if textColor==():
             for image in images:
                 if not 'rgba' in image.channels:
                     continue

@@ -28,33 +28,13 @@ jobs:
         run: |
           python -m pytest -s testing/RenderTest.py
 
-  macos11:
+  macos:
     strategy:
       matrix:
         python-version: [3.9]
+        os-version: [macos-11, macos-12]
 
-    runs-on: macos11 
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Dependencies
-        run: |
-          python -m pip install --upgrade pip setuptools
-          python -m pip install pytest
-          python setup.py install
-      - name: Test using ModernGL
-        run: |
-          python -m pytest -s testing/RenderTest.py
-
-  macos12:
-    strategy:
-      matrix:
-        python-version: [3.9]
-
-    runs-on: macos12 
+    runs-on: ${{ matrix.os-version }} 
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}

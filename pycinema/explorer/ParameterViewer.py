@@ -1,17 +1,26 @@
-from pycinema import Filter, isNumber
+from pycinema import isNumber
+from .FilterView import ViewFilter
 
 from PySide6 import QtCore, QtWidgets
 
-class ParameterViewer(Filter):
+from pycinema import getTableExtent
 
-    def __init__(self):
-        self.widgets = []
+class ParameterViewer(ViewFilter):
+
+    def __init__(self, view):
+
+        self.widgets = QtWidgets.QFrame()
+        self.widgets.setLayout(QtWidgets.QGridLayout())
+        view.content.layout().addWidget(self.widgets)
+        view.content.layout().addWidget(QtWidgets.QLabel(""),1)
+
+        self.widgets_ = {}
 
         super().__init__(
             inputs={
               'table': [[]],
-              'container': None,
-              'ignore': ['file','id','object_id_name']
+              'ignore': ['file','id','object_id_name'],
+              'state': {}
             },
             outputs={
               'sql': 'SELECT * FROM input',
@@ -21,11 +30,11 @@ class ParameterViewer(Filter):
 
     def widgetToSQL(self, wt):
         v = None
-        match wt['T'].currentText():
-            case 'S':
-                v = wt['values'][wt['S'].value()]
-            case 'O':
-                v = wt['O'].selectedItems()
+        t = wt['T'].currentText()
+        if t == 'S':
+            v = wt['values'][wt['S'].value()]
+        elif t == 'O':
+            v = wt['O'].selectedItems()
 
         if type(v) is list:
             v = ['"'+i.text()+'"' for i in v]
@@ -36,39 +45,33 @@ class ParameterViewer(Filter):
     def generateWidgets(self):
 
         table = self.inputs.table.get()
-        self.widgets = []
 
-        container = self.inputs.container.get()
+        gridL = self.widgets.layout()
 
-        grid = QtWidgets.QFrame()
-        grid.setLayout(QtWidgets.QGridLayout())
-        gridL = grid.layout()
-
-        container.layout().addWidget(grid)
-        container.layout().addWidget(QtWidgets.QLabel(""),1)
-
-        def on_change(idx):
+        def on_change(name):
           self.update()
 
-        def on_slider_change(idx):
-          wt = self.widgets[idx]
+        def on_slider_change(name):
+          wt = self.widgets_[name]
           wt['SL'].setText(wt['values'][wt['S'].value()])
           self.update()
 
-        def on_type_change(idx):
-          wt = self.widgets[idx]
+        def on_type_change(name):
+          wt = self.widgets_[name]
 
-          match wt['T'].currentText():
-            case 'S':
+          t = wt['T'].currentText()
+          if t == 'S':
               wt['SL'].setVisible(True)
               wt['O'].setVisible(False)
-            case 'O':
+          elif t == 'O':
               wt['SL'].setVisible(False)
               wt['O'].setVisible(True)
           self.update()
 
-        def make_callback(idx,func):
-            return lambda: func(idx)
+        def make_callback(name,func):
+            return lambda: func(name)
+
+        states = self.inputs.state.get()
 
         header = table[0]
         for i in range(0,len(header)):
@@ -93,24 +96,36 @@ class ParameterViewer(Filter):
             wt['parameter'] = parameter
             wt['values'] = values
 
+            if parameter in states:
+                state = states[parameter]
+            else:
+                state = {
+                  'C': False,
+                  'T': 'S',
+                  'S': 0,
+                  'O': [0],
+                }
+
             wt['C'] = QtWidgets.QPushButton(parameter)
             wt['C'].setCheckable(True)
-            wt['C'].toggled.connect( make_callback(len(self.widgets), on_change ) )
+            wt['C'].setChecked(state['C'])
+            wt['C'].toggled.connect( make_callback(parameter, on_change ) )
             gridL.addWidget(wt['C'],i,0)
 
             wt['T'] = QtWidgets.QComboBox()
             wt['T'].addItems(["S", "O"])
+            wt['T'].setCurrentText(state['T'])
             gridL.addWidget(wt['T'],i,1)
-            wt['T'].currentTextChanged.connect( make_callback(len(self.widgets), on_type_change ) )
+            wt['T'].currentTextChanged.connect( make_callback(parameter, on_type_change ) )
 
             wt['S'] = QtWidgets.QSlider(QtCore.Qt.Horizontal)
             wt['S'].setMinimum(0)
             wt['S'].setMaximum(len(values)-1)
-            wt['S'].setValue(0)
+            wt['S'].setValue(state['S'])
 
-            # SL = QtWidgets.QLabel("TODO")
-            wt['SL'] = QtWidgets.QLabel(values[0])
-            wt['S'].valueChanged.connect( make_callback(len(self.widgets), on_slider_change ) )
+            wt['SL'] = QtWidgets.QLabel(values[state['S']])
+            wt['SL'].setVisible(state['T']=='S')
+            wt['S'].valueChanged.connect( make_callback(parameter, on_slider_change ) )
             wt['SF'] = QtWidgets.QFrame()
             wt['SF'].layout = QtWidgets.QHBoxLayout(wt['SF'])
             wt['SF'].layout.addWidget(wt['S'])
@@ -121,28 +136,42 @@ class ParameterViewer(Filter):
             wt['O'].insertItems(0,values)
             wt['O'].setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
             wt['O'].setMaximumHeight(60)
-            wt['O'].setCurrentRow(0)
-            wt['O'].setVisible(False)
-            wt['O'].itemSelectionChanged.connect( make_callback(len(self.widgets), on_change ) )
+            wt['O'].setVisible(state['T']=='O')
+            for oidx in state['O']:
+                wt['O'].item(oidx).setSelected(True)
+
+            wt['O'].itemSelectionChanged.connect( make_callback(parameter, on_change ) )
             gridL.addWidget(wt['O'],i,2)
 
-            self.widgets.append(wt)
+            self.widgets_[parameter] = wt
 
     def _update(self):
 
         table = self.inputs.table.get()
-        if not table or len(table)<1:
-          self.outputs.sql.set("")
+        tableExtent = getTableExtent(table)
+        if tableExtent[0]<1 or tableExtent[1]<1:
+          self.outputs.sql.set('')
           self.outputs.composite_by_meta.set((None,{}))
-          return
+          return 0
 
         sql = 'SELECT * FROM input WHERE '
 
         # compute widgets
-        if len(self.widgets) < 1:
+        if len(self.widgets_) < 1:
             self.generateWidgets()
 
-        for i,wt in enumerate(self.widgets):
+        # export state
+        state = {}
+        for _,wt in self.widgets_.items():
+            state[wt['parameter']] = {
+              "C": wt['C'].isChecked(),
+              "T": wt['T'].currentText(),
+              "S": wt['S'].value(),
+              "O": [wt['O'].indexFromItem(i).row() for i in wt['O'].selectedItems()]
+            }
+        self.inputs.state.set(state, False)
+
+        for _,wt in self.widgets_.items():
             wsql = self.widgetToSQL(wt)
             if len(wsql)>0:
                 sql += wsql+ ' AND '
@@ -152,7 +181,7 @@ class ParameterViewer(Filter):
         self.outputs.sql.set(sql[:-6])
 
         composite_by_meta = (None,{})
-        for i,wt in enumerate(self.widgets):
+        for _,wt in self.widgets_.items():
             if wt['C'].isChecked():
                 valueMap = {}
                 for i,v in enumerate(wt['values']):

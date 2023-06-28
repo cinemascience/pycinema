@@ -1,9 +1,8 @@
-from pycinema import Filter
+from .FilterView import ViewFilter
 
 import numpy
 # import PIL
 from PySide6 import QtCore, QtWidgets, QtGui
-
 
 class _ImageViewer(QtWidgets.QGraphicsView):
 
@@ -63,7 +62,7 @@ class _ImageViewer(QtWidgets.QGraphicsView):
 
         self.resetTransform()
         self._zoom = 1.0
-        self.centerOn(rect.center())
+        super().fitInView(rect, QtCore.Qt.KeepAspectRatio)
 
     def wheelEvent(self, event):
         ZOOM_INCREMENT_RATIO = 0.1
@@ -76,95 +75,28 @@ class _ImageViewer(QtWidgets.QGraphicsView):
             factor -= ZOOM_INCREMENT_RATIO
 
         self._zoom *= factor
-        if self._zoom>3.0 or self._zoom<0.2:
-            self._zoom /= factor
-        else:
-            self.scale(factor, factor)
+        self.scale(factor, factor)
 
     def keyPressEvent(self,event):
         if event.key()==32:
             self.fitInView()
 
-class ImageViewer(Filter):
+class ImageViewer(ViewFilter):
 
-    def __init__(self):
-
+    def __init__(self, view):
         self.view = _ImageViewer()
 
+        view.content.layout().addWidget(self.view,1)
+
         super().__init__(inputs={
-            'images': [],
-            'container': None
+            'images': []
         })
 
-
     def _update(self):
-
-        container = self.inputs.container.get()
-        if container and container != self.view.parent():
-            container.layout().addWidget(self.view,1)
-
         self.view.removeImages()
 
         for image in self.inputs.images.get():
             self.view.addImage(image)
 
         self.view.fitInView()
-
-
-        # images =
-        # nImages = len(images)
-
-        # if len(self.labels) != nImages:
-        #     for l in self.labels:
-        #         l.deleteLater()
-
-        #     self.labels = []
-        #     for i, image in enumerate(images):
-        #         l = QtWidgets.QLabel(self.scroll_area)
-        #         l.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed))
-        #         self.scroll_area.layout().addWidget(l)
-        #         self.labels.append(l)
-
-        # for i, image in enumerate(images):
-        #   rgba = image.channels['rgba']
-        #   # self.pixmaps[0].loadFromData(rgba.data)
-
-        #   qimage = QtGui.QImage(
-        #     rgba,
-        #     rgba.shape[1], rgba.shape[0],
-        #     rgba.shape[1] * 4,
-        #     QtGui.QImage.Format_RGBA8888
-        #   )
-        #   self.labels[i].setFixedSize(rgba.shape[1], rgba.shape[0])
-        #   # self.labels[i].setFixedHeight(rgba.shape[1])
-        #   self.labels[i].setPixmap( QtGui.QPixmap(qimage) )
-
-        # images = self.inputs.images.get()
-        # nImages = len(images)
-
-        # if len(self.labels) != nImages:
-        #     for l in self.labels:
-        #         l.deleteLater()
-
-        #     self.labels = []
-        #     for i, image in enumerate(images):
-        #         l = QtWidgets.QLabel(container)
-        #         l.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed))
-        #         container.layout().addWidget(l)
-        #         self.labels.append(l)
-
-        # for i, image in enumerate(images):
-        #   rgba = image.channels['rgba']
-        #   # self.pixmaps[0].loadFromData(rgba.data)
-
-        #   qimage = QtGui.QImage(
-        #     rgba,
-        #     rgba.shape[1], rgba.shape[0],
-        #     rgba.shape[1] * 4,
-        #     QtGui.QImage.Format_RGBA8888
-        #   )
-        #   self.labels[i].setFixedSize(rgba.shape[1], rgba.shape[0])
-        #   # self.labels[i].setFixedHeight(rgba.shape[1])
-        #   self.labels[i].setPixmap( QtGui.QPixmap(qimage) )
-
         return 1
