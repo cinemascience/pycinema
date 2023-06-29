@@ -31,10 +31,10 @@ parser = argparse.ArgumentParser( description="cinema: transform input data to c
 parser.add_argument( "--version", action="version", version=pycinema.__version__)
 
 # positional argument
-parser.add_argument( "filename" )
+parser.add_argument( "filename", nargs='*' )
 
 args = parser.parse_args()
 
 # run  
-pycinema.explorer.Explorer(args.filename)
+pycinema.explorer.Explorer(" ".join([str(elem) for elem in args.filename]))
 
