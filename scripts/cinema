@@ -7,20 +7,8 @@ helptext = "\n\
 \n\
 examples: \n\
 \n\
-  BROWSE\n\
-    cinema view --databases first.cdb second.cdb\n\
-        run a cinema server and view it with the \'view\' viewer\n\
-\n\
-    cinema view --databases first.cdb second.cdb --viewer explorer --port XXXX\n\
-        run a cinema server and view it with the \'explorer\' viewer\n\
-\n\
-  SERVER\n\
-    cinema server --databases first.cdb second.cdb\n\
-        both commands run a cinema server that uses the \'view\' viewer to view databases\n\
-  \n\
-    cinema server --databases first.cdb second.cdb --viewer explorer --port XXXX\n\
-        run a cinema server that uses the \'explorer\' viewer to view databases over port XXXX\n\
-  \n\
+  cinema some.cdb\n\
+    run the \'view\' viewer on some.cdb\n\
 "
 
 # normal option parsing
