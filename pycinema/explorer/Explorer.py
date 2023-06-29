@@ -8,6 +8,8 @@ from .FilterView import ViewFilter
 
 from .FilterBrowser import *
 
+from .Application import *
+
 import pycinema
 import pycinema.filters
 
@@ -23,7 +25,7 @@ class _Explorer(QtWidgets.QMainWindow):
 
         button_openCDB = QtGui.QAction("Open", self)
         button_openCDB.setStatusTip("open local cinema database")
-        button_openCDB.triggered.connect(self.openCDB)
+        button_openCDB.triggered.connect(self.onOpenCDB)
         toolbar.addAction(button_openCDB)
 
         button_save = QtGui.QAction("Save", self)
@@ -67,6 +69,9 @@ import pycinema.explorer
 
         '''
 
+        script += '\n# pycinema attributes\n'
+        script += '\npycinema_version = ' + pycinema.__version__ + '\n'
+        script += '\n'
         script += '\n# layout\n'
         script += self.centralWidget().id+' = pycinema.explorer.Explorer.window.centralWidget()\n'
         script += self.centralWidget().export()
@@ -106,58 +111,18 @@ import pycinema.explorer
 
         return script
 
-    def openCDB(self, s):
+    def onOpenCDB(self, s):
         path = QtWidgets.QFileDialog.getExistingDirectory(self, "Open Cinema Database")
         if not path:
             return
 
-        script = '''
-import pycinema
-import pycinema.filters
-import pycinema.explorer
+        self.openCDB(path)
 
-# layout
-vf0 = pycinema.explorer.Explorer.window.centralWidget()
-vf0.s_splitH()
-vf1 = vf0.widget(0)
-vf2 = vf0.widget(1)
-vf2.s_splitH()
-vf3 = vf2.widget(0)
-vf3.s_splitV()
-vf5 = vf3.widget(0)
-ParameterViewer_0 = vf5.convert( pycinema.explorer.ParameterViewer )
-vf6 = vf3.widget(1)
-vf6.s_splitV()
-vf7 = vf6.widget(0)
-TableViewer_0 = vf7.convert( pycinema.explorer.TableViewer )
-vf8 = vf6.widget(1)
-ColorMappingViewer_0 = vf8.convert( pycinema.explorer.ColorMappingViewer )
-vf4 = vf2.widget(1)
-ImageViewer_0 = vf4.convert( pycinema.explorer.ImageViewer )
-
-# filters
-CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
-TableQuery_0 = pycinema.filters.TableQuery()
-ImageReader_0 = pycinema.filters.ImageReader()
-DepthCompositing_0 = pycinema.filters.DepthCompositing()
-
-# properties
-ParameterViewer_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
-TableViewer_0.inputs.table.set(TableQuery_0.outputs.table, False)
-ColorMappingViewer_0.inputs.images.set(DepthCompositing_0.outputs.images, False)
-ImageViewer_0.inputs.images.set(ColorMappingViewer_0.outputs.images, False)
-TableQuery_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
-TableQuery_0.inputs.sql.set(ParameterViewer_0.outputs.sql, False)
-ImageReader_0.inputs.table.set(TableQuery_0.outputs.table, False)
-DepthCompositing_0.inputs.images_a.set(ImageReader_0.outputs.images, False)
-DepthCompositing_0.inputs.composite_by_meta.set(ParameterViewer_0.outputs.composite_by_meta, False)
-vf1.widget(0).hide()
-'''
-
-        script += 'CinemaDatabaseReader_0.inputs.path.set("'+path+'", False)\n'
-        script += 'CinemaDatabaseReader_0.update()'
-
-        self.executeScript(script)
+    def openCDB(self, path):
+        # a view application is the only option at the moment, but this 
+        # will be expanded over time 
+        app = Application('view', filepath=path)
+        self.executeScript(app.getScript())
 
     def executeScript(self, script):
         namespace = {}
@@ -192,7 +157,7 @@ class Explorer():
 
     window = None
 
-    def __init__(self):
+    def __init__(self, filepath=None):
 
         # show UI
         app = QtWidgets.QApplication([])
@@ -200,5 +165,8 @@ class Explorer():
         Explorer.window = _Explorer()
         Explorer.window.resize(1024, 900)
         Explorer.window.show()
+
+        if filepath:
+            Explorer.window.openCDB(filepath)
 
         sys.exit(app.exec())
