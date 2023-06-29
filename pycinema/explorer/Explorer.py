@@ -69,6 +69,9 @@ import pycinema.explorer
 
         '''
 
+        script += '\n# pycinema attributes\n'
+        script += '\npycinema_version = ' + pycinema.__version__ + '\n'
+        script += '\n'
         script += '\n# layout\n'
         script += self.centralWidget().id+' = pycinema.explorer.Explorer.window.centralWidget()\n'
         script += self.centralWidget().export()
