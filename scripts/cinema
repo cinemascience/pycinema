@@ -35,8 +35,6 @@ parser.add_argument( "filename" )
 
 args = parser.parse_args()
 
-print(args.filename)
-
-# run explorer
+# run  
 pycinema.explorer.Explorer(args.filename)
 
