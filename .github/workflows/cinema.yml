@@ -24,7 +24,7 @@ jobs:
           python setup.py install
       - name: Test cinema script
         run: |
-          cinema --version
+          cinema --help
 
   macos:
     strategy:
@@ -46,4 +46,4 @@ jobs:
           python setup.py install
       - name: Test cinema script
         run: |
-          cinema --version
+          cinema --help

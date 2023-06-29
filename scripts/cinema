@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import pycinema.explorer
 import argparse
 
 helptext = "\n\
@@ -24,5 +23,6 @@ parser.add_argument( "filename", nargs='*' )
 args = parser.parse_args()
 
 # run  
+import pycinema.explorer
 pycinema.explorer.Explorer(" ".join([str(elem) for elem in args.filename]))
 
