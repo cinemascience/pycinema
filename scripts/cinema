@@ -38,5 +38,5 @@ args = parser.parse_args()
 print(args.filename)
 
 # run explorer
-pycinema.explorer.Explorer()
+pycinema.explorer.Explorer(args.filename)
 

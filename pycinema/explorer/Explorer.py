@@ -25,7 +25,7 @@ class _Explorer(QtWidgets.QMainWindow):
 
         button_openCDB = QtGui.QAction("Open", self)
         button_openCDB.setStatusTip("open local cinema database")
-        button_openCDB.triggered.connect(self.openCDB)
+        button_openCDB.triggered.connect(self.onOpenCDB)
         toolbar.addAction(button_openCDB)
 
         button_save = QtGui.QAction("Save", self)
@@ -108,11 +108,14 @@ import pycinema.explorer
 
         return script
 
-    def openCDB(self, s):
+    def onOpenCDB(self, s):
         path = QtWidgets.QFileDialog.getExistingDirectory(self, "Open Cinema Database")
         if not path:
             return
 
+        self.openCDB(path)
+
+    def openCDB(self, path):
         app = Application('view', filepath=path)
         self.executeScript(app.getScript())
 
@@ -149,7 +152,7 @@ class Explorer():
 
     window = None
 
-    def __init__(self):
+    def __init__(self, filepath=None):
 
         # show UI
         app = QtWidgets.QApplication([])
@@ -157,5 +160,8 @@ class Explorer():
         Explorer.window = _Explorer()
         Explorer.window.resize(1024, 900)
         Explorer.window.show()
+
+        if filepath:
+            Explorer.window.openCDB(filepath)
 
         sys.exit(app.exec())
