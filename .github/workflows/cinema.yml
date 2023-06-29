@@ -4,11 +4,11 @@ on:
   push:
 
 jobs:
-  all:
+  allos:
     strategy:
       matrix:
         python-version: [3.9]
-        os-version: [ubunto-latest, macos-11, macos-12]
+        os-version: [ubuntu-latest, macos-11, macos-12]
 
     runs-on: ${{ matrix.os-version }} 
     steps:
@@ -23,3 +23,4 @@ jobs:
       - name: Test cinema script
         run: |
           cinema --version
+          cinema --help
