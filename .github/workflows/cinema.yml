@@ -4,33 +4,11 @@ on:
   push:
 
 jobs:
-  linux:
-    runs-on: ubuntu-latest
+  all:
     strategy:
       matrix:
         python-version: [3.9]
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Test Environment
-        run: |
-          python -m pip install --upgrade pip
-      - name: Dependencies
-        run: |
-          python setup.py install
-      - name: Test cinema script
-        run: |
-          cinema --help
-
-  macos:
-    strategy:
-      matrix:
-        python-version: [3.9]
-        os-version: [macos-11, macos-12]
+        os-version: [ubunto-latest, macos-11, macos-12]
 
     runs-on: ${{ matrix.os-version }} 
     steps:
@@ -41,9 +19,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Dependencies
         run: |
-          python -m pip install --upgrade pip setuptools
-          python -m pip install pytest
           python setup.py install
       - name: Test cinema script
         run: |
-          cinema --help
+          cinema --version
