@@ -1,3 +1,18 @@
+#
+# The Application class is a factory for creating applications within
+# the pycinema framework.
+#
+# An application is a script that constructs a filter graph that can be
+# executed either through the framework, or in a python script. The 
+# difference between the two types of execution is whether the filer
+# graph contains UI elements or not. A filter graph without UI elements
+# can be executed in pure python, while a graph with UI elements must
+# be executed in the pycinema application.
+#
+# A more general framework for adding applications is imagined for the
+# future, but for this design, all application scripts shall be registerd
+# in this file.
+#
 class Application():
 
     Scripts = {}
@@ -5,6 +20,9 @@ class Application():
 import pycinema
 import pycinema.filters
 import pycinema.explorer
+
+# cinema application attributes
+pycinema_view_version = '1.0.0'
 
 # layout
 centralWidget = pycinema.explorer.Explorer.window.centralWidget()
@@ -43,6 +61,11 @@ DepthCompositing_0.inputs.composite_by_meta.set(ParameterViewer_0.outputs.compos
 nodeView.widget(0).hide()
 '''
 
+    #
+    # An instance of an application is created by providing an app name (type), and an
+    # array of keyward args. Those args must be validated by the application type 
+    # requested.
+    #
     def __init__(self, app, **kwargs):
         self.app = app
         self.script = ""
@@ -50,6 +73,10 @@ nodeView.widget(0).hide()
         for key, value in kwargs.items():
             setattr(self, key, value)
 
+        #
+        # if an app type is registered, it must construct a valid script using the
+        # input keyword argument list
+        #
         match app:
             case "view":
                 self.script  = Application.Scripts[self.app]
@@ -59,6 +86,8 @@ nodeView.widget(0).hide()
             case _:
                 print("Unrecognized app " + app)
 
+    #
+    # Return the application instance's script
+    #
     def getScript(self):
-
         return self.script

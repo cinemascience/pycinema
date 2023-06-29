@@ -119,6 +119,8 @@ import pycinema.explorer
         self.openCDB(path)
 
     def openCDB(self, path):
+        # a view application is the only option at the moment, but this 
+        # will be expanded over time 
         app = Application('view', filepath=path)
         self.executeScript(app.getScript())
 
