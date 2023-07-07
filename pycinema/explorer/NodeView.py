@@ -246,26 +246,39 @@ class _NodeView(QtWidgets.QGraphicsView):
         else:
             g = igraph.Graph(directed=True)
             vertices = [f for f in filters]
-            vertices_ = [f.id for f in vertices]
-            print(vertices_)
-            g.add_vertices( vertices_ )
+            g.add_vertices( [f.id for f in vertices] )
 
             edges = {}
             pycinema.Filter.computeDAG(edges)
+            L = pycinema.Filter.computeTopologicalOrdering(edges)
 
             edges_ = []
+            edgesR = {}
             for n in edges:
               for m in edges[n]:
+                if not m in edgesR:
+                  edgesR[m] = set({})
+                edgesR[m].add(n)
                 edges_.append((n.id,m.id))
             g.add_edges(edges_)
-            print(edges_)
 
             layout = g.layout_reingold_tilford(mode="out")
             scale = 250
             for i, f in enumerate(vertices):
                 node = Node.node_map[f]
                 coords = layout[i]
-                Node.node_map[f].target = QtCore.QPointF(coords[1]*scale,coords[0]*scale)
+                Node.node_map[f].target = QtCore.QPointF(coords[1]*scale,-coords[0]*scale*0.7)
+
+            for f in L:
+                if not f in edgesR:
+                    continue
+                previous_filters = edgesR[f]
+                max_x = -900000000
+                for pf in previous_filters:
+                    pn = Node.node_map[f]
+                    max_x = max(max_x, Node.node_map[pf].target.x() + pn.boundingRect().width())
+
+                Node.node_map[f].target.setX(max_x+50)
 
         if self.timer:
               self.timer.stop()
