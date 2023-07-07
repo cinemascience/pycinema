@@ -11,6 +11,7 @@ try:
     import pygraphviz as pgv
 except:
     use_pgv = False
+import igraph
 
 from .NodeEditorStyle import *
 
@@ -92,25 +93,6 @@ class _NodeView(QtWidgets.QGraphicsView):
     def deleteNode(self,filter):
         node = Node.node_map[filter]
         self._scene.removeItem(node)
-
-    # def drawBackground(self,painter,rect):
-    #     gridSize = 25
-
-    #     left = rect.left() - rect.left() % gridSize
-    #     top = rect.top() - rect.top() % gridSize
-
-    #     lines = []
-
-    #     for i in range(int(left),int(rect.right()),gridSize):
-    #         lines.append(QtCore.QLineF(i, rect.top(), i, rect.bottom()))
-    #     for i in range(int(top),int(rect.bottom()),gridSize):
-    #         lines.append(QtCore.QLineF(rect.left(), i, rect.right(), i))
-
-    #     painter.setBrush(QtGui.QBrush(COLOR_BACKGROUND))
-    #     painter.drawRect(rect.adjusted(-10, -10, 10, 10))
-
-    #     painter.setPen(QtGui.QPen(COLOR_GRID, 1))
-    #     painter.drawLines(lines)
 
     def autoConnect(self,node_a,node_b,force=False):
         if not node_a or not node_b or (not force and not self.auto_connect):
@@ -262,69 +244,28 @@ class _NodeView(QtWidgets.QGraphicsView):
                 node = Node.node_map[filter]
                 node.target = QtCore.QPointF(pos[0],-pos[1])
         else:
+            g = igraph.Graph(directed=True)
+            vertices = [f for f in filters]
+            vertices_ = [f.id for f in vertices]
+            print(vertices_)
+            g.add_vertices( vertices_ )
+
             edges = {}
             pycinema.Filter.computeDAG(edges)
-            ordered_filters = pycinema.Filter.computeTopologicalOrdering(edges)
-            layout = {}
 
-            edgesR = {}
+            edges_ = []
             for n in edges:
               for m in edges[n]:
-                if m not in edgesR:
-                  edgesR[m] = set({})
-                edgesR[m].add(n)
+                edges_.append((n.id,m.id))
+            g.add_edges(edges_)
+            print(edges_)
 
-            processed = set({})
-            # x = 0
-            # for i,f in enumerate(ordered_filters):
-            #     node = Node.node_map[f]
-            #     Node.node_map[f].target = QtCore.QPointF(x,0)
-            #     x += 20 + node.boundingRect().width()
-
-
-            #     x = node.target.x() + 20 + node.boundingRect().width()
-            #     y = node.target.y()
-
-            #     for succ in edges[f]:
-            #         if succ not in processed:
-            #             succ_n = Node.node_map[succ]
-            #             succ_n.target =
-            #             processed.add(succ)
-            for i,f in enumerate(ordered_filters):
-                if f not in edgesR:
-                    Node.node_map[f].target = QtCore.QPointF(0,0)
-                    continue
-                # node = Node.node_map[f]
-
-                # x = node.target.x() + 20 + node.boundingRect().width()
-                # y = node.target.y()
-
-                # for succ in edges[f]:
-                #     if succ not in processed:
-                #         succ_n = Node.node_map[succ]
-                #         succ_n.target =
-                #         processed.add(succ)
-
-                previous_filter = None
-                x = -1
-                for _ in edgesR[f]:
-                    previous_node = Node.node_map[_]
-                    if x<previous_node.target.x():
-                        previous_filter = _
-                        x=previous_node.target.x()
-
-                previous_node = Node.node_map[previous_filter]
-                x = previous_node.target.x() + 50 + previous_node.boundingRect().width()
-                y = previous_node.target.y()
-
-                for _ in edges[previous_filter]:
-                    if f != _:
-                        y += Node.node_map[_].boundingRect().height() + 50
-                    else:
-                        break
-
-                Node.node_map[f].target = QtCore.QPointF(x,y)
-
+            layout = g.layout_reingold_tilford(mode="out")
+            scale = 250
+            for i, f in enumerate(vertices):
+                node = Node.node_map[f]
+                coords = layout[i]
+                Node.node_map[f].target = QtCore.QPointF(coords[1]*scale,coords[0]*scale)
 
         if self.timer:
               self.timer.stop()
@@ -348,7 +289,6 @@ class _NodeView(QtWidgets.QGraphicsView):
                 animation.setPosAt(0, node.pos())
                 animation.setPosAt(1, node.target)
             self.timer.start()
-
 
 class NodeView(View):
 

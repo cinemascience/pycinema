@@ -40,12 +40,12 @@ class CinemaDatabaseViewer(pycinema.Filter):
         self.parameterWidgets.inputs.table.set(self.cinemaDatabaseReader.outputs.table,False)
         self.parameterWidgets.inputs.container.set(self.parameterWidgetsContainer,False)
 
-        self.databaseQuery = pycinema.filters.DatabaseQuery()
-        self.databaseQuery.inputs.table.set(self.cinemaDatabaseReader.outputs.table,False)
-        self.databaseQuery.inputs.sql.set(self.parameterWidgets.outputs.sql,False)
+        self.tableQuery = pycinema.filters.TableQuery()
+        self.tableQuery.inputs.table.set(self.cinemaDatabaseReader.outputs.table,False)
+        self.tableQuery.inputs.sql.set(self.parameterWidgets.outputs.sql,False)
 
         self.imageReader = pycinema.filters.ImageReader()
-        self.imageReader.inputs.table.set(self.databaseQuery.outputs.table,False)
+        self.imageReader.inputs.table.set(self.tableQuery.outputs.table,False)
 
         self.depthCompositing = pycinema.filters.DepthCompositing()
         self.depthCompositing.inputs.images_a.set(self.imageReader.outputs.images,False)
