@@ -9,11 +9,16 @@ import matplotlib.cm as cm
 
 class ColorMappingViewer(ViewFilter):
 
+    DefaultLabelSize = 80
+
     def __init__(self, view):
 
         self.widgets_ = {}
         self.widgets = QtWidgets.QFrame()
         self.widgets.setLayout(QtWidgets.QGridLayout())
+        self.widgets.layout().setAlignment(QtCore.Qt.AlignTop) 
+        self.widgets.layout().setSpacing(0)
+        self.widgets.layout().setContentsMargins(0,0,0,0)
         view.content.layout().addWidget(self.widgets)
         view.content.layout().addWidget(QtWidgets.QLabel(""),1)
 
@@ -62,25 +67,66 @@ class ColorMappingViewer(ViewFilter):
                 w.setCurrentText(c)
                 break
 
+    #
+    # helper function to standardize creation of row layout
+    #
+    def _make_row_frame(self, masterLayout, curRow):
+        frame = QtWidgets.QFrame()
+        frame.setLayout( QtWidgets.QHBoxLayout())
+            # optionally show border when adjusting/debugging design
+        # frame.setFrameStyle(QtWidgets.QFrame.Panel | QtWidgets.QFrame.Raised)
+        frame.layout().setSpacing(0)
+        frame.layout().setContentsMargins(0,0,0,0)
+        masterLayout.addWidget(frame, curRow, 1)
+
+        return frame
+
+    #
+    # helper function to standardize creation of spacer 
+    #
+    def _add_row_spacer(self, frame):
+        spacer = QtWidgets.QLabel("")
+        spacer.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Maximum)
+            # optionally show border when adjusting/debugging design
+        # spacer.setFrameStyle(QtWidgets.QFrame.Panel | QtWidgets.QFrame.Raised)
+        frame.layout().addWidget(spacer)
+
     def generate_widgets(self, images):
         gridL = self.widgets.layout()
 
         row = 0
 
+        # Channel
+        label = QtWidgets.QLabel("Channel")
+        label.setFixedWidth(ColorMappingViewer.DefaultLabelSize)
+        gridL.addWidget(label,row,0)
+            # frame and layout for this row 
+        frame = self._make_row_frame(gridL, row)
+            # combo
         w = QtWidgets.QComboBox()
         self.widgets_['channel'] = w
         w.channels = []
         w.old_v = self.inputs.channel.get()
-        gridL.addWidget(QtWidgets.QLabel("Channel"),row,0)
-        gridL.addWidget(w,row,1)
+        frame.layout().addWidget(w)
+            # spacer
+        self._add_row_spacer(frame)
+            # connect
         self.update_channels(images)
         w.currentTextChanged.connect( lambda v: self.inputs.channel.set(v) )
         row += 1
 
+        # Color Map
+            # label
+        label = QtWidgets.QLabel("Color Map")
+        label.setFixedWidth(ColorMappingViewer.DefaultLabelSize)
+        gridL.addWidget(label, row, 0)
+            # frame and layout for this row 
+        frame = self._make_row_frame(gridL, row)
+            # combo
         w = QtWidgets.QComboBox()
+        w.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         self.widgets_['map'] = w
-        gridL.addWidget(QtWidgets.QLabel("Color Map"),row,0)
-        gridL.addWidget(w,row,1)
+        frame.layout().addWidget(w)
         w.addItems([
             'plasma',
 
@@ -95,24 +141,36 @@ class ColorMappingViewer(ViewFilter):
         ])
         w.setCurrentText(self.inputs.map.get())
         w.currentTextChanged.connect( lambda v: self.inputs.map.set(v) )
+            # spacer
+        self._add_row_spacer(frame)
         row += 1
 
-        # RANGE
-        f = QtWidgets.QFrame()
-        f.setLayout( QtWidgets.QHBoxLayout())
-        gridL.addWidget(QtWidgets.QLabel("Range"),row,0)
-        gridL.addWidget(f,row,1)
-
+        # Range 
+            # label
+        label = QtWidgets.QLabel("Range")
+        label.setFixedWidth(ColorMappingViewer.DefaultLabelSize)
+        gridL.addWidget(label, row, 0)
+            # frame and layout for this row 
+        frame = self._make_row_frame(gridL, row)
+            # range entry boxes
         w0 = QtWidgets.QLineEdit()
+        w0.setAlignment(QtCore.Qt.AlignRight)
         w1 = QtWidgets.QLineEdit()
+        w1.setAlignment(QtCore.Qt.AlignRight)
         self.widgets_['range'] = [w0,w1]
         w0.setText(str(self.inputs.range.get()[0]))
         w1.setText(str(self.inputs.range.get()[1]))
         l = lambda v: self.inputs.range.set( (float(w0.text()), float(w1.text())) )
         w0.textEdited.connect(l)
         w1.textEdited.connect(l)
-        f.layout().addWidget(w0)
-        f.layout().addWidget(w1)
+        label = QtWidgets.QLabel("to")
+        label.setAlignment(QtCore.Qt.AlignCenter)
+        label.setFixedWidth(20)
+        frame.layout().addWidget(w0)
+        frame.layout().addWidget(label)
+        frame.layout().addWidget(w1)
+            # spacer
+        self._add_row_spacer(frame)
         row+=1
 
         # NAN COLOR
@@ -124,12 +182,21 @@ class ColorMappingViewer(ViewFilter):
             self.widgets_['nan'].setText(str(color))
             self.inputs.nan.set(color)
 
+        # NaN Color
+            # label
+        label = QtWidgets.QLabel("NaN Color")
+        label.setFixedWidth(ColorMappingViewer.DefaultLabelSize)
+        gridL.addWidget(label, row, 0)
+            # frame and layout for this row 
+        frame = self._make_row_frame(gridL, row)
+            # button
         w = QtWidgets.QPushButton()
         w.setText(str(self.inputs.nan.get()))
         w.clicked.connect(select_color)
         self.widgets_['nan'] = w
-        gridL.addWidget(QtWidgets.QLabel("NAN Color"),row,0)
-        gridL.addWidget(w,row,1)
+        frame.layout().addWidget(w)
+            # spacer
+        self._add_row_spacer(frame)
         row += 1
 
 
