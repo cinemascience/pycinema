@@ -11,8 +11,11 @@ class ParameterViewer(ViewFilter):
 
         self.widgets = QtWidgets.QFrame()
         self.widgets.setLayout(QtWidgets.QGridLayout())
+        self.widgets.layout().setAlignment(QtCore.Qt.AlignTop) 
+        self.widgets.layout().setSpacing(0)
+        self.widgets.layout().setContentsMargins(0,0,0,0)
+        # self.widgets.setFrameStyle(QtWidgets.QFrame.Panel | QtWidgets.QFrame.Raised)
         view.content.layout().addWidget(self.widgets)
-        view.content.layout().addWidget(QtWidgets.QLabel(""),1)
 
         self.widgets_ = {}
 
@@ -110,12 +113,12 @@ class ParameterViewer(ViewFilter):
             wt['C'].setCheckable(True)
             wt['C'].setChecked(state['C'])
             wt['C'].toggled.connect( make_callback(parameter, on_change ) )
-            gridL.addWidget(wt['C'],i,0)
+            gridL.addWidget(wt['C'],i,0,QtCore.Qt.AlignTop) 
 
             wt['T'] = QtWidgets.QComboBox()
             wt['T'].addItems(["S", "O"])
             wt['T'].setCurrentText(state['T'])
-            gridL.addWidget(wt['T'],i,1)
+            gridL.addWidget(wt['T'],i,1, QtCore.Qt.AlignTop)
             wt['T'].currentTextChanged.connect( make_callback(parameter, on_type_change ) )
 
             wt['S'] = QtWidgets.QSlider(QtCore.Qt.Horizontal)
@@ -125,12 +128,19 @@ class ParameterViewer(ViewFilter):
 
             wt['SL'] = QtWidgets.QLabel(values[state['S']])
             wt['SL'].setVisible(state['T']=='S')
+            wt['SL'].setFixedWidth(50)
+            wt['SL'].setAlignment(QtCore.Qt.AlignRight)
             wt['S'].valueChanged.connect( make_callback(parameter, on_slider_change ) )
+            # slider frame
             wt['SF'] = QtWidgets.QFrame()
+            # wt['SF'].setFrameStyle(QtWidgets.QFrame.Panel | QtWidgets.QFrame.Raised)
             wt['SF'].layout = QtWidgets.QHBoxLayout(wt['SF'])
-            wt['SF'].layout.addWidget(wt['S'])
-            wt['SF'].layout.addWidget(wt['SL'])
-            gridL.addWidget(wt['SF'],i,2)
+            wt['SF'].layout.setAlignment(QtCore.Qt.AlignTop) 
+            wt['SF'].layout.setSpacing(0)
+            wt['SF'].layout.setContentsMargins(0,0,0,0)
+            wt['SF'].layout.addWidget(wt['S'], QtCore.Qt.AlignTop)
+            wt['SF'].layout.addWidget(wt['SL'], QtCore.Qt.AlignTop)
+            gridL.addWidget(wt['SF'],i,2, QtCore.Qt.AlignTop)
 
             wt['O'] = QtWidgets.QListWidget()
             wt['O'].insertItems(0,values)
@@ -141,7 +151,7 @@ class ParameterViewer(ViewFilter):
                 wt['O'].item(oidx).setSelected(True)
 
             wt['O'].itemSelectionChanged.connect( make_callback(parameter, on_change ) )
-            gridL.addWidget(wt['O'],i,2)
+            gridL.addWidget(wt['O'],i,2,QtCore.Qt.AlignTop)
 
             self.widgets_[parameter] = wt
 
@@ -159,6 +169,9 @@ class ParameterViewer(ViewFilter):
         # compute widgets
         if len(self.widgets_) < 1:
             self.generateWidgets()
+            spacer = QtWidgets.QLabel("")
+            spacer.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Expanding)
+            self.widgets.layout().addWidget(spacer)
 
         # export state
         state = {}

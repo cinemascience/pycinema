@@ -10,11 +10,14 @@ class View(QtWidgets.QFrame):
         super().__init__()
 
         self.setLayout(QtWidgets.QVBoxLayout())
+        self.layout().setSpacing(0)
         self.layout().setContentsMargins(0,0,0,0)
 
         self.toolbar = QtWidgets.QFrame()
         self.toolbar.setLayout(QtWidgets.QHBoxLayout())
-        self.toolbar.layout().setContentsMargins(10,2,10,0)
+        # self.toolbar.layout().setContentsMargins(10,2,10,0)
+        self.toolbar.layout().setSpacing(0)
+        self.toolbar.layout().setContentsMargins(0,0,0,0)
 
         self.title = QtWidgets.QLabel()
         self.toolbar.setStyleSheet("margin:0px;padding:2px 4px;")
@@ -38,7 +41,7 @@ class View(QtWidgets.QFrame):
             self.content.setLayout(QtWidgets.QHBoxLayout())
         elif content_layout == 'G':
             self.content.setLayout(QtWidgets.QGridLayout())
-        self.content.layout().setContentsMargins(10,0,10,2)
+        self.content.layout().setContentsMargins(10,0,10,0)
         self.layout().addWidget(self.content,1)
 
     def setTitle(self,text):
