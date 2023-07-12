@@ -52,8 +52,8 @@ class Port():
         self.is_input = is_input
         self.connections = []
         self.time = -1
-        if is_input:
-            self.connections.append(self.parent)
+        # if is_input:
+        #     self.connections.append(self.parent)
         self._value = value
         self.default = value
         t = type(value)
@@ -151,6 +151,12 @@ class Filter():
         Filter._listeners[eventName].append(listener)
 
     @staticmethod
+    def off(eventName,listener):
+        if not eventName in Filter._listeners:
+            return
+        Filter._listeners[eventName].remove(listener)
+
+    @staticmethod
     def trigger(eventName, data):
         if not eventName in Filter._listeners:
             return
@@ -234,6 +240,8 @@ class Filter():
       return L
 
     def update(self):
+        if Filter._processing:
+          return 0
 
         Filter._processing = True
 
@@ -270,6 +278,8 @@ class Filter():
                 print('SKIP',f)
 
         Filter._processing = False
+
+        return 1
 
     def help(self):
         print('Documentation Missing')

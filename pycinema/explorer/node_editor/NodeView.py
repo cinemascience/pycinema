@@ -1,7 +1,7 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from .View import *
-from .FilterBrowser import *
+from pycinema.explorer.View import View
+from pycinema.explorer.FilterBrowser import FilterBrowser
 
 import pycinema
 import pycinema.filters
@@ -13,11 +13,10 @@ except:
     use_pgv = False
 import igraph
 
-from .NodeEditorStyle import *
-
-from .Edge import Edge
-from .Port import Port, PortDisc
-from .Node import Node
+from pycinema.explorer.node_editor.NodeEditorStyle import *
+from pycinema.explorer.node_editor.Edge import Edge
+from pycinema.explorer.node_editor.Port import Port, PortDisc
+from pycinema.explorer.node_editor.Node import Node
 
 class _NodeView(QtWidgets.QGraphicsView):
 
@@ -93,6 +92,7 @@ class _NodeView(QtWidgets.QGraphicsView):
     def deleteNode(self,filter):
         node = Node.node_map[filter]
         self._scene.removeItem(node)
+        self.computeLayout()
 
     def autoConnect(self,node_a,node_b,force=False):
         if not node_a or not node_b or (not force and not self.auto_connect):
@@ -129,10 +129,7 @@ class _NodeView(QtWidgets.QGraphicsView):
             factor -= ZOOM_INCREMENT_RATIO
 
         self._zoom *= factor
-        if self._zoom>3.0 or self._zoom<0.2:
-            self._zoom /= factor
-        else:
-            self.scale(factor, factor)
+        self.scale(factor, factor)
 
     def focusInEvent(self,event):
         self.setStyleSheet("border:3px solid #15a3b4")

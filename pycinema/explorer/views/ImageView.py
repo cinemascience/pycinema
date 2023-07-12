@@ -1,14 +1,11 @@
-from .FilterView import ViewFilter
+from pycinema import Filter
+from pycinema.explorer.views.FilterView import FilterView
 
 import numpy
 # import PIL
 from PySide6 import QtCore, QtWidgets, QtGui
 
 class _ImageViewer(QtWidgets.QGraphicsView):
-
-    last_added_node = None
-    mouse_pos0 = None
-    mouse_pos1 = None
 
     def __init__(self):
         super().__init__()
@@ -31,7 +28,6 @@ class _ImageViewer(QtWidgets.QGraphicsView):
     def removeImages(self):
         for item in self.items:
             self._scene.removeItem(item)
-            # item.setParent(None)
         self.items = []
 
     def addImage(self,image):
@@ -81,16 +77,25 @@ class _ImageViewer(QtWidgets.QGraphicsView):
         if event.key()==32:
             self.fitInView()
 
-class ImageViewer(ViewFilter):
+class ImageView(Filter, FilterView):
 
-    def __init__(self, view):
-        self.view = _ImageViewer()
+    def __init__(self):
+        FilterView.__init__(
+          self,
+          filter=self,
+          delete_filter_on_close = True
+        )
 
-        view.content.layout().addWidget(self.view,1)
-
-        super().__init__(inputs={
+        Filter.__init__(
+          self,
+          inputs={
             'images': []
-        })
+          }
+        )
+
+    def generateWidgets(self):
+        self.view = _ImageViewer()
+        self.content.layout().addWidget(self.view,1)
 
     def _update(self):
         self.view.removeImages()

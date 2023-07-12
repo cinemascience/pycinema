@@ -1,7 +1,7 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from .NodeEditorStyle import *
-from .InputText import *
+from pycinema.explorer.node_editor.NodeEditorStyle import *
+from pycinema.explorer.node_editor.InputText import InputText
 
 class PortDisc(QtWidgets.QGraphicsEllipseItem):
 
