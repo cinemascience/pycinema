@@ -1,6 +1,6 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from .NodeEditorStyle import *
+from pycinema.explorer.node_editor.NodeEditorStyle import *
 from pycinema import Port
 
 class InputText(QtWidgets.QWidget):
@@ -36,11 +36,20 @@ class InputText(QtWidgets.QWidget):
             self.edit = QtWidgets.QLineEdit()
             self.edit.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
             self.edit.setStyleSheet('border:0;background:transparent;color:'+COLOR_NORMAL_)
+            self.edit.setReadOnly(False)
             self.edit.textEdited.connect(lambda text: self.setValue(text))
             self.layout().addWidget(self.edit,1)
             port.on('value_set', self.update_callback)
             self.updateWidget()
         else:
+            self.edit = QtWidgets.QLineEdit()
+            self.edit.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+            self.edit.setStyleSheet('border:0;background:transparent;color:'+COLOR_DISABLED_)
+            self.edit.setReadOnly(True)
+            self.layout().addWidget(self.edit,1)
+            port.on('value_set', self.update_callback)
+            self.updateWidget()
+
             self.label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
             self.layout().addWidget(self.label,1)
 
@@ -70,7 +79,7 @@ class InputText(QtWidgets.QWidget):
         if text != self.edit.text():
             self.edit.setText(str(text))
 
-        mustBeReadOnly = isinstance(self.port._value, Port)
+        mustBeReadOnly = isinstance(self.port._value, Port) or not self.port.is_input
         isReadOnly = self.edit.isReadOnly()
         if mustBeReadOnly and not isReadOnly:
             self.edit.setStyleSheet('border:0;background:transparent;color:'+COLOR_DISABLED_)

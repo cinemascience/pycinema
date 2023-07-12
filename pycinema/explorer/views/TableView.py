@@ -1,8 +1,7 @@
-from .FilterView import ViewFilter
-
-import numpy
-# import PIL
 from PySide6 import QtCore, QtWidgets, QtGui
+
+from pycinema.explorer.views.FilterView import FilterView
+from pycinema import Filter
 
 class TableModel(QtCore.QAbstractTableModel):
     def __init__(self):
@@ -32,20 +31,29 @@ class TableModel(QtCore.QAbstractTableModel):
         else:
             return super().headerData(section,orientation,role)
 
-class TableViewer(ViewFilter):
+class TableView(Filter, FilterView):
 
-    def __init__(self, view):
+    def __init__(self):
+
         self.model = TableModel()
-        self.tableView = QtWidgets.QTableView()
-        self.tableView.setModel(self.model)
 
-        view.content.layout().addWidget(self.tableView,1)
+        FilterView.__init__(
+          self,
+          filter=self,
+          delete_filter_on_close = True
+        )
 
-        super().__init__(
+        Filter.__init__(
+          self,
           inputs={
             'table': [[]]
           }
         )
+
+    def generateWidgets(self):
+        self.tableView = QtWidgets.QTableView()
+        self.tableView.setModel(self.model)
+        self.content.layout().addWidget(self.tableView,1)
 
     def _update(self):
 

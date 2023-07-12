@@ -1,8 +1,7 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from .NodeEditorStyle import *
-from .Port import Port
-
+from pycinema.explorer.node_editor.NodeEditorStyle import *
+from pycinema.explorer.node_editor.Port import Port
 
 class Node(QtWidgets.QGraphicsObject):
 

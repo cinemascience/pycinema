@@ -1,6 +1,6 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from .NodeEditorStyle import *
+from pycinema.explorer.node_editor.NodeEditorStyle import *
 
 class Edge(QtWidgets.QGraphicsLineItem):
 

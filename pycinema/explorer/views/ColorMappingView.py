@@ -1,23 +1,23 @@
 from pycinema import Filter
 
-from .FilterView import ViewFilter
+from .FilterView import FilterView
 
 from PySide6 import QtCore, QtWidgets
 
 import numpy
 import matplotlib.cm as cm
 
-class ColorMappingViewer(ViewFilter):
+class ColorMappingView(Filter, FilterView):
 
-    def __init__(self, view):
+    def __init__(self):
+        FilterView.__init__(
+          self,
+          filter=self,
+          delete_filter_on_close = True
+        )
 
-        self.widgets_ = {}
-        self.widgets = QtWidgets.QFrame()
-        self.widgets.setLayout(QtWidgets.QGridLayout())
-        view.content.layout().addWidget(self.widgets)
-        view.content.layout().addWidget(QtWidgets.QLabel(""),1)
-
-        super().__init__(
+        Filter.__init__(
+          self,
           inputs={
             'images': [],
             'channel': 'rgba',
@@ -31,54 +31,28 @@ class ColorMappingViewer(ViewFilter):
           }
         )
 
-    def update_channels(self,images):
-        channels = set({})
-        for i in images:
-            for c in i.channels:
-                channels.add(c)
-        w = self.widgets_['channel']
-        if set(w.channels) == channels:
-            return
+    def generateWidgets(self):
+        self.widgetsDict = {}
+        self.widgets = QtWidgets.QFrame()
+        self.widgets.setLayout(QtWidgets.QGridLayout())
 
-        if len(w.channels)>0:
-            w.old_v = w.currentText()
+        self.content.layout().addWidget(self.widgets)
+        self.content.layout().addWidget(QtWidgets.QLabel(""),1)
 
-        new_channels = list(channels)
-        new_channels.sort()
-
-        w.clear()
-        for c in new_channels:
-            w.addItem(c)
-        w.channels = new_channels
-
-        if w.old_v in new_channels:
-            w.setCurrentText(w.old_v)
-        elif 'rgba' in new_channels:
-            w.setCurrentText('rgba')
-        elif 'depth' in new_channels:
-            w.setCurrentText('depth')
-        else:
-            for c in new_channels:
-                w.setCurrentText(c)
-                break
-
-    def generate_widgets(self, images):
         gridL = self.widgets.layout()
-
         row = 0
 
         w = QtWidgets.QComboBox()
-        self.widgets_['channel'] = w
+        self.widgetsDict['channel'] = w
         w.channels = []
-        w.old_v = self.inputs.channel.get()
         gridL.addWidget(QtWidgets.QLabel("Channel"),row,0)
         gridL.addWidget(w,row,1)
-        self.update_channels(images)
-        w.currentTextChanged.connect( lambda v: self.inputs.channel.set(v) )
+        w.on_text_changed = lambda v: self.inputs.channel.set(v)
+        w.currentTextChanged.connect( w.on_text_changed )
         row += 1
 
         w = QtWidgets.QComboBox()
-        self.widgets_['map'] = w
+        self.widgetsDict['map'] = w
         gridL.addWidget(QtWidgets.QLabel("Color Map"),row,0)
         gridL.addWidget(w,row,1)
         w.addItems([
@@ -93,7 +67,6 @@ class ColorMappingViewer(ViewFilter):
 
             'fixed'
         ])
-        w.setCurrentText(self.inputs.map.get())
         w.currentTextChanged.connect( lambda v: self.inputs.map.set(v) )
         row += 1
 
@@ -105,9 +78,7 @@ class ColorMappingViewer(ViewFilter):
 
         w0 = QtWidgets.QLineEdit()
         w1 = QtWidgets.QLineEdit()
-        self.widgets_['range'] = [w0,w1]
-        w0.setText(str(self.inputs.range.get()[0]))
-        w1.setText(str(self.inputs.range.get()[1]))
+        self.widgetsDict['range'] = [w0,w1]
         l = lambda v: self.inputs.range.set( (float(w0.text()), float(w1.text())) )
         w0.textEdited.connect(l)
         w1.textEdited.connect(l)
@@ -117,28 +88,57 @@ class ColorMappingViewer(ViewFilter):
 
         # NAN COLOR
         def select_color():
+            w = self.widgetsDict['nan']
             clrpick = QtWidgets.QColorDialog()
             clrpick.setOption(QtWidgets.QColorDialog.DontUseNativeDialog)
             color = clrpick.getColor()
-            color = (color.redF(),color.greenF(),color.blueF(),color.alphaF())
-            self.widgets_['nan'].setText(str(color))
+            color = (w.format(color.redF()),w.format(color.greenF()),w.format(color.blueF()),w.format(color.alphaF()))
+            w.setText(str(color))
             self.inputs.nan.set(color)
 
         w = QtWidgets.QPushButton()
-        w.setText(str(self.inputs.nan.get()))
         w.clicked.connect(select_color)
-        self.widgets_['nan'] = w
+        w.format = lambda v: float("{:.3f}".format(v))
+        self.widgetsDict['nan'] = w
         gridL.addWidget(QtWidgets.QLabel("NAN Color"),row,0)
         gridL.addWidget(w,row,1)
         row += 1
 
+    def update_widgets(self,images):
+        self.widgetsDict['map'].setCurrentText(self.inputs.map.get())
+        self.widgetsDict['range'][0].setText(str(self.inputs.range.get()[0]))
+        self.widgetsDict['range'][1].setText(str(self.inputs.range.get()[1]))
+        self.widgetsDict['nan'].setText(str(self.inputs.nan.get()))
+
+        # channels
+        channels = set({})
+        for i in images:
+            for c in i.channels:
+                channels.add(c)
+        new_channels = list(channels)
+        new_channels.sort()
+
+        w = self.widgetsDict['channel']
+        w.currentTextChanged.disconnect( w.on_text_changed )
+        w.clear()
+        for c in new_channels:
+            w.addItem(c)
+        w.channels = new_channels
+        w.currentTextChanged.connect( w.on_text_changed )
+        channel = self.inputs.channel.get()
+        if channel in new_channels:
+          w.setCurrentText( channel )
+        else:
+          self.inputs.channel.set(new_channels[0])
+          w.setCurrentText( new_channels[0] )
 
     def _update(self):
         i_images = self.inputs.images.get()
-        if self.widgets_ == {}:
-            self.generate_widgets(i_images)
-        else:
-            self.update_channels(i_images)
+        if len(i_images)<1:
+          self.outputs.images.set([])
+          return 1
+
+        self.update_widgets(i_images)
 
         i_channel = self.inputs.channel.get()
         i_map = self.inputs.map.get()

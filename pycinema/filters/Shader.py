@@ -9,7 +9,7 @@ class Shader(Filter):
     quad = None
     fbo = None
 
-    def __init__(self, inputs={}, outputs={}, textures=[], varyings=['uv']):
+    def __init__(self, inputs={}, outputs={}, textures=[], varyings=['uv'], quad=True):
         # program
         self.program = Shader.ctx.program(
             vertex_shader=self.getVertexShaderCode(),
@@ -22,7 +22,8 @@ class Shader(Filter):
             self.program[name] = i
 
         # Geometry
-        self.vao = Shader.ctx.simple_vertex_array(self.program, Shader.quad, 'position')
+        if quad:
+            self.vao = Shader.ctx.simple_vertex_array(self.program, Shader.quad, 'position')
 
         super().__init__(inputs, outputs)
 

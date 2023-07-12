@@ -1,17 +1,11 @@
-from .ViewFrame import *
-from .View import *
-from .NodeView import *
-
-from .ImageViewer import *
-from .ParameterViewer import *
-from .FilterView import ViewFilter
-
-from .FilterBrowser import *
+from PySide6 import QtCore, QtWidgets, QtGui
 
 import pycinema
-import pycinema.filters
+from pycinema.explorer import View
+from pycinema.explorer.ViewFrame import *
+from pycinema.explorer.FilterBrowser import *
+from pycinema.explorer.node_editor.NodeView import *
 
-from PySide6 import QtCore, QtWidgets, QtGui
 import sys
 
 class _Explorer(QtWidgets.QMainWindow):
@@ -47,8 +41,9 @@ class _Explorer(QtWidgets.QMainWindow):
         toolbar.addAction(button_toggle_ne)
 
         self.nodeView = NodeView()
-        self.setCentralWidget(ViewFrame(view=self.nodeView,root=True))
-        # self.setCentralWidget(ViewFrame(view=SelectionView(),root=True))
+        vf = ViewFrame(root=True)
+        vf.insertView(0,self.nodeView)
+        self.setCentralWidget(vf)
 
     def toggleNodeEditor(self):
         current_state = self.nodeView.isVisible()
@@ -64,16 +59,20 @@ class _Explorer(QtWidgets.QMainWindow):
 import pycinema
 import pycinema.filters
 import pycinema.explorer
-
-        '''
+import pycinema.explorer.views
+'''
 
         script += '\n# layout\n'
-        script += self.centralWidget().id+' = pycinema.explorer.Explorer.window.centralWidget()\n'
+        if self.nodeView.isVisible():
+          script += 'pycinema.explorer.Explorer.instance.nodeView.setVisible(True)\n'
+        else:
+          script += 'pycinema.explorer.Explorer.instance.nodeView.setVisible(False)\n'
+        script += self.centralWidget().id+' = pycinema.explorer.Explorer.instance.centralWidget()\n'
         script += self.centralWidget().export()
 
         script += '\n# filters\n'
         for _,filter in pycinema.Filter._filters.items():
-            if not isinstance(filter,ViewFilter):
+            if not isinstance(filter,View):
                 script += filter.id + ' = pycinema.filters.' + filter.__class__.__name__+'()\n'
 
         script += '\n# properties\n'
@@ -106,34 +105,41 @@ import pycinema.explorer
 
         return script
 
+    def reset(self):
+      Filter._processing = True
+      self.nodeView.view.auto_layout = False
+      self.nodeView.view.auto_connect = False
+      for f in list(Filter._filters):
+        f.delete()
+      Filter._processing = False
+      self.nodeView.view.auto_layout = True
+      self.nodeView.view.auto_connect = True
+
     def openCDB(self, s):
         path = QtWidgets.QFileDialog.getExistingDirectory(self, "Open Cinema Database")
         if not path:
             return
 
+        self.reset()
+
         script = '''
 import pycinema
 import pycinema.filters
 import pycinema.explorer
+import pycinema.explorer.views
 
 # layout
-vf0 = pycinema.explorer.Explorer.window.centralWidget()
-vf0.s_splitH()
-vf1 = vf0.widget(0)
-vf2 = vf0.widget(1)
-vf2.s_splitH()
-vf3 = vf2.widget(0)
-vf3.s_splitV()
-vf5 = vf3.widget(0)
-ParameterViewer_0 = vf5.convert( pycinema.explorer.ParameterViewer )
-vf6 = vf3.widget(1)
-vf6.s_splitV()
-vf7 = vf6.widget(0)
-TableViewer_0 = vf7.convert( pycinema.explorer.TableViewer )
-vf8 = vf6.widget(1)
-ColorMappingViewer_0 = vf8.convert( pycinema.explorer.ColorMappingViewer )
-vf4 = vf2.widget(1)
-ImageViewer_0 = vf4.convert( pycinema.explorer.ImageViewer )
+pycinema.explorer.Explorer.instance.nodeView.setVisible(False)
+vf0 = pycinema.explorer.Explorer.instance.centralWidget()
+vf0.setHorizontalOrientation()
+vf1 = vf0.insertFrame(1)
+vf1.setVerticalOrientation()
+ParameterView_0 = vf1.insertView( 0, pycinema.explorer.views.ParameterView() )
+TableView_0 = vf1.insertView( 1, pycinema.explorer.views.TableView() )
+ColorMappingView_0 = vf1.insertView( 2, pycinema.explorer.views.ColorMappingView() )
+ImageView_0 = vf0.insertView( 2, pycinema.explorer.views.ImageView() )
+vf0.setSizes([0, 1500, 3000])
+vf1.setSizes([1000,1000])
 
 # filters
 CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
@@ -142,16 +148,15 @@ ImageReader_0 = pycinema.filters.ImageReader()
 DepthCompositing_0 = pycinema.filters.DepthCompositing()
 
 # properties
-ParameterViewer_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
-TableViewer_0.inputs.table.set(TableQuery_0.outputs.table, False)
-ColorMappingViewer_0.inputs.images.set(DepthCompositing_0.outputs.images, False)
-ImageViewer_0.inputs.images.set(ColorMappingViewer_0.outputs.images, False)
+ParameterView_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
+TableView_0.inputs.table.set(TableQuery_0.outputs.table, False)
+ColorMappingView_0.inputs.images.set(DepthCompositing_0.outputs.images, False)
+ImageView_0.inputs.images.set(ColorMappingView_0.outputs.images, False)
 TableQuery_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
-TableQuery_0.inputs.sql.set(ParameterViewer_0.outputs.sql, False)
+TableQuery_0.inputs.sql.set(ParameterView_0.outputs.sql, False)
 ImageReader_0.inputs.table.set(TableQuery_0.outputs.table, False)
 DepthCompositing_0.inputs.images_a.set(ImageReader_0.outputs.images, False)
-DepthCompositing_0.inputs.composite_by_meta.set(ParameterViewer_0.outputs.composite_by_meta, False)
-vf1.widget(0).hide()
+DepthCompositing_0.inputs.composite_by_meta.set(ParameterView_0.outputs.compose, False)
 '''
 
         script += 'CinemaDatabaseReader_0.inputs.path.set("'+path+'", False)\n'
@@ -184,21 +189,22 @@ vf1.widget(0).hide()
                 script_file.close()
                 self.nodeView.view.auto_layout = False
                 self.nodeView.view.auto_connect = False
+                self.reset()
                 self.executeScript(script)
             except:
                 return
 
 class Explorer():
 
-    window = None
+    instance = None
 
     def __init__(self):
 
         # show UI
         app = QtWidgets.QApplication([])
 
-        Explorer.window = _Explorer()
-        Explorer.window.resize(1024, 900)
-        Explorer.window.show()
+        Explorer.instance = _Explorer()
+        Explorer.instance.resize(1024, 900)
+        Explorer.instance.show()
 
         sys.exit(app.exec())

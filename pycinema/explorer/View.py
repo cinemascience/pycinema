@@ -3,8 +3,8 @@ from PySide6 import QtCore, QtWidgets, QtGui
 class View(QtWidgets.QFrame):
 
     s_close = QtCore.Signal(QtWidgets.QFrame, name='close')
-    s_splitH = QtCore.Signal(name='splitH')
-    s_splitV = QtCore.Signal(name='splitV')
+    s_splitH = QtCore.Signal(QtWidgets.QFrame,name='splitH')
+    s_splitV = QtCore.Signal(QtWidgets.QFrame,name='splitV')
 
     def __init__(self, content_layout='V'):
         super().__init__()
@@ -24,8 +24,8 @@ class View(QtWidgets.QFrame):
         self.button_h = QtWidgets.QPushButton("H")
         self.button_v = QtWidgets.QPushButton("V")
         self.button_c.clicked.connect(lambda: self.s_close.emit(self))
-        self.button_h.clicked.connect(lambda: self.s_splitH.emit())
-        self.button_v.clicked.connect(lambda: self.s_splitV.emit())
+        self.button_h.clicked.connect(lambda: self.s_splitH.emit(self))
+        self.button_v.clicked.connect(lambda: self.s_splitV.emit(self))
         self.toolbar.layout().addWidget(self.button_c)
         self.toolbar.layout().addWidget(self.button_h)
         self.toolbar.layout().addWidget(self.button_v)
