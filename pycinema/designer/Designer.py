@@ -1,14 +1,14 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
 import pycinema
-from pycinema.explorer import View
-from pycinema.explorer.ViewFrame import *
-from pycinema.explorer.FilterBrowser import *
-from pycinema.explorer.node_editor.NodeView import *
+from pycinema.designer import View
+from pycinema.designer.ViewFrame import *
+from pycinema.designer.FilterBrowser import *
+from pycinema.designer.node_editor.NodeView import *
 
 import sys
 
-class _Explorer(QtWidgets.QMainWindow):
+class _Designer(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
@@ -58,16 +58,16 @@ class _Explorer(QtWidgets.QMainWindow):
         script = '''
 import pycinema
 import pycinema.filters
-import pycinema.explorer
-import pycinema.explorer.views
+import pycinema.designer
+import pycinema.designer.views
 '''
 
         script += '\n# layout\n'
         if self.nodeView.isVisible():
-          script += 'pycinema.explorer.Explorer.instance.nodeView.setVisible(True)\n'
+          script += 'pycinema.designer.Designer.instance.nodeView.setVisible(True)\n'
         else:
-          script += 'pycinema.explorer.Explorer.instance.nodeView.setVisible(False)\n'
-        script += self.centralWidget().id+' = pycinema.explorer.Explorer.instance.centralWidget()\n'
+          script += 'pycinema.designer.Designer.instance.nodeView.setVisible(False)\n'
+        script += self.centralWidget().id+' = pycinema.designer.Designer.instance.centralWidget()\n'
         script += self.centralWidget().export()
 
         script += '\n# filters\n'
@@ -125,19 +125,19 @@ import pycinema.explorer.views
         script = '''
 import pycinema
 import pycinema.filters
-import pycinema.explorer
-import pycinema.explorer.views
+import pycinema.designer
+import pycinema.designer.views
 
 # layout
-pycinema.explorer.Explorer.instance.nodeView.setVisible(False)
-vf0 = pycinema.explorer.Explorer.instance.centralWidget()
+pycinema.designer.Designer.instance.nodeView.setVisible(False)
+vf0 = pycinema.designer.Designer.instance.centralWidget()
 vf0.setHorizontalOrientation()
 vf1 = vf0.insertFrame(1)
 vf1.setVerticalOrientation()
-ParameterView_0 = vf1.insertView( 0, pycinema.explorer.views.ParameterView() )
-TableView_0 = vf1.insertView( 1, pycinema.explorer.views.TableView() )
-ColorMappingView_0 = vf1.insertView( 2, pycinema.explorer.views.ColorMappingView() )
-ImageView_0 = vf0.insertView( 2, pycinema.explorer.views.ImageView() )
+ParameterView_0 = vf1.insertView( 0, pycinema.designer.views.ParameterView() )
+TableView_0 = vf1.insertView( 1, pycinema.designer.views.TableView() )
+ColorMappingView_0 = vf1.insertView( 2, pycinema.designer.views.ColorMappingView() )
+ImageView_0 = vf0.insertView( 2, pycinema.designer.views.ImageView() )
 vf0.setSizes([0, 1500, 3000])
 vf1.setSizes([1000,1000])
 
@@ -194,7 +194,7 @@ DepthCompositing_0.inputs.composite_by_meta.set(ParameterView_0.outputs.compose,
             except:
                 return
 
-class Explorer():
+class Designer():
 
     instance = None
 
@@ -203,8 +203,8 @@ class Explorer():
         # show UI
         app = QtWidgets.QApplication([])
 
-        Explorer.instance = _Explorer()
-        Explorer.instance.resize(1024, 900)
-        Explorer.instance.show()
+        Designer.instance = _Designer()
+        Designer.instance.resize(1024, 900)
+        Designer.instance.show()
 
         sys.exit(app.exec())

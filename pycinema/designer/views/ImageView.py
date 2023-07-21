@@ -1,5 +1,5 @@
 from pycinema import Filter
-from pycinema.explorer.views.FilterView import FilterView
+from pycinema.designer.views.FilterView import FilterView
 
 import numpy
 # import PIL

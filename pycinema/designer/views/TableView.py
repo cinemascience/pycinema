@@ -1,6 +1,6 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from pycinema.explorer.views.FilterView import FilterView
+from pycinema.designer.views.FilterView import FilterView
 from pycinema import Filter
 
 class TableModel(QtCore.QAbstractTableModel):
@@ -52,6 +52,9 @@ class TableView(Filter, FilterView):
 
     def generateWidgets(self):
         self.tableView = QtWidgets.QTableView()
+        # self.tableView.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch);
+        # self.tableView.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Interactive);
+        # self.tableView.horizontalHeader().resizeSections(QtWidgets.QHeaderView.Stretch);
         self.tableView.setModel(self.model)
         self.content.layout().addWidget(self.tableView,1)
 
