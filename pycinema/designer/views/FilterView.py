@@ -1,6 +1,6 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from pycinema.explorer.View import View
+from pycinema.designer.View import View
 
 class FilterView(View):
 

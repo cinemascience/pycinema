@@ -1,7 +1,7 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from pycinema.explorer.View import View
-from pycinema.explorer.FilterBrowser import FilterBrowser
+from pycinema.designer.View import View
+from pycinema.designer.FilterBrowser import FilterBrowser
 
 import pycinema
 import pycinema.filters
@@ -13,10 +13,10 @@ except:
     use_pgv = False
 import igraph
 
-from pycinema.explorer.node_editor.NodeEditorStyle import *
-from pycinema.explorer.node_editor.Edge import Edge
-from pycinema.explorer.node_editor.Port import Port, PortDisc
-from pycinema.explorer.node_editor.Node import Node
+from pycinema.designer.node_editor.NodeEditorStyle import *
+from pycinema.designer.node_editor.Edge import Edge
+from pycinema.designer.node_editor.Port import Port, PortDisc
+from pycinema.designer.node_editor.Node import Node
 
 class _NodeView(QtWidgets.QGraphicsView):
 

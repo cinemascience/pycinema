@@ -1,8 +1,8 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from pycinema.explorer.views import SelectionView
-from pycinema.explorer.views import FilterView
-from pycinema.explorer.node_editor.NodeView import NodeView
+from pycinema.designer.views import SelectionView
+from pycinema.designer.views import FilterView
+from pycinema.designer.node_editor.NodeView import NodeView
 from pycinema import Filter
 
 class ViewFrame(QtWidgets.QSplitter):
@@ -131,24 +131,24 @@ class ViewFrame(QtWidgets.QSplitter):
             r += w.id + ' = ' + self.id + '.insertFrame('+str(i)+')\n'
             r += w.export()
           elif isinstance(w,Filter):
-            r += w.id + ' = ' + self.id+'.insertView( '+str(i)+', pycinema.explorer.views.'+w.__class__.__name__+'() )\n'
+            r += w.id + ' = ' + self.id+'.insertView( '+str(i)+', pycinema.designer.views.'+w.__class__.__name__+'() )\n'
           # else:
-          #   r += self.id+'.convert( '+str(i)+', pycinema.explorer.'+w.__class__.__name__+' )\n'
+          #   r += self.id+'.convert( '+str(i)+', pycinema.designer.'+w.__class__.__name__+' )\n'
 
         r += self.id + '.setSizes('+str(self.sizes())+')\n'
         return r
-            # r += w.id + '.convert( pycinema.explorer.'+w.__class__.__name__+' )\n'
+            # r += w.id + '.convert( pycinema.designer.'+w.__class__.__name__+' )\n'
 
 
         # if self.count()==1:
         #     view = self.widget(0)
         #     if view.__class__ == FilterView:
         #         filter = view.filter
-        #         return filter.id + ' = ' + self.id+'.convert( pycinema.explorer.'+view.filter.__class__.__name__+' )\n'
+        #         return filter.id + ' = ' + self.id+'.convert( pycinema.designer.'+view.filter.__class__.__name__+' )\n'
         #     elif view.__class__ == NodeView:
         #         return ''
         #     else:
-        #         return self.id+'.convert( pycinema.explorer.'+view.__class__.__name__+' )\n'
+        #         return self.id+'.convert( pycinema.designer.'+view.__class__.__name__+' )\n'
         # else:
         #     r = ''
         #     if self.orientation()==QtCore.Qt.Horizontal:
