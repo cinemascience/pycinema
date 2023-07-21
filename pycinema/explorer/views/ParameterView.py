@@ -28,11 +28,14 @@ class ParameterView(Filter, FilterView):
 
     def generateWidgets(self):
         self.widgets = QtWidgets.QFrame()
-        self.widgets.setLayout(QtWidgets.QGridLayout())
+        l = QtWidgets.QGridLayout()
+        l.setAlignment(QtCore.Qt.AlignTop)
+        l.setSpacing(0)
+        l.setContentsMargins(0,0,0,0)
+        self.widgets.setLayout(l)
         self.content.layout().addWidget(self.widgets)
-        self.content.layout().addWidget(QtWidgets.QLabel(""),1)
 
-        self._widgets = {}
+        self.widgetsDict = {}
 
     def widgetToSQL(self, wt):
         v = None
@@ -66,10 +69,10 @@ class ParameterView(Filter, FilterView):
 
     def addWidgetToLayout(self, wt, grid_layout, grid_idx):
         wt['grid_idx'] = grid_idx
-        grid_layout.addWidget(wt['C'],grid_idx,0)
-        grid_layout.addWidget(wt['T'],grid_idx,1)
-        grid_layout.addWidget(wt['SF'],grid_idx,2)
-        grid_layout.addWidget(wt['O'],grid_idx,2)
+        grid_layout.addWidget(wt['C'],grid_idx,0,QtCore.Qt.AlignTop)
+        grid_layout.addWidget(wt['T'],grid_idx,1,QtCore.Qt.AlignTop)
+        grid_layout.addWidget(wt['SF'],grid_idx,2,QtCore.Qt.AlignTop)
+        grid_layout.addWidget(wt['O'],grid_idx,2,QtCore.Qt.AlignTop)
 
     def generateWidget(self,parameter, table, idx, states):
 
@@ -77,12 +80,12 @@ class ParameterView(Filter, FilterView):
           self.update()
 
         def on_slider_change(name):
-          wt = self._widgets[name]
+          wt = self.widgetsDict[name]
           wt['SL'].setText(wt['values'][wt['S'].value()])
           self.update()
 
         def on_type_change(name):
-          wt = self._widgets[name]
+          wt = self.widgetsDict[name]
 
           t = wt['T'].currentText()
           if t == 'S':
@@ -156,7 +159,7 @@ class ParameterView(Filter, FilterView):
         parameters = [p for p in table[0] if p not in ignore]
         parameters.sort()
 
-        existing_parameters = [p for p in self._widgets]
+        existing_parameters = [p for p in self.widgetsDict]
         existing_parameters.sort()
 
         if parameters != existing_parameters and len(existing_parameters)<1:
@@ -165,7 +168,7 @@ class ParameterView(Filter, FilterView):
           for parameter in parameters:
               idx = table[0].index(parameter)
               wt = self.generateWidget(parameter,table,idx,states)
-              self._widgets[parameter] = wt
+              self.widgetsDict[parameter] = wt
               self.addWidgetToLayout(wt,grid_layout,grid_idx)
               grid_idx += 1
 
@@ -183,7 +186,7 @@ class ParameterView(Filter, FilterView):
 
         # export state
         state = {}
-        for _,wt in self._widgets.items():
+        for _,wt in self.widgetsDict.items():
             state[wt['parameter']] = {
               "C": wt['C'].isChecked(),
               "T": wt['T'].currentText(),
@@ -193,7 +196,7 @@ class ParameterView(Filter, FilterView):
         self.inputs.state.set(state, False)
 
         sql = 'SELECT * FROM input WHERE '
-        for _,wt in self._widgets.items():
+        for _,wt in self.widgetsDict.items():
             wsql = self.widgetToSQL(wt)
             if len(wsql)>0:
                 sql += wsql+ ' AND '
@@ -203,7 +206,7 @@ class ParameterView(Filter, FilterView):
         self.outputs.sql.set(sql[:-6])
 
         compose = (None,{})
-        for _,wt in self._widgets.items():
+        for _,wt in self.widgetsDict.items():
             if wt['C'].isChecked():
                 valueMap = {}
                 for i,v in enumerate(wt['values']):

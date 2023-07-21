@@ -39,7 +39,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     scripts=[
-        'doc/description.md',
-        'scripts/pycinema'
+        'doc/description.md'
     ],
 )
