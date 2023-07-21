@@ -34,10 +34,13 @@ class ColorMappingView(Filter, FilterView):
     def generateWidgets(self):
         self.widgetsDict = {}
         self.widgets = QtWidgets.QFrame()
-        self.widgets.setLayout(QtWidgets.QGridLayout())
+        l = QtWidgets.QGridLayout()
+        l.setAlignment(QtCore.Qt.AlignTop)
+        l.setSpacing(0)
+        l.setContentsMargins(0,0,0,0)
+        self.widgets.setLayout(l)
 
         self.content.layout().addWidget(self.widgets)
-        self.content.layout().addWidget(QtWidgets.QLabel(""),1)
 
         gridL = self.widgets.layout()
         row = 0
