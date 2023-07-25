@@ -68,25 +68,25 @@ class LineAOViewer(Filter):
         self.colorMapping.inputs.channel.set(self.colorMappingWidgets.outputs.channel,False)
         self.colorMapping.inputs.nan.set(self.colorMappingWidgets.outputs.nan,False)
 
-        self.shaderIBS = ShaderIBS()
-        self.shaderIBS.inputs.images.set(self.colorMapping.outputs.images,False)
+       # self.shaderIBS = ShaderIBS()
+        # self.shaderIBS.inputs.images.set(self.colorMapping.outputs.images,False)
 
 
 
         self.shaderLineAO = ShaderLineAO()
-        self.shaderLineAO.inputs.images.set(self.shaderIBS.outputs.images,False)
+        self.shaderLineAO.inputs.images.set(self.colorMapping.outputs.images,False)
         self.shadingWidgetsContainer.children = [
-            NumberWidget(self.shaderIBS.inputs.radius, range=[0,1,0.01]).widget,
-            NumberWidget(self.shaderIBS.inputs.samples, range=[1,256,1]).widget,
-            NumberWidget(self.shaderIBS.inputs.silhouette, range=[0.01,1,0.01]).widget,
-            NumberWidget(self.shaderIBS.inputs.luminance, range=[0,2,0.01]).widget,
-            NumberWidget(self.shaderIBS.inputs.ambient, range=[0,2,0.01]).widget,
+           # NumberWidget(self.shaderIBS.inputs.radius, range=[0,1,0.01]).widget,
+           # NumberWidget(self.shaderIBS.inputs.samples, range=[1,256,1]).widget,
+           # NumberWidget(self.shaderIBS.inputs.silhouette, range=[0.01,1,0.01]).widget,
+           # NumberWidget(self.shaderIBS.inputs.luminance, range=[0,2,0.01]).widget,
+           # NumberWidget(self.shaderIBS.inputs.ambient, range=[0,2,0.01]).widget,
+
              # TODO: change the parameters below to parameters we actually need
-            NumberWidget(self.shaderLineAO.inputs.radius, range=[0,1,0.01]).widget,
+            NumberWidget(self.shaderLineAO.inputs.radius, range=[1,10,0.01]).widget,
             NumberWidget(self.shaderLineAO.inputs.samples, range=[1,256,1]).widget,
-            NumberWidget(self.shaderLineAO.inputs.silhouette, range=[0.01,1,0.01]).widget,
-            NumberWidget(self.shaderLineAO.inputs.luminance, range=[0,2,0.01]).widget,
-            NumberWidget(self.shaderLineAO.inputs.ambient, range=[0,2,0.01]).widget,
+            NumberWidget(self.shaderLineAO.inputs.scalers, range=[1,256,1]).widget,
+
         ]
 
 

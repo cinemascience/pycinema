@@ -64,7 +64,7 @@ void main(){
 """
 
     def getFragmentShaderCode(self):
-        # needs to be overriden
+        # needs to be overriden<
         return ""
 
     def createTexture(self,location,res,components,dtype='f1'):
@@ -73,6 +73,16 @@ void main(){
         tex.repeat_y = False
         tex.use(location=location)
         return tex
+    
+    def createNoiseTexture(self, location, res, components, dtype='f1'):
+        noise_data = numpy.random.rand(res[0], res[1], components)
+        noise_data = (noise_data * 255).astype(numpy.uint8).tobytes()
+        tex = self.ctx.texture(res, components, data=noise_data, dtype=dtype, alignment=1)
+        tex.repeat_x = False
+        tex.repeat_y = False
+        tex.use(location=location)
+        return tex
+
 
 Shader.ctx = moderngl.create_standalone_context(require=330)
 Shader.quad = Shader.ctx.buffer(
