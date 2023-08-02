@@ -57,15 +57,15 @@ class ParameterView(Filter, FilterView):
         for j in range(1,len(table)):
             vdic.add(table[j][idx])
 
-        values = list(vdic)
+        v_list = list(vdic)
         isListOfNumbers = isNumber(table[1][idx])
         if isListOfNumbers:
-            values = [float(x) for x in values]
-        values.sort()
+          v_list = [(float(x),x) for x in v_list]
+        v_list.sort()
         if isListOfNumbers:
-            values = [str(x) for x in values]
+          v_list = [x[1] for x in v_list]
 
-        return values
+        return v_list
 
     def addWidgetToLayout(self, wt, grid_layout, grid_idx):
         wt['grid_idx'] = grid_idx

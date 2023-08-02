@@ -5,14 +5,15 @@ from pycinema.designer.node_editor.Port import Port
 
 class Node(QtWidgets.QGraphicsObject):
 
-    node_map = {}
-
     s_moved = QtCore.Signal(name='s_moved')
 
-    def __init__(self,filter):
+    def __init__(self,filter,node_map,port_map):
         super().__init__()
 
         self.setZValue(Z_NODE_LAYER)
+
+        self.node_map = node_map
+        self.port_map = port_map
 
         self.node_map[filter] = self
 
@@ -54,16 +55,18 @@ class Node(QtWidgets.QGraphicsObject):
         # output ports
         portY = NODE_PORT_Y
 
-        for name, port in self.outputPorts:
+        for (ports,x) in [(self.outputPorts,brN.right()),(self.inputPorts,brN.left())]:
+          for name, port in ports:
             qPort = Port(self,port)
-            qPort.setPos(brN.right(),portY)
+            self.port_map[port] = qPort
+            qPort.setPos(x,portY)
             portY += NODE_PORT_SPACE
 
-        for name, port in self.inputPorts:
-            qPort = Port(self,port)
-            qPort.setPos(brN.left(),portY)
-            portY += NODE_PORT_SPACE
-
+    def delete(self):
+      for ports in [self.outputPorts,self.inputPorts]:
+        for name, port in ports:
+          del self.port_map[port]
+      del self.node_map[self.filter]
 
     def itemChange(self, change, value):
         if change == QtWidgets.QGraphicsItem.GraphicsItemChange.ItemPositionHasChanged:
@@ -93,24 +96,3 @@ class Node(QtWidgets.QGraphicsObject):
         path = QtGui.QPainterPath()
         path.addRect(br2)
         painter.fillPath(path,QtGui.QBrush(COLOR_BASE_T))
-
-        # if self.isSelected():
-        #     pen = QtGui.QPen(COLOR_BORDER, NODE_BORDER_WIDTH)
-        #     painter.setPen(pen)
-        #     path = QtGui.QPainterPath()
-        #     path.addRect(br)
-        #     painter.drawPath(path)
-
-
-        # path.addRoundedRect(br,NODE_BORDER_RADIUS,NODE_BORDER_RADIUS)
-
-        # path = QtGui.QPainterPath()
-        # path.addRect(br)
-        # painter.fillPath(path,QtGui.QBrush(COLOR_BASE_T))
-        # painter.fillPath(path,COLOR_BASE_T)
-        # painter.fillPath(path,COLOR_BASE_T)
-
-        # pen = QtGui.QPen(COLOR_BORDER, NODE_BORDER_WIDTH)
-
-        # painter.setPen(pen)
-        # painter.drawPath(path)

@@ -4,7 +4,7 @@ import pycinema
 from pycinema.designer import View
 from pycinema.designer.ViewFrame import *
 from pycinema.designer.FilterBrowser import *
-from pycinema.designer.node_editor.NodeView import *
+from pycinema.designer.views.NodeView import *
 
 import sys
 
@@ -15,10 +15,10 @@ class _Designer(QtWidgets.QMainWindow):
         toolbar = QtWidgets.QToolBar("My main toolbar")
         self.addToolBar(toolbar)
 
-        button_openCDB = QtGui.QAction("Open", self)
-        button_openCDB.setStatusTip("open local cinema database")
-        button_openCDB.triggered.connect(self.openCDB)
-        toolbar.addAction(button_openCDB)
+        button_viewCDB = QtGui.QAction("Open", self)
+        button_viewCDB.setStatusTip("open local cinema database")
+        button_viewCDB.triggered.connect(self.viewCDB)
+        toolbar.addAction(button_viewCDB)
 
         button_save = QtGui.QAction("Save", self)
         button_save.setStatusTip("save script")
@@ -35,19 +35,14 @@ class _Designer(QtWidgets.QMainWindow):
         button_filters.triggered.connect(self.showFilterBrowser)
         toolbar.addAction(button_filters)
 
-        button_toggle_ne = QtGui.QAction("Toggle Node Editor", self)
-        button_toggle_ne.setStatusTip("Show/Hides Node Editor")
-        button_toggle_ne.triggered.connect(self.toggleNodeEditor)
-        toolbar.addAction(button_toggle_ne)
+        button_reset = QtGui.QAction("Reset", self)
+        button_reset.setStatusTip("Reset Designer")
+        button_reset.triggered.connect(self.reset)
+        toolbar.addAction(button_reset)
 
-        self.nodeView = NodeView()
         vf = ViewFrame(root=True)
-        vf.insertView(0,self.nodeView)
+        vf.insertView(0,NodeView())
         self.setCentralWidget(vf)
-
-    def toggleNodeEditor(self):
-        current_state = self.nodeView.isVisible()
-        self.nodeView.setVisible(not current_state)
 
     def showFilterBrowser(self):
         dialog = FilterBrowser()
@@ -63,10 +58,6 @@ import pycinema.designer.views
 '''
 
         script += '\n# layout\n'
-        if self.nodeView.isVisible():
-          script += 'pycinema.designer.Designer.instance.nodeView.setVisible(True)\n'
-        else:
-          script += 'pycinema.designer.Designer.instance.nodeView.setVisible(False)\n'
         script += self.centralWidget().id+' = pycinema.designer.Designer.instance.centralWidget()\n'
         script += self.centralWidget().export()
 
@@ -105,22 +96,41 @@ import pycinema.designer.views
 
         return script
 
-    def reset(self):
+    def reset(self, no_views=False):
       Filter._processing = True
-      self.nodeView.view.auto_layout = False
-      self.nodeView.view.auto_connect = False
+      QtNodeView.auto_layout = False
+      QtNodeView.auto_connect = False
       for f in list(Filter._filters):
         f.delete()
       Filter._processing = False
-      self.nodeView.view.auto_layout = True
-      self.nodeView.view.auto_connect = True
+      QtNodeView.auto_layout = True
+      QtNodeView.auto_connect = True
 
-    def openCDB(self, s):
-        path = QtWidgets.QFileDialog.getExistingDirectory(self, "Open Cinema Database")
+      root = self.centralWidget()
+
+      def findAllViews(views,vf):
+        for i in range(0,vf.count()):
+          w = vf.widget(i)
+          if isinstance(w, ViewFrame):
+            findAllViews(views,w)
+          else:
+            views.append(w)
+
+      views = []
+      findAllViews(views,root)
+      for v in views:
+        v.parent().s_close(v)
+
+      if no_views:
+        self.centralWidget().widget(0).setParent(None)
+
+    def viewCDB(self, path=None):
         if not path:
-            return
+          path = QtWidgets.QFileDialog.getExistingDirectory(self, "Open Cinema Database")
+        if not path:
+          return
 
-        self.reset()
+        self.reset(True)
 
         script = '''
 import pycinema
@@ -129,67 +139,117 @@ import pycinema.designer
 import pycinema.designer.views
 
 # layout
-pycinema.designer.Designer.instance.nodeView.setVisible(False)
 vf0 = pycinema.designer.Designer.instance.centralWidget()
 vf0.setHorizontalOrientation()
-vf1 = vf0.insertFrame(1)
+vf1 = vf0.insertFrame(0)
 vf1.setVerticalOrientation()
 ParameterView_0 = vf1.insertView( 0, pycinema.designer.views.ParameterView() )
 TableView_0 = vf1.insertView( 1, pycinema.designer.views.TableView() )
 ColorMappingView_0 = vf1.insertView( 2, pycinema.designer.views.ColorMappingView() )
-ImageView_0 = vf0.insertView( 2, pycinema.designer.views.ImageView() )
-vf0.setSizes([0, 1500, 3000])
-vf1.setSizes([1000,1000])
+ImageView_0 = vf0.insertView( 1, pycinema.designer.views.ImageView() )
+vf0.setSizes([300,600])
 
 # filters
 CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
 TableQuery_0 = pycinema.filters.TableQuery()
 ImageReader_0 = pycinema.filters.ImageReader()
 DepthCompositing_0 = pycinema.filters.DepthCompositing()
+Annotation_0 = pycinema.filters.Annotation()
 
 # properties
 ParameterView_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
-TableView_0.inputs.table.set(TableQuery_0.outputs.table, False)
-ColorMappingView_0.inputs.images.set(DepthCompositing_0.outputs.images, False)
-ImageView_0.inputs.images.set(ColorMappingView_0.outputs.images, False)
 TableQuery_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
 TableQuery_0.inputs.sql.set(ParameterView_0.outputs.sql, False)
+TableView_0.inputs.table.set(TableQuery_0.outputs.table, False)
 ImageReader_0.inputs.table.set(TableQuery_0.outputs.table, False)
 DepthCompositing_0.inputs.images_a.set(ImageReader_0.outputs.images, False)
-DepthCompositing_0.inputs.composite_by_meta.set(ParameterView_0.outputs.compose, False)
+DepthCompositing_0.inputs.compose.set(ParameterView_0.outputs.compose, False)
+ColorMappingView_0.inputs.images.set(DepthCompositing_0.outputs.images, False)
+Annotation_0.inputs.images.set(ColorMappingView_0.outputs.images, False)
+ImageView_0.inputs.images.set(Annotation_0.outputs.images, False)
 '''
-
         script += 'CinemaDatabaseReader_0.inputs.path.set("'+path+'", False)\n'
         script += 'CinemaDatabaseReader_0.update()'
+        self.executeScript(script)
 
+    def exploreCDB(self, path=None):
+        if not path:
+          path = QtWidgets.QFileDialog.getExistingDirectory(self, "Choose Cinema Database")
+        if not path:
+          return
+
+        self.reset(True)
+
+        script = '''
+import pycinema
+import pycinema.filters
+import pycinema.designer
+import pycinema.designer.views
+
+# layout
+vf0 = pycinema.designer.Designer.instance.centralWidget()
+vf0.setHorizontalOrientation()
+vf1 = vf0.insertFrame(0)
+vf1.setVerticalOrientation()
+ParallelCoordinatesView_0 = vf1.insertView( 0, pycinema.designer.views.ParallelCoordinatesView() )
+TableView_0 = vf1.insertView( 1, pycinema.designer.views.TableView() )
+ColorMappingView_0 = vf1.insertView( 2, pycinema.designer.views.ColorMappingView() )
+vf2 = vf0.insertFrame(1)
+vf2.setVerticalOrientation()
+ImageView_0 = vf2.insertView( 0, pycinema.designer.views.ImageView() )
+vf0.setSizes([400,600])
+
+# filters
+CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
+ImageReader_0 = pycinema.filters.ImageReader()
+DepthCompositing_0 = pycinema.filters.DepthCompositing()
+Annotation_0 = pycinema.filters.Annotation()
+
+# properties
+ParallelCoordinatesView_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
+TableView_0.inputs.table.set(ParallelCoordinatesView_0.outputs.table, False)
+ImageView_0.inputs.images.set(ColorMappingView_0.outputs.images, False)
+ImageReader_0.inputs.table.set(ParallelCoordinatesView_0.outputs.table, False)
+DepthCompositing_0.inputs.images_a.set(ImageReader_0.outputs.images, False)
+DepthCompositing_0.inputs.compose.set(ParallelCoordinatesView_0.outputs.compose, False)
+ColorMappingView_0.inputs.images.set(DepthCompositing_0.outputs.images, False)
+Annotation_0.inputs.images.set(ColorMappingView_0.outputs.images, False)
+ImageView_0.inputs.images.set(Annotation_0.outputs.images, False)
+'''
+        script += 'CinemaDatabaseReader_0.inputs.path.set("'+path+'", False)\n'
+        script += 'CinemaDatabaseReader_0.update()'
         self.executeScript(script)
 
     def executeScript(self, script):
+        QtNodeView.auto_layout = False
+        QtNodeView.auto_connect = False
         namespace = {}
         lines = script.splitlines()
         def call(idx):
             if len(lines)<=idx:
-                self.nodeView.view.auto_layout = True
-                self.nodeView.view.auto_connect = True
-                self.nodeView.view.skip_layout_animation = True
-                self.nodeView.view.computeLayout()
-                self.nodeView.view.skip_layout_animation = False
-                self.nodeView.view.fitInView()
+                QtNodeView.auto_layout = True
+                QtNodeView.auto_connect = True
+                QtNodeView.skip_layout_animation = True
+                QtNodeView.computeLayout()
+                QtNodeView.skip_layout_animation = False
+                for view in QtNodeView.instances:
+                  view.fitInView()
+                if self.centralWidget().count()<1:
+                  self.centralWidget().insertView(0,NodeView())
                 return
             exec(lines[idx], namespace)
             QtCore.QTimer.singleShot(0, lambda: call(idx+1))
         QtCore.QTimer.singleShot(0, lambda: call(0))
 
-    def loadScript(self):
-        script_file_name = QtWidgets.QFileDialog.getOpenFileName(self, "Load Script")
-        if len(script_file_name[0])>0:
+    def loadScript(self, script_file_name=None):
+        if not script_file_name:
+            script_file_name = QtWidgets.QFileDialog.getOpenFileName(self, "Load Script")[0]
+        if script_file_name and len(script_file_name)>0:
             try:
-                script_file = open(script_file_name[0], "r")
+                script_file = open(script_file_name, "r")
                 script = script_file.read()
                 script_file.close()
-                self.nodeView.view.auto_layout = False
-                self.nodeView.view.auto_connect = False
-                self.reset()
+                self.reset(True)
                 self.executeScript(script)
             except:
                 return
@@ -198,7 +258,7 @@ class Designer():
 
     instance = None
 
-    def __init__(self):
+    def __init__(self, args=[]):
 
         # show UI
         app = QtWidgets.QApplication([])
@@ -206,5 +266,12 @@ class Designer():
         Designer.instance = _Designer()
         Designer.instance.resize(1024, 900)
         Designer.instance.show()
+
+        if len(args)==1 and isinstance(args[0], str) and args[0].endswith('.py'):
+            Designer.instance.loadScript(args[0])
+        elif len(args)>1 and args[0]=='view':
+            Designer.instance.viewCDB(args[1])
+        elif len(args)>1 and args[0]=='explorer':
+            Designer.instance.exploreCDB(args[1])
 
         sys.exit(app.exec())
