@@ -4,14 +4,10 @@ from pycinema.designer.node_editor.NodeEditorStyle import *
 
 class Edge(QtWidgets.QGraphicsLineItem):
 
-    edge_map= {}
-
     def __init__(self,port0,port1,parent=None):
         super().__init__(parent)
 
         self.setZValue(Z_EDGE_LAYER)
-
-        self.edge_map[(port0.port,port1.port)] = self
 
         self.setPen(QtGui.QPen(COLOR_NORMAL, 2, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
 

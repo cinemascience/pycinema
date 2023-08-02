@@ -14,6 +14,9 @@ class FilterView(View):
 
         self.generateWidgets()
 
+    def __del__(self):
+        print('del FilterView')
+
     def generateWidgets(self):
         self.frame = QtWidgets.QFrame()
         self.frame.setLayout(QtWidgets.QVBoxLayout())
