@@ -17,7 +17,6 @@ class Image():
         # get first channel
         for c in self.channels:
             return self.channels[c].shape
-
         return (0,0,0)
 
 def isNumber(s):
@@ -97,7 +96,7 @@ class Port():
         return self.time;
 
     def set(self, value, update = True):
-        if Filter._debug and update:
+        if Filter._debug:
             print(type(self.parent).__name__+"->"+self.name, str(value)[:40])
 
         if self._value == value:
@@ -122,7 +121,7 @@ class Port():
             Filter.trigger('connection_added', [self._value,self])
 
         # if value of a port was changed trigger update of listeners
-        if update and not Filter._processing:
+        if self.is_input and update and not Filter._processing:
             self.parent.update()
 
 class PortList():
@@ -134,7 +133,6 @@ class PortList():
 
     def ports(self):
         return self.__ports.items()
-
 
 class Filter():
 
@@ -236,12 +234,10 @@ class Filter():
               edgesR[m]-=1
               if edgesR[m]<1:
                   S.append(m)
-
       return L
 
     def update(self):
-        if Filter._processing:
-          return 0
+        if Filter._processing: return 0
 
         Filter._processing = True
 
@@ -251,9 +247,11 @@ class Filter():
         filters = Filter.computeTopologicalOrdering(edges)
 
         if Filter._debug:
-            for k, v in edges.items():
-              print(k,v)
+            print("--------------------------------")
             print("DAG (%.2fs)" % (time.time()-dagt))
+            for f in filters:
+              print('  ',f,edges[f])
+            print("--------------------------------")
 
         for i,f in enumerate(filters):
             lt = f.time

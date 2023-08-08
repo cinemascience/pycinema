@@ -10,7 +10,7 @@ class DepthCompositing(Filter):
             'images_a': [],
             'images_b': [],
             'depth_channel': 'depth',
-            'composite_by_meta': (None,{})
+            'compose': (None,{})
           },
           outputs={
             'images': []
@@ -39,9 +39,9 @@ class DepthCompositing(Filter):
             return data
         return [data]
 
-    def getKeys(self,image,composite_by_meta):
-        composite_by_meta = [composite_by_meta[0]] + ['id','file']
-        return list(filter(lambda m: m not in composite_by_meta, image.meta))
+    def getKeys(self,image,compose):
+        compose = [compose[0]] + ['id','file']
+        return list(filter(lambda m: m not in compose, image.meta))
 
     def getTupleKey(self,image,keys):
         meta_keys = [self.toList(image.meta[m]) for m in keys]
@@ -99,7 +99,7 @@ class DepthCompositing(Filter):
                 result.meta[m] = union
 
         if 'composition_mask' in result.channels:
-            metaCompositing = self.inputs.composite_by_meta.get()
+            metaCompositing = self.inputs.compose.get()
             result.channels['composition_mask'][mask] = metaCompositing[1][str(B.meta[metaCompositing[0]])]
 
         return result
@@ -127,7 +127,7 @@ class DepthCompositing(Filter):
         elif len(imagesA)>0:
             imagesMap = {}
 
-            metaCompositing = self.inputs.composite_by_meta.get()
+            metaCompositing = self.inputs.compose.get()
             keys = self.getKeys(imagesA[0],metaCompositing)
 
             for i in imagesA:
@@ -137,7 +137,6 @@ class DepthCompositing(Filter):
                 imagesMap[key].append(i)
 
             for key, images in imagesMap.items():
-                # print(len(images),key)
                 result = images[0].copy()
 
                 if metaCompositing[0]!=None and 'composition_mask' not in result.channels:

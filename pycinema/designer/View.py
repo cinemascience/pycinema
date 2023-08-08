@@ -23,9 +23,9 @@ class View(QtWidgets.QFrame):
         self.button_c = QtWidgets.QPushButton("X")
         self.button_h = QtWidgets.QPushButton("H")
         self.button_v = QtWidgets.QPushButton("V")
-        self.button_c.clicked.connect(lambda: self.s_close.emit(self))
-        self.button_h.clicked.connect(lambda: self.s_splitH.emit(self))
-        self.button_v.clicked.connect(lambda: self.s_splitV.emit(self))
+        self.button_c.clicked.connect(self.emitClose)
+        self.button_h.clicked.connect(self.emitSplitH)
+        self.button_v.clicked.connect(self.emitSplitV)
         self.toolbar.layout().addWidget(self.button_c)
         self.toolbar.layout().addWidget(self.button_h)
         self.toolbar.layout().addWidget(self.button_v)
@@ -40,6 +40,16 @@ class View(QtWidgets.QFrame):
             self.content.setLayout(QtWidgets.QGridLayout())
         self.content.layout().setContentsMargins(10,0,10,2)
         self.layout().addWidget(self.content,1)
+
+    # def __del__(self):
+    #   print('del VIEW')
+
+    def emitClose(self):
+      self.s_close.emit(self)
+    def emitSplitH(self):
+      self.s_splitH.emit(self)
+    def emitSplitV(self):
+      self.s_splitV.emit(self)
 
     def setTitle(self,text):
         self.title.setText(text)
