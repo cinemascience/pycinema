@@ -69,13 +69,9 @@ class WidgetFrame(QtWidgets.QGraphicsRectItem):
 
 class Port(QtWidgets.QGraphicsItem):
 
-    port_map = {}
-
     def __init__(self,parent,port):
         super().__init__(parent)
         self.port = port
-
-        Port.port_map[port] = self
 
         parentBR = parent.boundingRect()
 
@@ -100,40 +96,11 @@ class Port(QtWidgets.QGraphicsItem):
         self.widgetFrame.setZValue(Z_NODE_LAYER+1)
         self.widgetFrame.setPos(self.widget.pos())
 
-        # self.label_ = QtWidgets.QLabel(port.name)
-        # self.label_.setStyleSheet("background-color: transparent; color: "+COLOR_NORMAL_);
-
-        # self.label = QtWidgets.QGraphicsProxyWidget(self)
-        # self.label.setWidget(self.label_)
-        # portLabelBR = self.label.boundingRect()
-        # if port.is_input:
-        #   self.label.setPos(
-        #     PORT_SIZE+3,
-        #     -portLabelBR.height()/2-1
-        #   )
-        # else:
-        #   self.label.setPos(
-        #     -PORT_SIZE-3-portLabelBR.width(),
-        #     -portLabelBR.height()/2-1
-        #   )
-
         self.disc = PortDisc(self)
         self.disc.setRect(-PORT_SIZE/2,-PORT_SIZE/2,PORT_SIZE,PORT_SIZE)
-        # if port.is_input:
-        # else:
-        #   self.disc.setRect(-PORT_SIZE/2,-PORT_SIZE/2,PORT_SIZE,PORT_SIZE)
 
     def boundingRect(self):
         return self.widget.boundingRect().united(self.disc.boundingRect())
 
     def paint(self, painter, option, widget):
         return
-
-        # self.disc = PortDisc(self)
-
-        # Port(self,getattr(self.filter.inputs, name))
-
-
-        # self.setRect(0,0,PORT_SIZE,PORT_SIZE)
-        # self.setPen(QtGui.QPen(QtGui.QColor('#666'), 1))
-        # self.setCursor(QtCore.Qt.PointingHandCursor)

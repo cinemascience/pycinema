@@ -51,7 +51,7 @@ class TableView(Filter, FilterView):
         )
 
     def generateWidgets(self):
-        self.tableView = QtWidgets.QTableView()
+        self.tableView = QtWidgets.QTableView(self)
         # self.tableView.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch);
         # self.tableView.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Interactive);
         # self.tableView.horizontalHeader().resizeSections(QtWidgets.QHeaderView.Stretch);

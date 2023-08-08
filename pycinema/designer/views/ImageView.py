@@ -2,14 +2,12 @@ from pycinema import Filter
 from pycinema.designer.views.FilterView import FilterView
 
 import numpy
-# import PIL
 from PySide6 import QtCore, QtWidgets, QtGui
 
 class _ImageViewer(QtWidgets.QGraphicsView):
 
     def __init__(self):
         super().__init__()
-        self._zoom = 1
 
         self.setRenderHints(QtGui.QPainter.Antialiasing)
         self.setTransformationAnchor(QtWidgets.QGraphicsView.ViewportAnchor.AnchorUnderMouse)
@@ -57,7 +55,6 @@ class _ImageViewer(QtWidgets.QGraphicsView):
             return
 
         self.resetTransform()
-        self._zoom = 1.0
         super().fitInView(rect, QtCore.Qt.KeepAspectRatio)
 
     def wheelEvent(self, event):
@@ -70,7 +67,6 @@ class _ImageViewer(QtWidgets.QGraphicsView):
         else:
             factor -= ZOOM_INCREMENT_RATIO
 
-        self._zoom *= factor
         self.scale(factor, factor)
 
     def keyPressEvent(self,event):
