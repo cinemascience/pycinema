@@ -3,7 +3,7 @@ from PySide6 import QtCore, QtWidgets, QtGui
 from pycinema.designer.View import View
 from pycinema.designer.views import SelectionView
 from pycinema.designer.views import FilterView
-from pycinema.designer.node_editor.NodeView import NodeView
+from pycinema.designer.views import NodeView
 from pycinema import Filter
 
 class ViewFrame(QtWidgets.QSplitter):
