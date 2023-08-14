@@ -1,6 +1,6 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from pycinema.designer.node_editor.NodeEditorStyle import *
+from pycinema.theater.node_editor.NodeEditorStyle import *
 from pycinema import Port
 
 class InputText(QtWidgets.QWidget):

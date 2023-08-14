@@ -1,9 +1,9 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from pycinema.designer.View import View
-from pycinema.designer.views import SelectionView
-from pycinema.designer.views import FilterView
-from pycinema.designer.node_editor.NodeView import NodeView
+from pycinema.theater.View import View
+from pycinema.theater.views import SelectionView
+from pycinema.theater.views import FilterView
+from pycinema.theater.views import NodeView
 from pycinema import Filter
 
 class ViewFrame(QtWidgets.QSplitter):
@@ -143,9 +143,9 @@ class ViewFrame(QtWidgets.QSplitter):
         r += w.id + ' = ' + self.id + '.insertFrame('+str(i)+')\n'
         r += w.export()
       elif isinstance(w,Filter):
-        r += w.id + ' = ' + self.id+'.insertView( '+str(i)+', pycinema.designer.views.'+w.__class__.__name__+'() )\n'
+        r += w.id + ' = ' + self.id+'.insertView( '+str(i)+', pycinema.theater.views.'+w.__class__.__name__+'() )\n'
       else:
-        r += self.id+'.insertView( '+str(i)+', pycinema.designer.views.'+w.__class__.__name__+'() )\n'
+        r += self.id+'.insertView( '+str(i)+', pycinema.theater.views.'+w.__class__.__name__+'() )\n'
 
     r += self.id + '.setSizes('+str(self.sizes())+')\n'
     return r
