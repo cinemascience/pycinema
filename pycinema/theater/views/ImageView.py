@@ -1,5 +1,5 @@
 from pycinema import Filter
-from pycinema.designer.views.FilterView import FilterView
+from pycinema.theater.views.FilterView import FilterView
 
 import numpy
 from PySide6 import QtCore, QtWidgets, QtGui

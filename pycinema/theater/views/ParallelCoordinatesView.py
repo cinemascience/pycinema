@@ -2,7 +2,7 @@ from PySide6 import QtCore, QtWidgets, QtGui
 
 import sqlite3
 
-from pycinema.designer.views.FilterView import FilterView
+from pycinema.theater.views.FilterView import FilterView
 from pycinema import Filter, getTableExtent, isNumber
 
 def executeSQL(db,sql):
