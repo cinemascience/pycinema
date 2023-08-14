@@ -1,13 +1,13 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from pycinema.designer.View import View
+from pycinema.theater.View import View
 
-from pycinema.designer.views.NodeView import NodeView
-from pycinema.designer.views.TableView import TableView
-from pycinema.designer.views.ImageView import ImageView
-from pycinema.designer.views.ParameterView import ParameterView
-from pycinema.designer.views.ColorMappingView import ColorMappingView
-from pycinema.designer.views.ParallelCoordinatesView import ParallelCoordinatesView
+from pycinema.theater.views.NodeView import NodeView
+from pycinema.theater.views.TableView import TableView
+from pycinema.theater.views.ImageView import ImageView
+from pycinema.theater.views.ParameterView import ParameterView
+from pycinema.theater.views.ColorMappingView import ColorMappingView
+from pycinema.theater.views.ParallelCoordinatesView import ParallelCoordinatesView
 
 class SelectionButton(QtWidgets.QPushButton):
   def __init__(self,name,parent,cls):

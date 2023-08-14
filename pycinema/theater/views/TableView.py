@@ -1,6 +1,6 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from pycinema.designer.views.FilterView import FilterView
+from pycinema.theater.views.FilterView import FilterView
 from pycinema import Filter
 
 class TableModel(QtCore.QAbstractTableModel):

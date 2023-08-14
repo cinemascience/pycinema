@@ -3,8 +3,8 @@ from PySide6 import QtCore, QtWidgets, QtGui
 import pycinema
 import pycinema.filters
 
-from pycinema.designer.View import View
-from pycinema.designer.FilterBrowser import FilterBrowser
+from pycinema.theater.View import View
+from pycinema.theater.FilterBrowser import FilterBrowser
 
 use_pgv = True
 try:
@@ -13,10 +13,10 @@ except:
     use_pgv = False
 import igraph
 
-from pycinema.designer.node_editor.NodeEditorStyle import *
-from pycinema.designer.node_editor.Edge import Edge
-from pycinema.designer.node_editor.Port import Port, PortDisc
-from pycinema.designer.node_editor.Node import Node
+from pycinema.theater.node_editor.NodeEditorStyle import *
+from pycinema.theater.node_editor.Edge import Edge
+from pycinema.theater.node_editor.Port import Port, PortDisc
+from pycinema.theater.node_editor.Node import Node
 
 import weakref
 
@@ -293,7 +293,7 @@ class QtNodeView(QtWidgets.QGraphicsView):
               QtNodeView.timer.stop()
               QtNodeView.timer.setParent(None)
               QtNodeView.timer = None
-        if QtNodeView.skip_layout_animation or True:
+        if QtNodeView.skip_layout_animation:
             for key in filters:
               filter = filters[key]
               node = QtNodeView.node_map[filter]

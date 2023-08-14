@@ -1,14 +1,14 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
 import pycinema
-from pycinema.designer import View
-from pycinema.designer.ViewFrame import *
-from pycinema.designer.FilterBrowser import *
-from pycinema.designer.views.NodeView import *
+from pycinema.theater import View
+from pycinema.theater.ViewFrame import *
+from pycinema.theater.FilterBrowser import *
+from pycinema.theater.views.NodeView import *
 
 import sys
 
-class _Designer(QtWidgets.QMainWindow):
+class _Theater(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
@@ -36,7 +36,7 @@ class _Designer(QtWidgets.QMainWindow):
         toolbar.addAction(button_filters)
 
         button_reset = QtGui.QAction("Reset", self)
-        button_reset.setStatusTip("Reset Designer")
+        button_reset.setStatusTip("Reset Theater")
         button_reset.triggered.connect(self.reset)
         toolbar.addAction(button_reset)
 
@@ -53,12 +53,12 @@ class _Designer(QtWidgets.QMainWindow):
         script = '''
 import pycinema
 import pycinema.filters
-import pycinema.designer
-import pycinema.designer.views
+import pycinema.theater
+import pycinema.theater.views
 '''
 
         script += '\n# layout\n'
-        script += self.centralWidget().id+' = pycinema.designer.Designer.instance.centralWidget()\n'
+        script += self.centralWidget().id+' = pycinema.theater.Theater.instance.centralWidget()\n'
         script += self.centralWidget().export()
 
         script += '\n# filters\n'
@@ -135,18 +135,18 @@ import pycinema.designer.views
         script = '''
 import pycinema
 import pycinema.filters
-import pycinema.designer
-import pycinema.designer.views
+import pycinema.theater
+import pycinema.theater.views
 
 # layout
-vf0 = pycinema.designer.Designer.instance.centralWidget()
+vf0 = pycinema.theater.Theater.instance.centralWidget()
 vf0.setHorizontalOrientation()
 vf1 = vf0.insertFrame(0)
 vf1.setVerticalOrientation()
-ParameterView_0 = vf1.insertView( 0, pycinema.designer.views.ParameterView() )
-TableView_0 = vf1.insertView( 1, pycinema.designer.views.TableView() )
-ColorMappingView_0 = vf1.insertView( 2, pycinema.designer.views.ColorMappingView() )
-ImageView_0 = vf0.insertView( 1, pycinema.designer.views.ImageView() )
+ParameterView_0 = vf1.insertView( 0, pycinema.theater.views.ParameterView() )
+TableView_0 = vf1.insertView( 1, pycinema.theater.views.TableView() )
+ColorMappingView_0 = vf1.insertView( 2, pycinema.theater.views.ColorMappingView() )
+ImageView_0 = vf0.insertView( 1, pycinema.theater.views.ImageView() )
 vf0.setSizes([300,600])
 
 # filters
@@ -183,20 +183,20 @@ ImageView_0.inputs.images.set(Annotation_0.outputs.images, False)
         script = '''
 import pycinema
 import pycinema.filters
-import pycinema.designer
-import pycinema.designer.views
+import pycinema.theater
+import pycinema.theater.views
 
 # layout
-vf0 = pycinema.designer.Designer.instance.centralWidget()
+vf0 = pycinema.theater.Theater.instance.centralWidget()
 vf0.setHorizontalOrientation()
 vf1 = vf0.insertFrame(0)
 vf1.setVerticalOrientation()
-ParallelCoordinatesView_0 = vf1.insertView( 0, pycinema.designer.views.ParallelCoordinatesView() )
-TableView_0 = vf1.insertView( 1, pycinema.designer.views.TableView() )
-ColorMappingView_0 = vf1.insertView( 2, pycinema.designer.views.ColorMappingView() )
+ParallelCoordinatesView_0 = vf1.insertView( 0, pycinema.theater.views.ParallelCoordinatesView() )
+TableView_0 = vf1.insertView( 1, pycinema.theater.views.TableView() )
+ColorMappingView_0 = vf1.insertView( 2, pycinema.theater.views.ColorMappingView() )
 vf2 = vf0.insertFrame(1)
 vf2.setVerticalOrientation()
-ImageView_0 = vf2.insertView( 0, pycinema.designer.views.ImageView() )
+ImageView_0 = vf2.insertView( 0, pycinema.theater.views.ImageView() )
 vf0.setSizes([400,600])
 
 # filters
@@ -254,7 +254,7 @@ ImageView_0.inputs.images.set(Annotation_0.outputs.images, False)
             except:
                 return
 
-class Designer():
+class Theater():
 
     instance = None
 
@@ -263,15 +263,15 @@ class Designer():
         # show UI
         app = QtWidgets.QApplication([])
 
-        Designer.instance = _Designer()
-        Designer.instance.resize(1024, 900)
-        Designer.instance.show()
+        Theater.instance = _Theater()
+        Theater.instance.resize(1024, 900)
+        Theater.instance.show()
 
         if len(args)==1 and isinstance(args[0], str) and args[0].endswith('.py'):
-            Designer.instance.loadScript(args[0])
+            Theater.instance.loadScript(args[0])
         elif len(args)>1 and args[0]=='view':
-            Designer.instance.viewCDB(args[1])
+            Theater.instance.viewCDB(args[1])
         elif len(args)>1 and args[0]=='explorer':
-            Designer.instance.exploreCDB(args[1])
+            Theater.instance.exploreCDB(args[1])
 
         sys.exit(app.exec())
