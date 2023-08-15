@@ -9,12 +9,16 @@ helptext = "\n\
 \n\
 examples: \n\
 \n\
-  cinema some.cdb\n\
-    run the \'view\' viewer on some.cdb\n\
+  cinema view some.cdb\n\
+    run the \'view\' workspace on some.cdb\n\
+\n\
+  cinema explorer some.cdb\n\
+    run the \'explorer\' workspace  on some.cdb\n\
+\n\
 "
 
 # normal option parsing
-parser = argparse.ArgumentParser( description="cinema: transform input data to cinema database",
+parser = argparse.ArgumentParser( description="a command to access cinema viewers, filters and algorithms",
                                   epilog=helptext,
                                   formatter_class=argparse.RawDescriptionHelpFormatter )
 
