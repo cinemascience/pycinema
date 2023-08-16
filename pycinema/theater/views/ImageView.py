@@ -28,7 +28,7 @@ class _ImageViewer(QtWidgets.QGraphicsView):
             self._scene.removeItem(item)
         self.items = []
 
-    def addImage(self,image):
+    def addImage(self,image,x,y):
         item = QtWidgets.QGraphicsPixmapItem()
 
         rgba = image.channels['rgba']
@@ -42,9 +42,7 @@ class _ImageViewer(QtWidgets.QGraphicsView):
         item.setShapeMode(QtWidgets.QGraphicsPixmapItem.BoundingRectShape)
         item.setTransformationMode(QtCore.Qt.SmoothTransformation)
 
-        rect = self._scene.itemsBoundingRect()
-
-        item.setPos(0,rect.bottom()+10)
+        item.setPos(x,y)
 
         self._scene.addItem(item)
         self.items.append(item)
@@ -96,8 +94,24 @@ class ImageView(Filter, FilterView):
     def _update(self):
         self.view.removeImages()
 
-        for image in self.inputs.images.get():
-            self.view.addImage(image)
+        max_w = 0
+        max_h = 0
+        images = self.inputs.images.get()
+        for image in images:
+          max_w = max(image.shape[0],max_w)
+          max_h = max(image.shape[1],max_h)
+        max_w += 5
+        max_h += 5
+
+        nRows = int(numpy.ceil(numpy.sqrt(len(images))))
+        nCols = int(numpy.ceil(len(images)/nRows))
+
+        i = 0
+        for r in range(0,nRows):
+          for c in range(0,nCols):
+            if i<len(images):
+              self.view.addImage(images[i],r*max_h,c*max_w)
+              i+=1
 
         self.view.fitInView()
         return 1
