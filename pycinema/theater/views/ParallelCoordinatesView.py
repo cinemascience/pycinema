@@ -253,8 +253,11 @@ class Axis(QtWidgets.QGraphicsItem):
     idx0 = max(0,idx0-0.1)
     idx1 = min(self.n_values-1,idx1+0.1)
 
-    l0 = idx0/(self.n_values-1)
-    l1 = idx1/(self.n_values-1)
+    l0 = 0
+    l1 = 0
+    if self.n_values>1:
+      l0 = idx0/(self.n_values-1)
+      l1 = idx1/(self.n_values-1)
 
     hy0 = (1-l0)*self.y0 + l0*self.y1
     hy1 = (1-l1)*self.y0 + l1*self.y1
