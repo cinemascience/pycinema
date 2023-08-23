@@ -24,7 +24,12 @@ mlfilter.inputs.Params.set([[phi, theta]])
 
 For example, we train a neural network based on the Hurricane Isabel dataset. This trained network is saved in `../data/MLModels/Model_MLImageGenerator_Isabel_1500.pth` for reference. 
 
-We then generate a new image at `phi=10.0` and `theta=30.0`, as shown in `demoMLImageGenerator.ipynb`. This results in the image below:
+We then generate a new image at `phi=10.0` and `theta=30.0`, as shown in `demoMLImageGenerator.ipynb`:
+
+![JupyterLab Interface](predictedImages/demoMLImageGenerator.png)
+
+
+This results in the image below:
 
 ![Predicted Image](predictedImages/demoMLImageGenerator_10_30.png)
 
