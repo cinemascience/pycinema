@@ -26,7 +26,7 @@ For example, we train a neural network based on the Hurricane Isabel dataset. Th
 
 We can generate a new image at `phi=10.0` and 'theta=30.0'. This predicts the image below:
 
-![Predicted Image](https://github.com/cinemascience/pycinema/tree/dev_MLBranch/examples/predictedImages/demoMLImageGenerator_10_30.png)
+![Predicted Image](https://github.com/cinemascience/pycinema/tree/dev_MLBranch/examples/predictedImages/demoMLImageGenerator_10_30.png?raw=true)
 
 
 ## References
