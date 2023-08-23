@@ -14,7 +14,7 @@ mlfilter = pycinema.ImageGeneratorCNN()
 
 Set the path to the trained network as below. 
 ```
-mlfilter.inputs.Model.set('../path/to/network.pth')
+mlfilter.inputs.Model.set('../path/to/neural/network.pth')
 ```
 
 Parameters for the net view (in `phi` and `theta`) are defined as follows:
@@ -24,9 +24,9 @@ mlfilter.inputs.Params.set([[phi, theta]])
 
 For example, we train a neural network based on the Hurricane Isabel dataset. This trained network is saved in `../data/MLModels/Model_MLImageGenerator_Isabel_1500.pth` for reference. 
 
-We can generate a new image at `phi=10.0` and 'theta=30.0'. This predicts the image below:
+We then generate a new image at `phi=10.0` and `theta=30.0`, as shown in `demoMLImageGenerator.ipynb`. This results in the image below:
 
-![Predicted Image](https://github.com/cinemascience/pycinema/tree/dev_MLBranch/examples/predictedImages/demoMLImageGenerator_10_30.png?raw=true)
+![Predicted Image](http://github.com/cinemascience/pycinema/blob/dev_MLBranch/examples/predictedImages/demoMLImageGenerator_10_30.png)
 
 
 ## References
