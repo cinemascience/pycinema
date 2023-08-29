@@ -33,13 +33,7 @@ class TableQuery(Filter):
         for i in range(0,len(header)):
             if header[i].lower()=='id':
                 continue
-
-            sql = sql + ', ' + header[i];
-            if isNumber(firstRow[i]):
-                sql = sql + ' REAL';
-            else:
-                sql = sql + ' TEXT';
-
+            sql = sql + ', ' + header[i] + ' TEXT';
         sql =  sql + ')';
         self.executeSQL(db,sql)
 

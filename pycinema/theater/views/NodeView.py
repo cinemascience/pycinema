@@ -13,7 +13,7 @@ except:
     use_pgv = False
 import igraph
 
-from pycinema.theater.node_editor.NodeEditorStyle import *
+from pycinema.theater.node_editor.NodeEditorStyle import NodeEditorStyle as NES
 from pycinema.theater.node_editor.Edge import Edge
 from pycinema.theater.node_editor.Port import Port, PortDisc
 from pycinema.theater.node_editor.Node import Node
@@ -58,8 +58,10 @@ class QtNodeView(QtWidgets.QGraphicsView):
         QtNodeView.instances[self] = None
 
     def init_gobal():
+        NES.update_theme()
+
         QtNodeView.node_connection_line = QtWidgets.QGraphicsLineItem()
-        QtNodeView.node_connection_line.setPen(QtGui.QPen(COLOR_NORMAL, 2, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
+        QtNodeView.node_connection_line.setPen(QtGui.QPen(NES.COLOR_NORMAL, 2, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
         QtNodeView.node_connection_line.setZValue(1000)
         QtNodeView.node_connection_line.hide()
 

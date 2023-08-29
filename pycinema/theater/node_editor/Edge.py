@@ -1,15 +1,15 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from pycinema.theater.node_editor.NodeEditorStyle import *
+from pycinema.theater.node_editor.NodeEditorStyle import NodeEditorStyle as NES
 
 class Edge(QtWidgets.QGraphicsLineItem):
 
     def __init__(self,port0,port1,parent=None):
         super().__init__(parent)
 
-        self.setZValue(Z_EDGE_LAYER)
+        self.setZValue(NES.Z_EDGE_LAYER)
 
-        self.setPen(QtGui.QPen(COLOR_NORMAL, 2, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
+        self.setPen(QtGui.QPen(NES.COLOR_NORMAL, 2, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
 
         self.port0 = port0
         self.port1 = port1

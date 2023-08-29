@@ -1,6 +1,6 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from pycinema.theater.node_editor.NodeEditorStyle import *
+from pycinema.theater.node_editor.NodeEditorStyle import NodeEditorStyle as NES
 from pycinema.theater.node_editor.Port import Port
 
 class Node(QtWidgets.QGraphicsObject):
@@ -10,7 +10,7 @@ class Node(QtWidgets.QGraphicsObject):
     def __init__(self,filter,node_map,port_map):
         super().__init__()
 
-        self.setZValue(Z_NODE_LAYER)
+        self.setZValue(NES.Z_NODE_LAYER)
 
         self.node_map = node_map
         self.port_map = port_map
@@ -36,7 +36,7 @@ class Node(QtWidgets.QGraphicsObject):
         # font.setBold(True)
         font.setPointSize(10)
         label_.setFont(font)
-        label_.setStyleSheet("background-color: transparent; color: "+COLOR_NORMAL_);
+        label_.setStyleSheet("background-color: transparent; color: "+NES.COLOR_NORMAL_);
         self.label.setWidget(label_)
 
         brL = self.label.boundingRect()
@@ -49,18 +49,18 @@ class Node(QtWidgets.QGraphicsObject):
 
         self.label.setPos(
           brN.center().x()-brL.width()*nodeWidthToLabelWidthRatio/2,
-          NODE_HEADER_HEIGHT/2 - brL.height()/2
+          NES.NODE_HEADER_HEIGHT/2 - brL.height()/2
         )
 
         # output ports
-        portY = NODE_PORT_Y
+        portY = NES.NODE_PORT_Y
 
         for (ports,x) in [(self.outputPorts,brN.right()),(self.inputPorts,brN.left())]:
           for name, port in ports:
             qPort = Port(self,port)
             self.port_map[port] = qPort
             qPort.setPos(x,portY)
-            portY += NODE_PORT_SPACE
+            portY += NES.NODE_PORT_SPACE
 
     def delete(self):
       for ports in [self.outputPorts,self.inputPorts]:
@@ -77,22 +77,22 @@ class Node(QtWidgets.QGraphicsObject):
     def boundingRect(self):
         return QtCore.QRectF(
           0,0,
-          NODE_WIDTH,
-          NODE_PORT_Y + (len(self.inputPorts)+len(self.outputPorts))*NODE_PORT_SPACE - 10
+          NES.NODE_WIDTH,
+          NES.NODE_PORT_Y + (len(self.inputPorts)+len(self.outputPorts))*NES.NODE_PORT_SPACE - 10
         )
 
     def paint(self, painter, options, widget):
 
         br = self.boundingRect()
-        br2 = QtCore.QRect(br.x(),br.y(),br.width(),NODE_HEADER_HEIGHT)
+        br2 = QtCore.QRect(br.x(),br.y(),br.width(),NES.NODE_HEADER_HEIGHT)
         path = QtGui.QPainterPath()
         path.addRect(br2)
         if self.isSelected():
-            painter.fillPath(path,QtGui.QBrush(COLOR_RED_T))
+            painter.fillPath(path,QtGui.QBrush(NES.COLOR_RED_T))
         else:
-            painter.fillPath(path,QtGui.QBrush(COLOR_BLUE_T))
+            painter.fillPath(path,QtGui.QBrush(NES.COLOR_BLUE_T))
 
-        br2 = QtCore.QRect(br.x(),br.y()+NODE_HEADER_HEIGHT,br.width(),br.height()-NODE_HEADER_HEIGHT)
+        br2 = QtCore.QRect(br.x(),br.y()+NES.NODE_HEADER_HEIGHT,br.width(),br.height()-NES.NODE_HEADER_HEIGHT)
         path = QtGui.QPainterPath()
         path.addRect(br2)
-        painter.fillPath(path,QtGui.QBrush(COLOR_BASE_T))
+        painter.fillPath(path,QtGui.QBrush(NES.COLOR_BASE_T))

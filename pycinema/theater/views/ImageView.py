@@ -103,15 +103,14 @@ class ImageView(Filter, FilterView):
         max_w += 5
         max_h += 5
 
-        nRows = int(numpy.ceil(numpy.sqrt(len(images))))
-        nCols = int(numpy.ceil(len(images)/nRows))
+        n = max(len(images),1)
+        nRows = int(numpy.ceil(numpy.sqrt(n)))
+        nCols = int(numpy.ceil(n/nRows))
 
-        i = 0
-        for r in range(0,nRows):
-          for c in range(0,nCols):
-            if i<len(images):
-              self.view.addImage(images[i],r*max_h,c*max_w)
-              i+=1
+        for i, image in enumerate(images):
+          r = numpy.floor(i/nCols)
+          c = i-r*nCols
+          self.view.addImage(image,r*max_h,c*max_w)
 
         self.view.fitInView()
         return 1
