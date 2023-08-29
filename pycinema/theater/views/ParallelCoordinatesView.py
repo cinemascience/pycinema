@@ -52,7 +52,7 @@ def queryData(db, sqlQuery):
   return res
 
 def createLabel(parent,text):
-  _label = QtWidgets.QLabel(text)
+  _label = QtWidgets.QLabel(str(text))
   font = QtGui.QFont()
   font.setPointSize(10)
   _label.setFont(font)
@@ -101,6 +101,8 @@ class Lines(QtWidgets.QGraphicsItem):
   def setBoundingRect(self,br):
     self.prepareGeometryChange()
     self.br = br
+
+    if len(self.lines_normal)<1: return
 
     n2 = len(self.lines_normal[0])
     n = n2-1
@@ -166,19 +168,14 @@ class Axis(QtWidgets.QGraphicsItem):
     self.ticks = []
     if len(self.values)==1:
       self.addTick(0.5,self.values[0])
-    elif type(self.values[0])==str or len(self.values<6):
+    elif type(self.values[0])==str or len(self.values)<6:
       i = 0
       d = 1/(len(self.values)-1)
       for t in self.values:
         self.addTick(i,t)
         i += d
     else:
-      min_ = min(self.values)
-      max_ = max(self.values)
-
-      for l in range(0,1.25,0.25):
-        v = (1-l)*min_ + l*max_
-        self.addTick(l,'{:.2f}'.format(v))
+      return print('ERROR: unsupported axis type')
 
     # highlight bar
     self.bar = QtWidgets.QGraphicsRectItem(0,0,0,0,self)
@@ -323,6 +320,7 @@ class _ParallelCoordinatesView(QtWidgets.QGraphicsView):
       axis = self.axes[a]
       self._scene.removeItem(axis)
     self.axes = {}
+    self.header = {}
 
   def addAxes(self,header,values):
     self.header = header
@@ -335,6 +333,8 @@ class _ParallelCoordinatesView(QtWidgets.QGraphicsView):
   def removeLines(self):
     self.lines.lines_normal = []
     self.lines.lines_highlight = []
+    self.lines.path_normal = QtGui.QPainterPath()
+    self.lines.path_highlight = QtGui.QPainterPath()
 
   def addLines(self, header, values, table, highlight=False):
     n = len(header) - 1
@@ -381,8 +381,12 @@ class _ParallelCoordinatesView(QtWidgets.QGraphicsView):
 
     margin = 50
     w = view_rect.width()-2*margin
-    aw = w/(n-1)
-    x = view_rect.x()+margin
+    if n>1:
+      x = view_rect.x()+margin
+      aw = w/(n-1)
+    else:
+      x = view_rect.x() + view_rect.width()/2
+      aw = w
     y = view_rect.y()
     h = view_rect.height()
 
@@ -449,10 +453,10 @@ class ParallelCoordinatesView(Filter, FilterView):
     def _update(self):
       table = self.inputs.table.get()
       tableExtent = getTableExtent(table)
+      self.pcp.removeAxes()
+      self.pcp.removeLines()
+      self.pcp.resize()
       if tableExtent[0]<2 or tableExtent[1]<1:
-        self.pcp.removeAxes()
-        self.pcp.removeLines()
-        self.pcp.resize()
         self.outputs.table.set([[]])
         self.outputs.sql.set('SELECT * FROM input')
         return 1
@@ -462,9 +466,7 @@ class ParallelCoordinatesView(Filter, FilterView):
       header.sort()
       values = computeValues(header,table)
 
-      self.pcp.removeAxes()
       self.pcp.addAxes(header,values)
-      self.pcp.removeLines()
       self.pcp.addLines(header,values,table)
       self.pcp.applyState(self.inputs.state.get())
 

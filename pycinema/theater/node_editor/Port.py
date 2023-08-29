@@ -1,6 +1,6 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from pycinema.theater.node_editor.NodeEditorStyle import *
+from pycinema.theater.node_editor.NodeEditorStyle import NodeEditorStyle as NES
 from pycinema.theater.node_editor.InputText import InputText
 
 class PortDisc(QtWidgets.QGraphicsEllipseItem):
@@ -9,8 +9,14 @@ class PortDisc(QtWidgets.QGraphicsEllipseItem):
 
     def __init__(self,parent):
         super().__init__(parent)
-        self.setPen(QtGui.QPen(COLOR_NORMAL, 0))
-        self.setBrush(COLOR_NORMAL)
+
+        if PortDisc.port_connection_line.zValue()<1000:
+          PortDisc.port_connection_line.setPen(QtGui.QPen(NES.COLOR_NORMAL, 2, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
+          PortDisc.port_connection_line.setZValue(1000)
+          PortDisc.port_connection_line.hide()
+
+        self.setPen(QtGui.QPen(NES.COLOR_NORMAL, 0))
+        self.setBrush(NES.COLOR_NORMAL)
         self.setCursor(QtCore.Qt.PointingHandCursor)
 
     def mousePressEvent(self,event):
@@ -49,10 +55,6 @@ class PortDisc(QtWidgets.QGraphicsEllipseItem):
 
         return
 
-PortDisc.port_connection_line.setPen(QtGui.QPen(COLOR_NORMAL, 2, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
-PortDisc.port_connection_line.setZValue(1000)
-PortDisc.port_connection_line.hide()
-
 class WidgetFrame(QtWidgets.QGraphicsRectItem):
     def __init__(self, width, height, parent=None):
         super().__init__(parent)
@@ -64,7 +66,7 @@ class WidgetFrame(QtWidgets.QGraphicsRectItem):
         br = self.boundingRect()
         path = QtGui.QPainterPath()
         path.addRoundedRect(br,3,3)
-        painter.fillPath(path,QtGui.QBrush(COLOR_WIDGET))
+        painter.fillPath(path,QtGui.QBrush(NES.COLOR_WIDGET_T))
 
 
 class Port(QtWidgets.QGraphicsItem):
@@ -75,29 +77,29 @@ class Port(QtWidgets.QGraphicsItem):
 
         parentBR = parent.boundingRect()
 
-        self.widget_ = InputText(port, parentBR.width()-2*(PORT_SIZE))
+        self.widget_ = InputText(port, parentBR.width()-2*(NES.PORT_SIZE))
         self.widget = QtWidgets.QGraphicsProxyWidget(self)
         self.widget.setWidget(self.widget_)
 
-        self.widget.setZValue(Z_NODE_LAYER+2)
+        self.widget.setZValue(NES.Z_NODE_LAYER+2)
         portLabelBR = self.widget.boundingRect()
         if port.is_input:
           self.widget.setPos(
-            PORT_SIZE,
+            NES.PORT_SIZE,
             -portLabelBR.height()/2-1
           )
         else:
           self.widget.setPos(
-            -PORT_SIZE-portLabelBR.width(),
+            -NES.PORT_SIZE-portLabelBR.width(),
             -portLabelBR.height()/2-1
           )
 
         self.widgetFrame = WidgetFrame(portLabelBR.width(), portLabelBR.height(), self)
-        self.widgetFrame.setZValue(Z_NODE_LAYER+1)
+        self.widgetFrame.setZValue(NES.Z_NODE_LAYER+1)
         self.widgetFrame.setPos(self.widget.pos())
 
         self.disc = PortDisc(self)
-        self.disc.setRect(-PORT_SIZE/2,-PORT_SIZE/2,PORT_SIZE,PORT_SIZE)
+        self.disc.setRect(-NES.PORT_SIZE/2,-NES.PORT_SIZE/2,NES.PORT_SIZE,NES.PORT_SIZE)
 
     def boundingRect(self):
         return self.widget.boundingRect().united(self.disc.boundingRect())
