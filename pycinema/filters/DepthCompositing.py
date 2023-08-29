@@ -130,6 +130,12 @@ class DepthCompositing(Filter):
             metaCompositing = self.inputs.compose.get()
             keys = self.getKeys(imagesA[0],metaCompositing)
 
+            # check if depth channel exists on all images
+            for i in imagesA:
+              if not depthChannel in i.channels:
+                self.outputs.images.set(imagesA)
+                return 1
+
             for i in imagesA:
                 key = self.getTupleKey(i,keys)
                 if not key in imagesMap:

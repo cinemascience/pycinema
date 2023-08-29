@@ -1,6 +1,6 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
-from pycinema.theater.node_editor.NodeEditorStyle import *
+from pycinema.theater.node_editor.NodeEditorStyle import NodeEditorStyle as NES
 from pycinema import Port
 
 class InputText(QtWidgets.QWidget):
@@ -22,7 +22,7 @@ class InputText(QtWidgets.QWidget):
         self.label = QtWidgets.QLineEdit()
         self.label.setText(port.name)
         self.label.setReadOnly(True)
-        self.label.setStyleSheet('border:0;background:transparent;color:'+COLOR_NORMAL_)
+        self.label.setStyleSheet('border:0;background:transparent;color:'+NES.COLOR_NORMAL_)
 
         self.skip = False
 
@@ -35,7 +35,7 @@ class InputText(QtWidgets.QWidget):
 
             self.edit = QtWidgets.QLineEdit()
             self.edit.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-            self.edit.setStyleSheet('border:0;background:transparent;color:'+COLOR_NORMAL_)
+            self.edit.setStyleSheet('border:0;background:transparent;color:'+NES.COLOR_NORMAL_)
             self.edit.setReadOnly(False)
             self.edit.textEdited.connect(lambda text: self.setValue(text))
             self.layout().addWidget(self.edit,1)
@@ -44,7 +44,7 @@ class InputText(QtWidgets.QWidget):
         else:
             self.edit = QtWidgets.QLineEdit()
             self.edit.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
-            self.edit.setStyleSheet('border:0;background:transparent;color:'+COLOR_DISABLED_)
+            self.edit.setStyleSheet('border:0;background:transparent;color:'+NES.COLOR_DISABLED_)
             self.edit.setReadOnly(True)
             self.layout().addWidget(self.edit,1)
             port.on('value_set', self.update_callback)
@@ -82,10 +82,10 @@ class InputText(QtWidgets.QWidget):
         mustBeReadOnly = isinstance(self.port._value, Port) or not self.port.is_input
         isReadOnly = self.edit.isReadOnly()
         if mustBeReadOnly and not isReadOnly:
-            self.edit.setStyleSheet('border:0;background:transparent;color:'+COLOR_DISABLED_)
+            self.edit.setStyleSheet('border:0;background:transparent;color:'+NES.COLOR_DISABLED_)
             self.edit.setReadOnly(True)
         elif not mustBeReadOnly and isReadOnly:
-            self.edit.setStyleSheet('border:0;background:transparent;color:'+COLOR_NORMAL_)
+            self.edit.setStyleSheet('border:0;background:transparent;color:'+NES.COLOR_NORMAL_)
             self.edit.setReadOnly(False)
 
     def keyPressEvent(self,event):
