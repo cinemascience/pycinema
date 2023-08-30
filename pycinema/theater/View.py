@@ -1,4 +1,8 @@
 from PySide6 import QtCore, QtWidgets, QtGui
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QSpacerItem
+from PySide6.QtWidgets import QSizePolicy
+from PySide6.QtWidgets import QToolBar 
 
 class View(QtWidgets.QFrame):
 
@@ -10,26 +14,53 @@ class View(QtWidgets.QFrame):
         super().__init__()
 
         self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().setContentsMargins(0,0,0,0)
+        self.layout().setContentsMargins(2,2,2,2)
 
-        self.toolbar = QtWidgets.QFrame()
-        self.toolbar.setLayout(QtWidgets.QHBoxLayout())
-        self.toolbar.layout().setContentsMargins(10,2,10,0)
-
-        self.title = QtWidgets.QLabel()
-        self.toolbar.setStyleSheet("margin:0px;padding:2px 4px;")
-        self.toolbar.layout().addWidget(self.title,1)
-
-        self.button_c = QtWidgets.QPushButton("X")
-        self.button_h = QtWidgets.QPushButton("H")
-        self.button_v = QtWidgets.QPushButton("V")
-        self.button_c.clicked.connect(self.emitClose)
-        self.button_h.clicked.connect(self.emitSplitH)
-        self.button_v.clicked.connect(self.emitSplitV)
-        self.toolbar.layout().addWidget(self.button_c)
-        self.toolbar.layout().addWidget(self.button_h)
-        self.toolbar.layout().addWidget(self.button_v)
+        # toolbar
+        self.toolbar = QToolBar()
+        self.toolbar.setStyleSheet("border-style: raised")
+        self.toolbar.setIconSize(QtCore.QSize(12,12))
         self.layout().addWidget(self.toolbar)
+
+        # label
+        self.title = QtWidgets.QLabel()
+        self.title.setStyleSheet("border-style: ridge;margin:2px 2px")
+        font = self.title.font()
+        font.setPointSize(10)
+        self.title.setFont(font)
+        self.toolbar.addWidget(self.title)
+
+        # spacer
+        self.spacer = QtWidgets.QLabel()
+        self.spacer.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.toolbar.addWidget(self.spacer)
+
+        # buttons
+        style = "border-radius: 6;background-color: #808080;border :1px solid #808080;"
+        self.button_c = QtWidgets.QToolButton()
+        self.button_c.setIcon(QtGui.QIcon("pycinema/theater/icon/cancel.svg"))
+        self.button_c.setFixedSize(12,12)
+        self.button_c.setStyleSheet(style)
+        self.button_c.setToolTip("Close view")
+        self.button_c.clicked.connect(self.emitClose)
+
+        self.button_h = QtWidgets.QToolButton()
+        self.button_h.setIcon(QtGui.QIcon("pycinema/theater/icon/horizontal-split.png"))
+        self.button_h.setFixedSize(12,12)
+        self.button_h.setStyleSheet(style)
+        self.button_h.setToolTip("Horizontal split")
+        self.button_h.clicked.connect(self.emitSplitH)
+
+        self.button_v = QtWidgets.QToolButton()
+        self.button_v.setIcon(QtGui.QIcon("pycinema/theater/icon/vertical-split.png"))
+        self.button_v.setFixedSize(12,12)
+        self.button_v.setStyleSheet(style)
+        self.button_v.setToolTip("Vertical split")
+        self.button_v.clicked.connect(self.emitSplitV)
+
+        self.toolbar.addWidget(self.button_c)
+        self.toolbar.addWidget(self.button_h)
+        self.toolbar.addWidget(self.button_v)
 
         self.content = QtWidgets.QFrame()
         if content_layout == 'V':
@@ -38,7 +69,7 @@ class View(QtWidgets.QFrame):
             self.content.setLayout(QtWidgets.QHBoxLayout())
         elif content_layout == 'G':
             self.content.setLayout(QtWidgets.QGridLayout())
-        self.content.layout().setContentsMargins(10,0,10,2)
+
         self.layout().addWidget(self.content,1)
 
     # def __del__(self):
