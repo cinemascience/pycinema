@@ -48,14 +48,14 @@ class View(QtWidgets.QFrame):
         self.button_h.setIcon(QtGui.QIcon("pycinema/theater/icon/horizontal-split.png"))
         self.button_h.setFixedSize(12,12)
         self.button_h.setStyleSheet(style)
-        self.button_h.setToolTip("Horizontal split")
+        self.button_h.setToolTip("split (columns)")
         self.button_h.clicked.connect(self.emitSplitH)
 
         self.button_v = QtWidgets.QToolButton()
         self.button_v.setIcon(QtGui.QIcon("pycinema/theater/icon/vertical-split.png"))
         self.button_v.setFixedSize(12,12)
         self.button_v.setStyleSheet(style)
-        self.button_v.setToolTip("Vertical split")
+        self.button_v.setToolTip("split (rows)")
         self.button_v.clicked.connect(self.emitSplitV)
 
         self.toolbar.addWidget(self.button_c)
