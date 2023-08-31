@@ -69,6 +69,12 @@ To upload it to `testpypi` (assuming you have permission):
 make module-test-upload
 ```
 
+# Related repositories
+
+- ```pycinema-data``` example Cinema datasets.
+- ```pycinema-testdata``` Cinema databases used for unit testing and CI testing.
+- ```pycinema-binder``` binder online examples of Cinema databases and viewers. 
+
 # Design proposals
 
 - [CIS image proposal](doc/cis_proposal.md)

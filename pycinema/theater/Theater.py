@@ -171,6 +171,7 @@ ImageView_0.inputs.images.set(Annotation_0.outputs.images, False)
 '''
         script += 'CinemaDatabaseReader_0.inputs.path.set("'+path+'", False)\n'
         script += 'CinemaDatabaseReader_0.update()'
+        self.setWindowTitle("Cinema:View (" + path + ")")
         self.executeScript(script)
 
     def exploreCDB(self, path=None):
@@ -222,6 +223,7 @@ ImageView_0.inputs.images.set(Annotation_0.outputs.images, False)
 '''
         script += 'CinemaDatabaseReader_0.inputs.path.set("'+path+'", False)\n'
         script += 'CinemaDatabaseReader_0.update()'
+        self.setWindowTitle("Cinema:Explorer (" + path + ")")
         self.executeScript(script)
 
     def executeScript(self, script):
