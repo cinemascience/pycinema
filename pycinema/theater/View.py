@@ -1,8 +1,5 @@
 from PySide6 import QtCore, QtWidgets, QtGui
-from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QSpacerItem
-from PySide6.QtWidgets import QSizePolicy
-from PySide6.QtWidgets import QToolBar 
+from pycinema.theater.Icons import Icons
 
 class View(QtWidgets.QFrame):
 
@@ -14,17 +11,14 @@ class View(QtWidgets.QFrame):
         super().__init__()
 
         self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().setContentsMargins(2,2,2,2)
+        self.layout().setContentsMargins(4,2,4,0)
 
         # toolbar
-        self.toolbar = QToolBar()
-        self.toolbar.setStyleSheet("border-style: raised")
-        self.toolbar.setIconSize(QtCore.QSize(12,12))
+        self.toolbar = QtWidgets.QToolBar()
         self.layout().addWidget(self.toolbar)
 
         # label
         self.title = QtWidgets.QLabel()
-        self.title.setStyleSheet("border-style: ridge;margin:2px 2px")
         font = self.title.font()
         font.setPointSize(10)
         self.title.setFont(font)
@@ -35,28 +29,19 @@ class View(QtWidgets.QFrame):
         self.spacer.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.toolbar.addWidget(self.spacer)
 
+        def createButton(tooltip,icon,slot):
+          button = QtWidgets.QToolButton()
+          button.setIcon( Icons.toQIcon(icon) )
+          button.setCursor(QtCore.Qt.PointingHandCursor)
+          button.setFixedSize(18,18)
+          button.setToolTip(tooltip)
+          button.clicked.connect(slot)
+          return button
+
         # buttons
-        style = "border-radius: 6;background-color: #808080;border :1px solid #808080;"
-        self.button_c = QtWidgets.QToolButton()
-        self.button_c.setIcon(QtGui.QIcon("pycinema/theater/icon/cancel.svg"))
-        self.button_c.setFixedSize(12,12)
-        self.button_c.setStyleSheet(style)
-        self.button_c.setToolTip("Close view")
-        self.button_c.clicked.connect(self.emitClose)
-
-        self.button_h = QtWidgets.QToolButton()
-        self.button_h.setIcon(QtGui.QIcon("pycinema/theater/icon/horizontal-split.png"))
-        self.button_h.setFixedSize(12,12)
-        self.button_h.setStyleSheet(style)
-        self.button_h.setToolTip("split (columns)")
-        self.button_h.clicked.connect(self.emitSplitH)
-
-        self.button_v = QtWidgets.QToolButton()
-        self.button_v.setIcon(QtGui.QIcon("pycinema/theater/icon/vertical-split.png"))
-        self.button_v.setFixedSize(12,12)
-        self.button_v.setStyleSheet(style)
-        self.button_v.setToolTip("split (rows)")
-        self.button_v.clicked.connect(self.emitSplitV)
+        self.button_c = createButton('Close View', Icons.icon_close, self.emitClose)
+        self.button_h = createButton('Add View on the Right', Icons.icon_split_h, self.emitSplitH)
+        self.button_v = createButton('Add View Below', Icons.icon_split_v, self.emitSplitV)
 
         self.toolbar.addWidget(self.button_c)
         self.toolbar.addWidget(self.button_h)
