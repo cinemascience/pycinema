@@ -5,12 +5,18 @@ from pycinema.theater import View
 from pycinema.theater.ViewFrame import *
 from pycinema.theater.FilterBrowser import *
 from pycinema.theater.views.NodeView import *
+from pycinema.theater.Icons import Icons
+from pycinema.theater.node_editor.NodeEditorStyle import NodeEditorStyle
 
 import sys
 
 class _Theater(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
+
+        # init theme
+        Icons.update_theme();
+        NodeEditorStyle.update_theme();
 
         toolbar = QtWidgets.QToolBar("My main toolbar")
         self.addToolBar(toolbar)
@@ -273,11 +279,17 @@ class Theater():
         Theater.instance.resize(1024, 900)
         Theater.instance.show()
 
-        if len(args)==1 and isinstance(args[0], str) and args[0].endswith('.py'):
+        if len(args)>0 and isinstance(args[0], str):
+          if args[0].endswith('.py'):
             Theater.instance.loadScript(args[0])
-        elif len(args)>1 and args[0]=='view':
-            Theater.instance.viewCDB(args[1])
-        elif len(args)>1 and args[0]=='explorer':
-            Theater.instance.exploreCDB(args[1])
+          elif args[0] in ['view','explorer']:
+            path = None
+            if len(args)==2 and isinstance(args[1], str): path=args[1]
+            if not path: path=QtWidgets.QFileDialog.getExistingDirectory(Theater.instance, "Select Cinema Database")
+            if path:
+              if args[0]=='view':
+                Theater.instance.viewCDB(path)
+              else:
+                Theater.instance.exploreCDB(path)
 
         sys.exit(app.exec())

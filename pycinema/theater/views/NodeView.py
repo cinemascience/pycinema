@@ -58,8 +58,6 @@ class QtNodeView(QtWidgets.QGraphicsView):
         QtNodeView.instances[self] = None
 
     def init_gobal():
-        NES.update_theme()
-
         QtNodeView.node_connection_line = QtWidgets.QGraphicsLineItem()
         QtNodeView.node_connection_line.setPen(QtGui.QPen(NES.COLOR_NORMAL, 2, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
         QtNodeView.node_connection_line.setZValue(1000)
