@@ -4,7 +4,7 @@ Over the past three to four years, view synthesis, the generation of new, unseen
 
 ## Generating new images from a trained network
 
-Currently, the `pycinema` module supports new view generation for networks built on the InSituNet framework. Given a `phi`, `theta` and possible `time` values for the new image, and a path to the trained network, the `ImageGeneratorCNN` module generates the new image.
+Currently, the `pycinema` module supports new view generation for networks built on the InSituNet framework. Given `phi`, `theta` and optional `time` values for the new image, and a path to the trained network, the `ImageGeneratorCNN` module generates the new image at the specified view direction and time.
 
 
 To generate an instance of the module, run:
@@ -24,14 +24,13 @@ mlfilter.inputs.Params.set([[phi, theta]])
 
 For example, we train a neural network based on the Hurricane Isabel dataset. This trained network is saved in `../data/MLModels/Model_MLImageGenerator_Isabel_1500.pth` for reference. 
 
-We then generate a new image at `phi=10.0` and `theta=30.0`, as shown in `demoMLImageGenerator.ipynb`:
+We then generate a new image at `phi=15.0` and `theta=0.0`, as shown in `demoMLImageGenerator.ipynb`:
 
 ![JupyterLab Interface](predictedImages/demoMLImageGenerator.png)
 
+We can compare the Predicted Image to the Original Reference Image for comparison. 
 
-This results in the image below:
-
-![Predicted Image](predictedImages/demoMLImageGenerator_10_30.png)
+![Predicted Image](predictedImages/comparison_15_0.png)
 
 ## References
 
