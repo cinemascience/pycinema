@@ -21,19 +21,19 @@ class _Theater(QtWidgets.QMainWindow):
 
 
         # make actions
-        button_viewCDB = QtGui.QAction("Open ...", self)
+        button_viewCDB = QtGui.QAction("Open Cinema database ...", self)
         button_viewCDB.setStatusTip("open local cinema database")
         button_viewCDB.triggered.connect(self.viewCDB)
 
-        button_save = QtGui.QAction("Save ...", self)
+        button_save = QtGui.QAction("Save script ...", self)
         button_save.setStatusTip("save script")
         button_save.triggered.connect(self.saveScript)
 
-        button_load = QtGui.QAction("Load ...", self)
+        button_load = QtGui.QAction("Load script ...", self)
         button_load.setStatusTip("load script")
         button_load.triggered.connect(self.loadScript)
 
-        button_filters = QtGui.QAction("Filters ...", self)
+        button_filters = QtGui.QAction("Add filter ...", self)
         button_filters.setStatusTip("Open Filter Browser")
         button_filters.triggered.connect(self.showFilterBrowser)
 
@@ -54,6 +54,7 @@ class _Theater(QtWidgets.QMainWindow):
         fileMenu.addAction(button_viewCDB)
         fileMenu.addAction(button_load)
         fileMenu.addAction(button_save)
+        fileMenu.addSeparator()
         fileMenu.addAction(button_reset)
         editMenu = menuBar.addMenu("&Edit")
         editMenu.addAction(button_filters)
