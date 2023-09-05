@@ -11,25 +11,40 @@ Cinema databases are a compact and interactive output format that can be created
 
 # Working with the code and the `pycinema` module
 
-## Installing and running with the pycinema module
+- Installing and running with the pycinema repository:
 
 ```
+git clone git@github.com:cinemascience/pycinema.git
+cd pycinema
 python3 -m venv pcenv
 source pcenv/bin/activate
 pip install --upgrade pip
 pip install . 
 ```
 
-## Installing and running with the test pycinema module
+- Installing and running with the released pycinema module
 
 ```
+mkdir pyc-test
+cd pyc-test
+python3 -m venv pcenv
+source pcenv/bin/activate
+pip install --upgrade pip
+pip install pycinema 
+```
+
+- Installing and running with the test pycinema module
+
+```
+mkdir pyc-test
+cd pyc-test
 python3 -m venv pcenv
 source pcenv/bin/activate
 pip install --upgrade pip
 pip install -i https://test.pypi.org/simple/ --extra-index https://pypi.org/simple pycinema
 ```
 
-# Creating a local python environment
+- Creating a local python environment
 
 To create a local python environment for this project, run the following commands within the repository directory:
 ```
@@ -39,7 +54,7 @@ pip install --upgrade pip
 pip install .
 ```
 
-# Running examples
+- Running examples
 
 You can now use this python environment to run examples from the repository. Run `cinema` and select a file from the `data` directory:
 
