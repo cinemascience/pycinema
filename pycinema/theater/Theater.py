@@ -19,41 +19,57 @@ class _Theater(QtWidgets.QMainWindow):
         Icons.update_theme();
         NodeEditorStyle.update_theme();
 
-        toolbar = QtWidgets.QToolBar("My main toolbar")
-        self.addToolBar(toolbar)
 
-        self.statusBar = QtWidgets.QStatusBar()
-        self.setStatusBar(self.statusBar)
-
-        button_viewCDB = QtGui.QAction("Open", self)
+        # make actions
+        button_viewCDB = QtGui.QAction("Open ...", self)
         button_viewCDB.setStatusTip("open local cinema database")
         button_viewCDB.triggered.connect(self.viewCDB)
-        toolbar.addAction(button_viewCDB)
 
-        button_save = QtGui.QAction("Save", self)
+        button_save = QtGui.QAction("Save ...", self)
         button_save.setStatusTip("save script")
         button_save.triggered.connect(self.saveScript)
-        toolbar.addAction(button_save)
 
-        button_load = QtGui.QAction("Load", self)
+        button_load = QtGui.QAction("Load ...", self)
         button_load.setStatusTip("load script")
         button_load.triggered.connect(self.loadScript)
-        toolbar.addAction(button_load)
 
-        button_filters = QtGui.QAction("Filters", self)
+        button_filters = QtGui.QAction("Filters ...", self)
         button_filters.setStatusTip("Open Filter Browser")
         button_filters.triggered.connect(self.showFilterBrowser)
-        toolbar.addAction(button_filters)
 
         button_reset = QtGui.QAction("Reset", self)
         button_reset.setStatusTip("Reset Theater")
         button_reset.triggered.connect(self.reset)
-        toolbar.addAction(button_reset)
 
         button_about = QtGui.QAction("About ...", self)
         button_about.setStatusTip("About Cinema")
         button_about.triggered.connect(self.about)
-        toolbar.addAction(button_about)
+
+        # menu
+        menuBar = self.menuBar();
+        menuBar.setNativeMenuBar(False)
+        cinemaMenu = menuBar.addMenu("Cinema")
+        cinemaMenu.addAction(button_about)
+        fileMenu = menuBar.addMenu("&File")
+        fileMenu.addAction(button_viewCDB)
+        fileMenu.addAction(button_load)
+        fileMenu.addAction(button_save)
+        fileMenu.addAction(button_reset)
+        editMenu = menuBar.addMenu("&Edit")
+        editMenu.addAction(button_filters)
+
+        # toolbar = QtWidgets.QToolBar("My main toolbar")
+        # self.addToolBar(toolbar)
+        # toolbar.addAction(button_viewCDB)
+        # toolbar.addAction(button_save)
+        # toolbar.addAction(button_load)
+        # toolbar.addAction(button_filters)
+        # toolbar.addAction(button_reset)
+        # toolbar.addAction(button_about)
+
+        # status bar
+        self.statusBar = QtWidgets.QStatusBar()
+        self.setStatusBar(self.statusBar)
 
         vf = ViewFrame(root=True)
         vf.insertView(0,NodeView())
