@@ -28,7 +28,7 @@ We then generate a new image at `phi=15.0` and `theta=0.0`, as shown in `demoMLI
 
 ![JupyterLab Interface](predictedImages/demoMLImageGenerator.png)
 
-We can compare the Predicted Image to the Original Reference Image for comparison. 
+We can compare the Predicted Image to the Original Reference Image:
 
 ![Predicted Image](predictedImages/comparison_15_0.png)
 
