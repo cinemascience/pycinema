@@ -81,6 +81,10 @@ To upload it to `testpypi` (assuming you have permission):
 make module-test-upload
 ```
 
+# Documentation
+
+Documentation for this project can be found on [readthedocs.org](https://pycinema.readthedocs.org)
+
 # Related repositories
 
 - ```pycinema-data``` example Cinema datasets.
