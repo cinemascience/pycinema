@@ -1,4 +1,5 @@
 from PySide6 import QtCore, QtWidgets, QtGui
+from PySide6.QtWidgets import QMessageBox
 
 import pycinema
 from pycinema.theater import View
@@ -20,6 +21,9 @@ class _Theater(QtWidgets.QMainWindow):
 
         toolbar = QtWidgets.QToolBar("My main toolbar")
         self.addToolBar(toolbar)
+
+        self.statusBar = QtWidgets.QStatusBar()
+        self.setStatusBar(self.statusBar)
 
         button_viewCDB = QtGui.QAction("Open", self)
         button_viewCDB.setStatusTip("open local cinema database")
@@ -45,6 +49,11 @@ class _Theater(QtWidgets.QMainWindow):
         button_reset.setStatusTip("Reset Theater")
         button_reset.triggered.connect(self.reset)
         toolbar.addAction(button_reset)
+
+        button_about = QtGui.QAction("About ...", self)
+        button_about.setStatusTip("About Cinema")
+        button_about.triggered.connect(self.about)
+        toolbar.addAction(button_about)
 
         vf = ViewFrame(root=True)
         vf.insertView(0,NodeView())
@@ -231,6 +240,10 @@ ImageView_0.inputs.images.set(Annotation_0.outputs.images, False)
         script += 'CinemaDatabaseReader_0.update()'
         self.setWindowTitle("Cinema:Explorer (" + path + ")")
         self.executeScript(script)
+
+    def about(self, no_views=False):
+        msgBox = QtWidgets.QMessageBox.about(self, "About", "pycinema v" + pycinema.__version__);
+        return
 
     def executeScript(self, script):
         QtNodeView.auto_layout = False
