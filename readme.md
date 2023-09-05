@@ -5,9 +5,9 @@ Cinema v2.0 is a newly designed toolkit of python-based components for creating,
 
 Cinema databases are a compact and interactive output format that can be created from scientific visualization tools and infrastructures (ParaView, Ascent, etc.) or created through other code by writing to the common output format. 
 
-|![workflow](doc/img/workflow.png)|
+|![workflow](doc/img/python-gui.png)|
 | ---- |
-|*Diagram of a Cinema Engine pipeline, showing how a Cinema database is read from disk, rendered and then viewed with filers in the toolkit. UI widgets in a jupyter-lab notebook allow the user to control colors, objects, and rendering paramters to create a finished image.*|
+|*Screen capture of the pycinema UI, showing a composited image, view controls, table widget, and rendering controls.*|
 
 # Working with the code and the `pycinema` module
 
@@ -18,7 +18,6 @@ python3 -m venv pcenv
 source pcenv/bin/activate
 pip install --upgrade pip
 pip install . 
-pip install jupyterlab 
 ```
 
 ## Installing and running with the test pycinema module
@@ -28,7 +27,6 @@ python3 -m venv pcenv
 source pcenv/bin/activate
 pip install --upgrade pip
 pip install -i https://test.pypi.org/simple/ --extra-index https://pypi.org/simple pycinema
-pip install jupyterlab
 ```
 
 # Creating a local python environment
@@ -38,17 +36,16 @@ To create a local python environment for this project, run the following command
 python3 -m venv pcenv
 source pcenv/bin/activate
 pip install --upgrade pip
-pip install jupyterlab
 pip install .
 ```
 
 # Running examples
 
-You can now use this python environment to run examples from the repository. Run `jupyter-lab` and select a file from the `examples` directory:
+You can now use this python environment to run examples from the repository. Run `cinema` and select a file from the `data` directory:
 
 ```
 source pcenv/bin/activate
-jupyter-lab
+cinema view data/sphere.cdb
 ```
 
 # Making and uploading the python module
