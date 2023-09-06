@@ -56,8 +56,12 @@ def createLabel(parent,text):
   font = QtGui.QFont()
   font.setPointSize(10)
   _label.setFont(font)
-  _label.setStyleSheet('color: #ccc;')
+
+  palette = QtCore.QCoreApplication.instance().palette()
+  color = 'color: '+palette.text().color().name()+';background:transparent;';
+  _label.setStyleSheet(color);
   label = QtWidgets.QGraphicsProxyWidget(parent)
+  label._color = color;
   label.setWidget(_label)
   return label
 
@@ -84,17 +88,24 @@ def computeValues(header,table):
 class Lines(QtWidgets.QGraphicsItem):
   def __init__(self):
     super().__init__()
-    self.w = QtWidgets.QGraphicsRectItem(QtCore.QRectF(0,0,1,1),self)
-    self.w.setBrush(QtCore.Qt.NoBrush)
-    self.w.setPen(QtCore.Qt.NoPen)
+    self.br = QtCore.QRectF(0,0,0,0)
 
-    self.pen_line_normal = QtGui.QPen(QtGui.QColor("#555"))
-    self.pen_line_highlight = QtGui.QPen(QtGui.QColor("#fff"))
+    palette = QtCore.QCoreApplication.instance().palette()
+
+    # determine theme
+    dark_theme = base_color = QtCore.QCoreApplication.instance().palette().base().color().red()<100
+    if dark_theme:
+      self.pen_line_normal = QtGui.QPen(QtGui.QColor("#555"))
+      self.pen_line_highlight = QtGui.QPen(QtGui.QColor("#fff"))
+    else:
+      self.pen_line_normal = QtGui.QPen(QtGui.QColor("#eee"))
+      self.pen_line_highlight = QtGui.QPen(QtGui.QColor("#333"))
+
+    self.pen_line_highlight.setWidth(2)
 
     self.lines_normal = []
     self.lines_highlight = []
 
-    self.br = QtCore.QRectF(0,0,0,0)
     self.path_normal = QtGui.QPainterPath()
     self.path_highlight = QtGui.QPainterPath()
 
@@ -152,10 +163,11 @@ class Axis(QtWidgets.QGraphicsItem):
     # label
     self.label = createLabel(self,parameter)
     self.label.setPos(-self.label.boundingRect().width()/2,0)
-    # self.label.widget().s_clicked.connect(self.toggleCompose)
+    self.label.widget().setCursor(QtCore.Qt.PointingHandCursor)
 
     # pens
-    self.pen_grid = QtGui.QPen(QtGui.QColor("#ccc"))
+    palette = QtCore.QCoreApplication.instance().palette()
+    self.pen_grid = QtGui.QPen(palette.mid().color())
 
     # main line
     self.line = QtWidgets.QGraphicsLineItem(
@@ -179,7 +191,13 @@ class Axis(QtWidgets.QGraphicsItem):
 
     # highlight bar
     self.bar = QtWidgets.QGraphicsRectItem(0,0,0,0,self)
-    bar_c = QtGui.QColor('#fff')
+
+    dark_theme = base_color = QtCore.QCoreApplication.instance().palette().base().color().red()<100
+    if dark_theme:
+      bar_c = QtGui.QColor('#fff')
+    else:
+      bar_c = QtGui.QColor('#333')
+
     self.bar.setBrush(bar_c)
     bar_pen = QtGui.QPen(bar_c)
     bar_pen.setWidth(3)
@@ -262,9 +280,9 @@ class Axis(QtWidgets.QGraphicsItem):
     self.bar.setRect( -1, hy0, 2, hy1-hy0 )
 
     if self.compose:
-      self.label.widget().setStyleSheet('font-weight: bold;color: #ccc;')
+      self.label.widget().setStyleSheet('font-weight: bold;'+self.label._color)
     else:
-      self.label.widget().setStyleSheet('font-weight: normal;color: #ccc;')
+      self.label.widget().setStyleSheet('font-weight: normal;'+self.label._color)
 
   def boundingRect(self):
     return self.br

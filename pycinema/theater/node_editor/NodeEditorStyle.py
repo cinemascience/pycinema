@@ -41,6 +41,7 @@ class NodeEditorStyle:
       NodeEditorStyle.COLOR_BASE_T = QtGui.QColor('#666')
       NodeEditorStyle.COLOR_BASE_T.setAlpha(200)
       NodeEditorStyle.COLOR_NORMAL_ = '#ddd'
+      NodeEditorStyle.COLOR_NORMAL = QtGui.QColor(NodeEditorStyle.COLOR_NORMAL_)
       NodeEditorStyle.COLOR_DISABLED_ = '#999'
       NodeEditorStyle.COLOR_BACKGROUND = QtGui.QColor('#333438')
       NodeEditorStyle.COLOR_BORDER = QtGui.QColor('#ff0000')
@@ -53,13 +54,13 @@ class NodeEditorStyle:
       NodeEditorStyle.COLOR_BLUE = QtGui.QColor('#15a3b4')
       NodeEditorStyle.COLOR_BLUE_T = QtGui.QColor('#15a3b4')
       NodeEditorStyle.COLOR_BLUE_T.setAlpha(200)
-      NodeEditorStyle.COLOR_NORMAL = QtGui.QColor(NodeEditorStyle.COLOR_NORMAL_)
     else:
       #bright theme
       NodeEditorStyle.COLOR_BASE = QtGui.QColor('#bbb')
       NodeEditorStyle.COLOR_BASE_T = QtGui.QColor('#ccc')
       NodeEditorStyle.COLOR_BASE_T.setAlpha(200)
       NodeEditorStyle.COLOR_NORMAL_ = '#000'
+      NodeEditorStyle.COLOR_NORMAL = QtGui.QColor(NodeEditorStyle.COLOR_NORMAL_)
       NodeEditorStyle.COLOR_DISABLED_ = '#aaa'
       NodeEditorStyle.COLOR_BACKGROUND = QtGui.QColor('#aaa')
       NodeEditorStyle.COLOR_BORDER = QtGui.QColor('#ff0000')
@@ -72,4 +73,3 @@ class NodeEditorStyle:
       NodeEditorStyle.COLOR_BLUE = QtGui.QColor('#96deec')
       NodeEditorStyle.COLOR_BLUE_T = QtGui.QColor('#96deec')
       NodeEditorStyle.COLOR_BLUE_T.setAlpha(200)
-      NodeEditorStyle.COLOR_NORMAL = QtGui.QColor(NodeEditorStyle.COLOR_NORMAL_)
