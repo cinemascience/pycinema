@@ -82,13 +82,15 @@ class _Theater(QtWidgets.QMainWindow):
 
     def saveScript(self):
 
-        script = '''
-import pycinema
+        script = '''import pycinema
 import pycinema.filters
 import pycinema.theater
 import pycinema.theater.views
+
 '''
 
+        script += '# pycinema settings\n'
+        script += 'PYCINEMA = { \'VERSION\' : \'' + pycinema.__version__ + '\'}\n'
         script += '\n# layout\n'
         script += self.centralWidget().id+' = pycinema.theater.Theater.instance.centralWidget()\n'
         script += self.centralWidget().export()
