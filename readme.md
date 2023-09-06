@@ -7,7 +7,7 @@ Cinema databases are a compact and interactive output format that can be created
 
 |![workflow](doc/img/python-gui.png)|
 | ---- |
-|*Screen capture of two pycinema Workflows, cinema:explorer and cinema:view. Both of these are available in the pycinema toolkit.*|
+|*Screen capture of two pycinema Workflows, cinema:explorer and cinema:view, which mimic the functionality of existing viewers in Cinema (and add a few added features). Both of these are available in the pycinema toolkit.*|
 
 ## New concepts to Cinema: 'filter graphs' and 'workspaces'
 
