@@ -18,7 +18,7 @@ class _Theater(QtWidgets.QMainWindow):
         # init theme
         Icons.update_theme();
         NodeEditorStyle.update_theme();
-
+        ViewStyle.update_theme();
 
         # make actions
         button_viewCDB = QtGui.QAction("Open Cinema database ...", self)
