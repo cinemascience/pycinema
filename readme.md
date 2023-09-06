@@ -9,6 +9,14 @@ Cinema databases are a compact and interactive output format that can be created
 | ---- |
 |*Screen capture of two pycinema Workflows, cinema:explorer and cinema:view. Both of these are available in the pycinema toolkit.*|
 
+## New concepts to Cinema: 'filter graphs' and 'workspaces'
+
+This toolkit introduces the concept of *filter graphs* and *workspaces* to Cinema. Data operations (loading, querying, manipulating and viewing) are performed by *filters* that take input data, transform it, and pass it on in the form of tables, data, or data products. A collection of these *filters* is connected in a *filter graph*, and a *filter graph* can be saved in a reusable way known as a *workspace*. This makes the cinema toolkit a flexible platform for creating, modifying and saving data workflows.
+
+|![workflow](doc/img/explorer-with-filtergraph.png)|
+| ---- |
+|*Screen capture of Cinema:Explorer workspace, showing the normal view (left) and also revealing the 'filter graph' view of the workspace. pycinema introduces both of these new concepts to data workflows.*|
+
 # Working with the code and the `pycinema` module
 
 - Installing and running with the pycinema repository:
