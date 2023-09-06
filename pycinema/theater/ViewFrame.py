@@ -1,6 +1,7 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
 from pycinema.theater.View import View
+from pycinema.theater.ViewStyle import ViewStyle
 from pycinema.theater.views import SelectionView
 from pycinema.theater.views import FilterView
 from pycinema.theater.views import NodeView
@@ -14,7 +15,7 @@ class ViewFrame(QtWidgets.QSplitter):
       super().__init__()
       self.root = root
       self.setChildrenCollapsible(False)
-      self.setStyleSheet("QSplitter::handle {background-color: gray;}")
+      self.setStyleSheet(ViewStyle.get_style_sheet())
       self.id = 'vf'+str(ViewFrame.id_counter)
       ViewFrame.id_counter += 1
       self.setOrientation(orientation)
