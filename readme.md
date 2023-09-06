@@ -15,7 +15,7 @@ This toolkit introduces the concept of *filter graphs* and *workspaces* to Cinem
 
 |![workflow](doc/img/explorer-with-filtergraph.png)|
 | ---- |
-|*Screen capture of Cinema:Explorer workspace, showing the normal view (left) and also revealing the 'filter graph' view of the workspace. pycinema introduces both of these concepts to cinema data workflows.*|
+|*Screen capture of Cinema:Explorer workspace, showing the normal view (left) and also revealing the 'filter graph' view (lower right) of the workspace. pycinema introduces both of these concepts to cinema data workflows.*|
 
 # Working with the code and the `pycinema` module
 
