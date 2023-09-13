@@ -6,6 +6,11 @@ import os
 import csv
 import hashlib
 
+#
+# TableWriter
+#
+# writes its input table as a csv file
+#
 class TableWriter(Filter):
 
     def __init__(self):
