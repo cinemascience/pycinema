@@ -45,11 +45,16 @@ class _Theater(QtWidgets.QMainWindow):
         button_about.setStatusTip("About Cinema")
         button_about.triggered.connect(self.about)
 
+        button_quit = QtGui.QAction("Quit Cinema", self)
+        button_quit.setStatusTip("Quit Cinema")
+        button_quit.triggered.connect(self.quit)
+
         # menu
         menuBar = self.menuBar();
         menuBar.setNativeMenuBar(False)
         cinemaMenu = menuBar.addMenu("Cinema")
         cinemaMenu.addAction(button_about)
+        cinemaMenu.addAction(button_quit)
         fileMenu = menuBar.addMenu("&File")
         fileMenu.addAction(button_viewCDB)
         fileMenu.addAction(button_load)
@@ -259,6 +264,10 @@ ImageView_0.inputs.images.set(Annotation_0.outputs.images, False)
         script += 'CinemaDatabaseReader_0.update()'
         self.setWindowTitle("Cinema:Explorer (" + path + ")")
         self.executeScript(script)
+
+    def quit(self, no_views=False):
+        QtWidgets.QApplication.quit()
+        return
 
     def about(self, no_views=False):
         msgBox = QtWidgets.QMessageBox.about(self, "About", "pycinema v" + pycinema.__version__);
