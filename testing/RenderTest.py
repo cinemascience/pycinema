@@ -73,7 +73,7 @@ def test_render():
     annotation.inputs.spacing.set( 10, False )
     annotation.inputs.images.set( mask_compositing.outputs.images )
 
-    border = pycinema.filters.Border()
+    border = pycinema.filters.ImageBorder()
     border.inputs.color.set( (0,140,140,255) )
     border.inputs.width.set( 5 )
     border.inputs.images.set( annotation.outputs.images )
