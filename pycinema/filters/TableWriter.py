@@ -1,10 +1,7 @@
 from pycinema import Filter
 
-import numpy
-import h5py
 import os
 import csv
-import hashlib
 
 #
 # TableWriter
@@ -23,12 +20,9 @@ class TableWriter(Filter):
 
     def writeCSV(self):
         with open(self.inputs.path.get(), 'w') as csvfile:
+            write = csv.writer(csvfile)
+            write.writerows(self.inputs.table.get())
 
-            for line in self.inputs.table.get():
-                csvfile.write(','.join(map(str,line)))
-                csvfile.write('\n')
-
-            csvfile.close()
 
     def _update(self):
 
