@@ -1,4 +1,4 @@
-from pycinema import Filter
+from pycinema import Filter, isNumber
 
 import sqlite3
 
