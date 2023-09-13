@@ -18,3 +18,4 @@ from .ShaderPhong import *
 from .Shader import *
 from .ShaderSSAO import *
 from .TableMerger import *
+from .TableWriter import *
