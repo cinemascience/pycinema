@@ -19,23 +19,23 @@ vf0.setSizes([456, 455])
 
 # filters
 CinemaDatabaseReader_1 = pycinema.filters.CinemaDatabaseReader()
-Border_0 = pycinema.filters.Border()
+ImageBorder_0 = pycinema.filters.ImageBorder()
 ImageReader_1 = pycinema.filters.ImageReader()
 TableQuery_1 = pycinema.filters.TableQuery()
 
 # properties
 CinemaDatabaseReader_1.inputs.path.set("data/sphere.cdb", False)
 CinemaDatabaseReader_1.inputs.file_column.set("file", False)
-Border_0.inputs.images.set(ImageReader_1.outputs.images, False)
-Border_0.inputs.width.set(20, False)
-Border_0.inputs.color.set("AUTO", False)
+ImageBorder_0.inputs.images.set(ImageReader_1.outputs.images, False)
+ImageBorder_0.inputs.width.set(20, False)
+ImageBorder_0.inputs.color.set("AUTO", False)
 ImageReader_1.inputs.table.set(TableQuery_1.outputs.table, False)
 ImageReader_1.inputs.file_column.set("FILE", False)
 ImageReader_1.inputs.cache.set(True, False)
 ImageView_2.inputs.images.set(ImageReader_1.outputs.images, False)
 TableQuery_1.inputs.table.set(CinemaDatabaseReader_1.outputs.table, False)
 TableQuery_1.inputs.sql.set("SELECT * FROM input WHERE phi=-180", False)
-ImageView_3.inputs.images.set(Border_0.outputs.images, False)
+ImageView_3.inputs.images.set(ImageBorder_0.outputs.images, False)
 
 # execute pipeline
 CinemaDatabaseReader_1.update()

@@ -3,7 +3,7 @@ from pycinema import Filter
 import PIL
 import numpy
 
-class Border(Filter):
+class ImageBorder(Filter):
 
     def __init__(self):
         super().__init__(
