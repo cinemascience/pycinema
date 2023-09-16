@@ -1,2 +1,10 @@
-id,theta,phi,file
-1,0,-180,data/sphere.cdb/image/-180/0.png
+theta,phi
+0,18
+0,36
+0,54
+0,72
+0,90
+0,108
+0,126
+0,144
+0,162

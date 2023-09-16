@@ -66,7 +66,7 @@ def test_render():
     mask_compositing.inputs.masks.set(image_canny.outputs.images, False )
     mask_compositing.inputs.mask_channel.set('canny')
 
-    annotation = pycinema.filters.Annotation()
+    annotation = pycinema.filters.ImageAnnotation()
     annotation.inputs.color.set( (200,200,200), False )
     annotation.inputs.size.set( 14, False )
     annotation.inputs.xy.set( (10,10), False )
