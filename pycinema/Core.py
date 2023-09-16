@@ -1,10 +1,31 @@
 import time
 import traceback
+import pprint
+import re
 
 class Image():
     def __init__(self, channels=None, meta=None):
-        self.channels = channels or {}
         self.meta = meta or {}
+        self.channels = channels or {}
+
+    def __str__(self):
+        result =  '{ PyCinemaImage:\n'
+        result += '  meta: \n' + pprint.pformat(self.meta, indent=4)
+        result += '  channels: \n' + pprint.pformat(self.channels, indent=4)
+        result += '\n}\n'
+        return result
+
+    def __repr__(self):
+        return self.__str__()
+
+    def getChannel(self,regex):
+        for c,data in self.channels.items():
+            if c==regex:
+                return data
+        for c,data in self.channels.items():
+            if re.search(regex, c, re.IGNORECASE):
+                return data
+        raise Exception('Channel Not Found')
 
     def copy(self):
         return Image(
@@ -18,6 +39,10 @@ class Image():
         for c in self.channels:
             return self.channels[c].shape
         return (0,0,0)
+
+    @property
+    def resolution(self):
+        return self.shape[:2][::-1]
 
 def isNumber(s):
     t = type(s)
@@ -176,6 +201,20 @@ class Filter():
         self._filters[self] = self
 
         self.trigger('filter_created',self)
+
+    def getInputFilters(self):
+        filters = set({})
+        for _, iPort in self.inputs.ports():
+            if isinstance(iPort._value, Port):
+                filters.add(iPort._value.parent)
+        return filters
+
+    def getOutputFilters(self):
+        filters = set({})
+        for _, oPort in self.outputs.ports():
+            for iPort in list(oPort.connections):
+                  filters.add(iPort.parent)
+        return filters
 
     def delete(self):
         if Filter._debug:

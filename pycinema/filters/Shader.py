@@ -2,6 +2,7 @@ from pycinema import Filter
 
 import numpy
 import moderngl
+import re
 
 class Shader(Filter):
 
@@ -10,6 +11,7 @@ class Shader(Filter):
     fbo = None
 
     def __init__(self, inputs={}, outputs={}, textures=[], varyings=['uv'], quad=True):
+
         # program
         self.program = Shader.ctx.program(
             vertex_shader=self.getVertexShaderCode(),
@@ -18,12 +20,15 @@ class Shader(Filter):
         )
 
         # textures
+        self.textures = {}
         for i, name in enumerate(textures):
             self.program[name] = i
 
         # Geometry
         if quad:
             self.vao = Shader.ctx.simple_vertex_array(self.program, Shader.quad, 'position')
+
+        Filter.on('filter_deleted', lambda f: 0 if f!=self else self.releaseTextures())
 
         super().__init__(inputs, outputs)
 
@@ -68,12 +73,30 @@ void main(){
         # needs to be overriden
         return ""
 
-    def createTexture(self,location,res,components,dtype='f1'):
-        tex = self.ctx.texture(res, components, dtype=dtype, alignment=1)
-        tex.repeat_x = False
-        tex.repeat_y = False
-        tex.use(location=location)
-        return tex
+    def updateTexture(self,location,data,skip_write_if_exists=False):
+        if location not in self.textures or self.textures[location].shape!=data.shape:
+            dtype_map = {
+              '|u1': 'f1',
+              '<f4': 'f4'
+            }
+            tex = self.ctx.texture(data.shape[:2][::-1], 1 if len(data.shape)<3 else data.shape[2], dtype=dtype_map[data.dtype.str], alignment=1)
+            tex.repeat_x = False
+            tex.repeat_y = False
+            tex.use(location=location)
+            tex.write(data.tobytes())
+            tex.shape = data.shape
+            tex.resolution = data.shape[:2][::-1]
+            self.textures[location] = tex
+        else:
+            tex = self.textures[location]
+            tex.use(location=location)
+            if not skip_write_if_exists:
+                tex.write(data.tobytes())
+
+    def releaseTextures(self):
+        for t in [t for t in self.textures.keys()]:
+            self.textures[t].release()
+            del self.textures[t]
 
 try:
     Shader.ctx = moderngl.create_standalone_context(require=330)
