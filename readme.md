@@ -1,54 +1,74 @@
 # Cinema Engine
 ![smoke](https://github.com/cinemascience/pycinema/actions/workflows/RenderTest.yml/badge.svg)
 
-Cinema v2.0 is a newly designed toolkit of python-based components for creating, filtering, transforming and viewing Cinema databases. There is more information about the Cinema project [here](https://cinemascience.github.io).
+Cinema v2.0 is a toolkit of python-based components for creating, filtering, transforming and viewing Cinema databases. Cinema databases are a compact and interactive output format that can be created from scientific visualization tools and infrastructures (ParaView, Ascent, etc.) or created through other code by writing to the common output format. There is more information about the Cinema project [here](https://cinemascience.github.io).
 
-Cinema databases are a compact and interactive output format that can be created from scientific visualization tools and infrastructures (ParaView, Ascent, etc.) or created through other code by writing to the common output format. 
+Full documentation for this project can be found on [readthedocs.org](https://pycinema.readthedocs.org)
 
-|![workflow](doc/img/workflow.png)|
+|![workflow](doc/img/python-gui.png)|
 | ---- |
-|*Diagram of a Cinema Engine pipeline, showing how a Cinema database is read from disk, rendered and then viewed with filers in the toolkit. UI widgets in a jupyter-lab notebook allow the user to control colors, objects, and rendering paramters to create a finished image.*|
+|*Screen capture of two pycinema Workflows, cinema:explorer and cinema:view, which mimic the functionality of existing viewers in Cinema (and add a few added features). Both of these are available in the pycinema toolkit.*|
+
+## New concepts to Cinema: 'filter graphs' and 'workspaces'
+
+This toolkit introduces the concept of *filter graphs* and *workspaces* to Cinema. Data operations (loading, querying, manipulating and viewing) are performed by *filters* that take input data, transform it, and pass it on in the form of tables, data, or data products. A collection of these *filters* is connected in a *filter graph*, and a *filter graph* can be saved in a reusable way known as a *workspace*. This makes the cinema toolkit a flexible platform for creating, modifying and saving data workflows.
+
+|![workflow](doc/img/explorer-with-filtergraph.png)|
+| ---- |
+|*Screen capture of Cinema:Explorer workspace, showing the normal view (left) and also revealing the 'filter graph' view (lower right) of the workspace. pycinema introduces both of these concepts to cinema data workflows.*|
 
 # Working with the code and the `pycinema` module
 
-## Installing and running with the pycinema module
+- Installing and running with the pycinema repository:
 
 ```
+git clone git@github.com:cinemascience/pycinema.git
+cd pycinema
 python3 -m venv pcenv
 source pcenv/bin/activate
 pip install --upgrade pip
 pip install . 
-pip install jupyterlab 
 ```
 
-## Installing and running with the test pycinema module
+- Installing and running with the released pycinema module
 
 ```
+mkdir pyc-test
+cd pyc-test
+python3 -m venv pcenv
+source pcenv/bin/activate
+pip install --upgrade pip
+pip install pycinema 
+```
+
+- Installing and running with the test pycinema module
+
+```
+mkdir pyc-test
+cd pyc-test
 python3 -m venv pcenv
 source pcenv/bin/activate
 pip install --upgrade pip
 pip install -i https://test.pypi.org/simple/ --extra-index https://pypi.org/simple pycinema
-pip install jupyterlab
 ```
 
-# Creating a local python environment
+- Creating a local python environment
 
 To create a local python environment for this project, run the following commands within the repository directory:
 ```
 python3 -m venv pcenv
 source pcenv/bin/activate
 pip install --upgrade pip
-pip install jupyterlab
 pip install .
 ```
 
-# Running examples
+- Running examples
 
-You can now use this python environment to run examples from the repository. Run `jupyter-lab` and select a file from the `examples` directory:
+You can now use this python environment to run examples from the repository. Run `cinema` and select a file from the `data` directory:
 
 ```
 source pcenv/bin/activate
-jupyter-lab
+cinema view data/sphere.cdb
 ```
 
 # Making and uploading the python module
@@ -68,6 +88,10 @@ To upload it to `testpypi` (assuming you have permission):
 ```
 make module-test-upload
 ```
+
+# Documentation
+
+Documentation for this project can be found on [readthedocs.org](https://pycinema.readthedocs.org)
 
 # Related repositories
 

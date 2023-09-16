@@ -19,3 +19,4 @@ from .Shader import *
 from .ShaderSSAO import *
 from .ShaderLineAO import *
 from .ShaderPointAO import *
+from .TableWriter import *
