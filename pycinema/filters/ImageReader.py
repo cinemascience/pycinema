@@ -4,6 +4,7 @@ import PIL
 import numpy
 import h5py
 import os
+import re
 
 from pycinema import getTableExtent
 
@@ -33,7 +34,7 @@ class ImageReader(Filter):
         fileColumn = self.inputs.file_column.get()
 
         try:
-            fileColumnIdx = list(map(str.lower,table[0])).index(fileColumn.lower())
+            fileColumnIdx = [i for i, item in enumerate(table[0]) if re.search(fileColumn, item, re.IGNORECASE)].pop()
         except ValueError as e:
             print("table does not contain '" + fileColumn + "' column!")
             return 0
@@ -62,9 +63,12 @@ class ImageReader(Filter):
                         raise ValueError('h5 file not formatted correctly')
                     for k in group.keys():
                         data = numpy.array(group.get(k))
+                        # print('xxx',data)
                         if data.dtype == '|S10' and len(data)==1:
                             data = data[0].decode('UTF-8')
-                        v[k.lower()] = data
+                        # elif len(data)==1:
+                        #     data = data[0]
+                        v[k] = data
                 file.close()
 
             elif str.lower(extension) in ['png','jpg','jpeg']:

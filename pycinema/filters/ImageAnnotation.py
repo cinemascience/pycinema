@@ -3,8 +3,9 @@ from pycinema import Filter
 import numpy
 import sys
 import PIL.Image, PIL.ImageFont, PIL.ImageDraw
+import re
 
-class Annotation(Filter):
+class ImageAnnotation(Filter):
 
     def __init__(self):
         super().__init__(
@@ -14,7 +15,7 @@ class Annotation(Filter):
             'size': 20,
             'spacing': 0,
             'color': (),
-            'ignore': ['file','id']
+            'ignore': ['^file','^id'],
           },
           outputs={
             'images': []
@@ -73,7 +74,7 @@ class Annotation(Filter):
 
         font = self.__get_font(self.inputs.size.get())
 
-        ignoreList = self.inputs.ignore.get()
+        ignore = self.inputs.ignore.get()
 
         for image in images:
             if not 'rgba' in image.channels:
@@ -84,7 +85,7 @@ class Annotation(Filter):
             rgbImage = PIL.Image.fromarray( rgba )
             text = ''
             for t in image.meta:
-                if t in ignoreList:
+                if any([re.search(i, t, re.IGNORECASE) for i in ignore]):
                     continue
                 m = image.meta[t]
                 if isinstance(m, numpy.ndarray):

@@ -130,16 +130,16 @@ void main() {
 """
 
     def render(self,image):
-        rgba = image.channels['rgba']
-
-        # create texture
-        self.rgbaTex.write(rgba.tobytes())
+        # update framebuffer and textures
+        self.initFramebuffer(image.resolution)
+        self.updateTexture(0,image.getChannel('rgba'))
+        self.program['resolution'].value = image.resolution
 
         # render
         self.fbo.clear(0.0, 0.0, 0.0, 1.0)
         self.vao.render(moderngl.TRIANGLE_STRIP)
 
-        # read pixels
+        # read framebuffer
         outImage = image.copy()
         outImage.channels['rgba'] = self.readFramebuffer()
 
@@ -147,36 +147,14 @@ void main() {
 
     def _update(self):
         results = []
-
         images = self.inputs.images.get()
-        if len(images)<1:
-            self.outputs.images.set(results)
-            return 1
 
-        # first image
-        image0 = images[0]
-        if not 'rgba' in image0.channels:
-            self.outputs.images.set(images)
-            return 1
-
-        shape = image0.channels['rgba'].shape
-        if len(shape)!=3:
-            shape = (shape[0],shape[1],1)
-        res = shape[:2][::-1]
-
-        # init framebuffer
-        self.initFramebuffer(res)
-
-        # set uniforms
-        self.program['resolution'].value = res
-
-        # create textures
-        self.rgbaTex = self.createTexture(0,res,shape[2],dtype='f1')
-
-        for image in images:
-            results.append( self.render(image) )
-
-        self.rgbaTex.release()
+        try:
+          for image in images:
+              results.append( self.render(image) )
+        except:
+          self.outputs.images.set(images)
+          return 1
 
         self.outputs.images.set(results)
 

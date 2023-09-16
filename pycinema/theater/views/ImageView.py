@@ -31,7 +31,7 @@ class _ImageViewer(QtWidgets.QGraphicsView):
     def addImage(self,image,x,y):
         item = QtWidgets.QGraphicsPixmapItem()
 
-        rgba = image.channels['rgba']
+        rgba = image.getChannel('rgba')
         qimage = QtGui.QImage(
           rgba,
           rgba.shape[1], rgba.shape[0],
@@ -71,6 +71,10 @@ class _ImageViewer(QtWidgets.QGraphicsView):
         if event.key()==32:
             self.fitInView()
 
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.fitInView()
+
 class ImageView(Filter, FilterView):
 
     def __init__(self):
@@ -98,8 +102,8 @@ class ImageView(Filter, FilterView):
         max_h = 0
         images = self.inputs.images.get()
         for image in images:
-          max_w = max(image.shape[0],max_w)
-          max_h = max(image.shape[1],max_h)
+          max_w = max(image.shape[1],max_w)
+          max_h = max(image.shape[0],max_h)
         max_w += 5
         max_h += 5
 
@@ -112,5 +116,6 @@ class ImageView(Filter, FilterView):
           c = i-r*nCols
           self.view.addImage(image,c*max_w,r*max_h)
 
-        self.view.fitInView()
+        # self.view.fitInView()
+
         return 1
