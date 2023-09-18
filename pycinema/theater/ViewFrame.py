@@ -4,7 +4,7 @@ from pycinema.theater.View import View
 from pycinema.theater.ViewStyle import ViewStyle
 from pycinema.theater.views import SelectionView
 from pycinema.theater.views import FilterView
-from pycinema.theater.views import NodeView
+from pycinema.theater.views import NodeEditorView
 from pycinema import Filter
 
 class ViewFrame(QtWidgets.QSplitter):
