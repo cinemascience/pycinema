@@ -9,7 +9,7 @@ PYCINEMA = { 'VERSION' : '1.1.0'}
 # layout
 vf0 = pycinema.theater.Theater.instance.centralWidget()
 vf0.setHorizontalOrientation()
-vf0.insertView( 0, pycinema.theater.views.NodeView() )
+vf0.insertView( 0, pycinema.theater.views.NodeEditorView() )
 vf0.setSizes([1024])
 
 # filters
@@ -18,8 +18,8 @@ TableWriter_0 = pycinema.filters.TableWriter()
 
 # properties
 CinemaDatabaseReader_0.inputs.path.set("data/sphere.cdb", False)
-CinemaDatabaseReader_0.inputs.file_column.set("file", False)
-TableWriter_0.inputs.path.set("TableWriteTest.csv", False)
+CinemaDatabaseReader_0.inputs.file_column.set("FILE", False)
+TableWriter_0.inputs.path.set("TableWriteExample.csv", False)
 TableWriter_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
 
 # execute pipeline
