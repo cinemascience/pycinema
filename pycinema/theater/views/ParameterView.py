@@ -3,6 +3,8 @@ from pycinema.theater.views.FilterView import FilterView
 
 from PySide6 import QtCore, QtWidgets
 
+import re
+
 # ==============================================================================
 # SQL
 # ==============================================================================
@@ -70,7 +72,7 @@ class ParameterView(Filter, FilterView):
           self,
           inputs={
             'table': [[]],
-            'ignore': ['file','id','object_id_name'],
+            'ignore': ['^file','^id'],
             'state': {}
           },
           outputs={
@@ -210,7 +212,7 @@ class ParameterView(Filter, FilterView):
         states = self.inputs.state.get()
         ignore = self.inputs.ignore.get()
 
-        parameters = [p for p in table[0] if p not in ignore]
+        parameters = [p for p in table[0] if not any([re.search(i, p, re.IGNORECASE) for i in ignore])]
         parameters.sort()
 
         existing_parameters = [p for p in self.widgetsDict]

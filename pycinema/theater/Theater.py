@@ -5,7 +5,7 @@ import pycinema
 from pycinema.theater import View
 from pycinema.theater.ViewFrame import *
 from pycinema.theater.FilterBrowser import *
-from pycinema.theater.views.NodeView import *
+from pycinema.theater.views.NodeEditorView import *
 from pycinema.theater.Icons import Icons
 from pycinema.theater.node_editor.NodeEditorStyle import NodeEditorStyle
 
@@ -78,7 +78,7 @@ class _Theater(QtWidgets.QMainWindow):
         self.setStatusBar(self.statusBar)
 
         vf = ViewFrame(root=True)
-        vf.insertView(0,NodeView())
+        vf.insertView(0,NodeEditorView())
         self.setCentralWidget(vf)
 
     def showFilterBrowser(self):
@@ -126,8 +126,11 @@ import pycinema.theater.views
 
         script_file_name = QtWidgets.QFileDialog.getSaveFileName(self, "Save Script")
         if len(script_file_name[0])>0:
+            script_file_name = script_file_name[0]
+            if not script_file_name.endswith('.py'):
+                script_file_name += '.py'
             try:
-                f = open(script_file_name[0], "w")
+                f = open(script_file_name, "w")
                 f.write(script)
                 f.close()
             except:
@@ -137,13 +140,13 @@ import pycinema.theater.views
 
     def reset(self, no_views=False):
       Filter._processing = True
-      QtNodeView.auto_layout = False
-      QtNodeView.auto_connect = False
+      QtNodeEditorView.auto_layout = False
+      QtNodeEditorView.auto_connect = False
       for f in list(Filter._filters):
         f.delete()
       Filter._processing = False
-      QtNodeView.auto_layout = True
-      QtNodeView.auto_connect = True
+      QtNodeEditorView.auto_layout = True
+      QtNodeEditorView.auto_connect = True
 
       root = self.centralWidget()
 
@@ -193,7 +196,7 @@ CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
 ImageReader_0 = pycinema.filters.ImageReader()
 DepthCompositing_0 = pycinema.filters.DepthCompositing()
 ShaderSSAO_0 = pycinema.filters.ShaderSSAO()
-Annotation_0 = pycinema.filters.Annotation()
+ImageAnnotation_0 = pycinema.filters.ImageAnnotation()
 
 # properties
 ParameterView_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
@@ -205,8 +208,8 @@ DepthCompositing_0.inputs.compose.set(ParameterView_0.outputs.compose, False)
 ColorMappingView_0.inputs.images.set(DepthCompositing_0.outputs.images, False)
 ShaderSSAO_0.inputs.images.set(ColorMappingView_0.outputs.images,False)
 ShaderSSAO_0.inputs.samples.set(128,False)
-Annotation_0.inputs.images.set(ShaderSSAO_0.outputs.images, False)
-ImageView_0.inputs.images.set(Annotation_0.outputs.images, False)
+ImageAnnotation_0.inputs.images.set(ShaderSSAO_0.outputs.images, False)
+ImageView_0.inputs.images.set(ImageAnnotation_0.outputs.images, False)
 '''
         script += 'CinemaDatabaseReader_0.inputs.path.set("'+path+'", False)\n'
         script += 'CinemaDatabaseReader_0.update()'
@@ -245,7 +248,7 @@ CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
 ImageReader_0 = pycinema.filters.ImageReader()
 DepthCompositing_0 = pycinema.filters.DepthCompositing()
 ShaderSSAO_0 = pycinema.filters.ShaderSSAO()
-Annotation_0 = pycinema.filters.Annotation()
+ImageAnnotation_0 = pycinema.filters.ImageAnnotation()
 
 # properties
 ParallelCoordinatesView_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
@@ -257,8 +260,8 @@ DepthCompositing_0.inputs.compose.set(ParallelCoordinatesView_0.outputs.compose,
 ColorMappingView_0.inputs.images.set(DepthCompositing_0.outputs.images, False)
 ShaderSSAO_0.inputs.images.set(ColorMappingView_0.outputs.images,False)
 ShaderSSAO_0.inputs.samples.set(128,False)
-Annotation_0.inputs.images.set(ShaderSSAO_0.outputs.images, False)
-ImageView_0.inputs.images.set(Annotation_0.outputs.images, False)
+ImageAnnotation_0.inputs.images.set(ShaderSSAO_0.outputs.images, False)
+ImageView_0.inputs.images.set(ImageAnnotation_0.outputs.images, False)
 '''
         script += 'CinemaDatabaseReader_0.inputs.path.set("'+path+'", False)\n'
         script += 'CinemaDatabaseReader_0.update()'
@@ -274,25 +277,44 @@ ImageView_0.inputs.images.set(Annotation_0.outputs.images, False)
         return
 
     def executeScript(self, script):
-        QtNodeView.auto_layout = False
-        QtNodeView.auto_connect = False
-        namespace = {}
-        lines = script.splitlines()
-        def call(idx):
-            if len(lines)<=idx:
-                QtNodeView.auto_layout = True
-                QtNodeView.auto_connect = True
-                QtNodeView.skip_layout_animation = True
-                QtNodeView.computeLayout()
-                QtNodeView.skip_layout_animation = False
-                for view in QtNodeView.instances:
-                  view.fitInView()
-                if self.centralWidget().count()<1:
-                  self.centralWidget().insertView(0,NodeView())
-                return
-            exec(lines[idx], namespace)
-            QtCore.QTimer.singleShot(0, lambda: call(idx+1))
-        QtCore.QTimer.singleShot(0, lambda: call(0))
+        QtNodeEditorView.auto_layout = False
+        QtNodeEditorView.auto_connect = False
+
+        try:
+          exec(script)
+        except:
+          return
+
+        def call():
+          QtNodeEditorView.auto_layout = True
+          QtNodeEditorView.auto_connect = True
+          QtNodeEditorView.skip_layout_animation = True
+          QtNodeEditorView.computeLayout()
+          QtNodeEditorView.skip_layout_animation = False
+          # for view in QtNodeEditorView.instances:
+          #   view.fitInView()
+          if self.centralWidget().count()<1:
+            self.centralWidget().insertView(0,NodeEditorView())
+          return
+        QtCore.QTimer.singleShot(0, lambda: call())
+
+        # namespace = {}
+        # lines = script.splitlines()
+        # def call(idx):
+        #     if len(lines)<=idx:
+        #         QtNodeEditorView.auto_layout = True
+        #         QtNodeEditorView.auto_connect = True
+        #         QtNodeEditorView.skip_layout_animation = True
+        #         QtNodeEditorView.computeLayout()
+        #         QtNodeEditorView.skip_layout_animation = False
+        #         for view in QtNodeEditorView.instances:
+        #           view.fitInView()
+        #         if self.centralWidget().count()<1:
+        #           self.centralWidget().insertView(0,NodeEditorView())
+        #         return
+        #     exec(lines[idx], namespace)
+        #     QtCore.QTimer.singleShot(0, lambda: call(idx+1))
+        # QtCore.QTimer.singleShot(0, lambda: call(0))
 
     def loadScript(self, script_file_name=None):
         if not script_file_name:

@@ -5,25 +5,24 @@ import h5py
 import os
 import csv
 import hashlib
+import re
 
 class CinemaDatabaseWriter(Filter):
 
     def __init__(self):
         super().__init__(
           inputs={
+            'images': [],
             'path': '',
-            'images': []
+            'ignore': ['^id','^camera'],
           }
         );
 
-    def getImageHash(self,image):
-        keys = list(image.meta.keys())
-        keys.sort()
-        text = ""
-        for k in keys:
-            text = text + str(image.meta[k]) + ';'
-        h = int(hashlib.md5(text.encode('utf-8')).hexdigest(), 16)
-        return h
+    def getImageHash(self,idx,header,image):
+        text = str(idx)+';'
+        for p in header:
+            text = text + str(image.meta[p]) + ';'
+        return int(hashlib.md5(text.encode('utf-8')).hexdigest(), 16)
 
     def writeH5(self,path,image):
         file = h5py.File(path, 'w')
@@ -52,7 +51,7 @@ class CinemaDatabaseWriter(Filter):
         images = self.inputs.images.get()
         path = self.inputs.path.get()
 
-        if len(images)<1:
+        if len(images)<1 or len(path)<1:
             return 1
 
         # check if path is a cdb
@@ -68,51 +67,35 @@ class CinemaDatabaseWriter(Filter):
             csvPath = path+'/data.csv'
             csvData = []
 
-            if os.path.exists(csvPath):
-                with open(csvPath, 'r+') as csvfile:
-                    rows = csv.reader(csvfile, delimiter=',')
-                    for row in rows:
-                        csvData.append(row)
-            else:
-                image0 = images[0]
-                header = list(image0.meta.keys())
-                header.append('FILE')
-                csvData.append(header)
+            image0 = images[0]
+            header = [p for p,v in image0.meta.items() if not type(v) is numpy.ndarray or len(v)==1]
+            ignore = self.inputs.ignore.get()
+            ignore.append('^FILE')
+            header = [p for p in header if not any([re.search(i, p, re.IGNORECASE) for i in ignore])]
+            header.sort()
+            csvData.append(header + ['FILE'])
 
-            # build meta to idx map
-            metaIdxMap = {}
-            for (k,v) in enumerate(csvData[0]):
-                metaIdxMap[v] = k
-
-            # check if each image already exists in CDB
-            for image in images:
-                dbRowIdx = -1
-
-                imageHash = self.getImageHash(image)
+            # write image
+            for i,image in enumerate(images):
+                imageHash = self.getImageHash(i,header,image)
                 fileName = str(imageHash)+'.h5'
+                row = [str(image.meta[p]) for p in header]
+                row.append(fileName)
+                csvData.append(row)
 
-                fileColumnIdx = metaIdxMap['FILE']
-                for i in range(1,len(csvData)):
-                    if csvData[i][fileColumnIdx] == fileName:
-                        dbRowIdx = i
-                        break
+                # delete all FILE meta data entries
+                out_image = image.copy()
+                for m in [m for m in list(out_image.meta.keys()) if re.search('^file', m, re.IGNORECASE)]:
+                    del out_image.meta[m]
 
-                if dbRowIdx<0:
-                    newRow = [None]*len(csvData[0])
-                    newRow[metaIdxMap['FILE']] = fileName
-                    for m in image.meta:
-                        idx = metaIdxMap[m]
-                        if idx == None:
-                            raise ValueError('Image has meta information not recorded in CDB')
-                        newRow[idx] = str(image.meta[m])
-                    csvData.append(newRow)
+                # write image
+                self.writeH5(path+'/'+fileName,out_image)
 
-                    with open(csvPath, 'w', newline='') as csvfile:
-                        writer = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                        for row in csvData:
-                            writer.writerow(row)
-
-                self.writeH5(path+'/'+fileName,image)
+            # write csv
+            with open(csvPath, 'w', newline='') as csvfile:
+                writer = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                for row in csvData:
+                    writer.writerow(row)
 
         elif extension == '':
             # normal folder

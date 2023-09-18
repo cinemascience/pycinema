@@ -2,6 +2,7 @@ from pycinema import Filter
 
 import csv
 from os.path import exists
+import re
 
 class CinemaDatabaseReader(Filter):
 
@@ -9,7 +10,7 @@ class CinemaDatabaseReader(Filter):
         super().__init__(
           inputs={
             'path': '',
-            'file_column': 'file'
+            'file_column': 'FILE'
           },
           outputs={
             'table': [[]]
@@ -43,12 +44,12 @@ class CinemaDatabaseReader(Filter):
         # remove empty lines
         table = list(filter(lambda row: len(row)>0, table))
 
-        # force lower case header
-        table[0] = list(map(str.lower,table[0]))
+        # # force lower case header
+        # table[0] = list(map(str.lower,table[0]))
 
         # add dbPath prefix to file column
         try:
-            fileColumnIdx = table[0].index( self.inputs.file_column.get() )
+            fileColumnIdx = [i for i, item in enumerate(table[0]) if re.search(self.inputs.file_column.get(), item, re.IGNORECASE)].pop()
         except:
             print('[ERROR] file column not found:',self.inputs.file_column.get())
             self.outputs.table.set([[]])

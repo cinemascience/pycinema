@@ -1,6 +1,7 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
 import sqlite3
+import re
 
 from pycinema.theater.views.FilterView import FilterView
 from pycinema import Filter, getTableExtent, isNumber
@@ -442,7 +443,7 @@ class ParallelCoordinatesView(Filter, FilterView):
         self,
         inputs={
           'table': [[]],
-          'ignore': ['file','id','object_id_name'],
+          'ignore': ['^file','^id'],
           'state': {}
         },
         outputs={
@@ -480,7 +481,7 @@ class ParallelCoordinatesView(Filter, FilterView):
         return 1
 
       ignore = self.inputs.ignore.get()
-      header = [(p,idx) for idx,p in enumerate([p.lower() for p in table[0]]) if p not in ignore]
+      header = [(p,idx) for idx,p in enumerate(table[0]) if not any([re.search(i, p, re.IGNORECASE) for i in ignore])]
       header.sort()
       values = computeValues(header,table)
 
