@@ -93,70 +93,39 @@ void main(){
 """
 
     def render(self,image):
-
-        rgba = image.channels['rgba']
-        depth = image.channels['depth']
-
-        # create texture
-        self.rgbaTex.write(rgba.tobytes())
-        self.depthTex.write(depth.tobytes())
+        # update framebuffer and textures
+        self.initFramebuffer(image.resolution)
+        self.updateTexture(0,image.getChannel('rgba'))
+        self.updateTexture(1,image.getChannel('depth'))
+        self.program['uResolution'].value = image.resolution
 
         # render
         self.fbo.clear(0.0, 0.0, 0.0, 1.0)
         self.vao.render(moderngl.TRIANGLE_STRIP)
 
-        # read pixels
-        rgbaBuffer = self.fbo.read(attachment=0,components=4)
-        rgbaFlatArray = numpy.frombuffer(rgbaBuffer, dtype=numpy.uint8)
-        rgbaArray = rgbaFlatArray.view()
-        rgbaArray.shape = (self.fbo.size[1],self.fbo.size[0],4)
-
+        # read framebuffer
         outImage = image.copy()
-        outImage.channels['rgba'] = rgbaArray
+        outImage.channels['rgba'] = self.readFramebuffer()
 
         return outImage
 
     def _update(self):
-
         results = []
-
         images = self.inputs.images.get()
-        if len(images)<1:
-            self.outputs.images.set(results)
-            return 1
-
-        # first image
-        image0 = images[0]
-        if not 'depth' in image0.channels or not 'rgba' in image0.channels:
-            self.outputs.images.set(images)
-            return 1
-
-        shape = image0.channels['rgba'].shape
-        if len(shape)!=3:
-            shape = (shape[0],shape[1],1)
-        res = shape[:2][::-1]
 
         # set uniforms
-        self.program['uResolution'].value = res
         self.program['uAmbient'].value = float(self.inputs.ambient.get())
         self.program['uDiffuse'].value = float(self.inputs.diffuse.get())
         self.program['uSpecular'].value = float(self.inputs.specular.get())
         self.program['uExponent'].value = float(self.inputs.exponent.get())
 
-        # create framebuffer
-        self.fbo = self.ctx.simple_framebuffer(res)
-        self.fbo.use()
-
-        # create textures
-        self.rgbaTex = self.createTexture(0,res,shape[2],dtype='f1')
-        self.depthTex = self.createTexture(1,res,1,dtype='f4')
-
-        for image in images:
-            results.append( self.render(image) )
-
-        self.rgbaTex.release()
-        self.depthTex.release()
-        self.fbo.release()
+        # render images
+        try:
+          for image in images:
+              results.append( self.render(image) )
+        except:
+          self.outputs.images.set(images)
+          return 1
 
         self.outputs.images.set(results)
 

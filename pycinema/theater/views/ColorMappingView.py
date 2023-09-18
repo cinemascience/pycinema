@@ -6,6 +6,7 @@ from PySide6 import QtCore, QtWidgets
 
 import numpy
 import matplotlib.cm as cm
+import matplotlib.pyplot as pp
 
 class ColorMappingView(Filter, FilterView):
 
@@ -58,18 +59,11 @@ class ColorMappingView(Filter, FilterView):
         self.widgetsDict['map'] = w
         gridL.addWidget(QtWidgets.QLabel("Color Map"),row,0)
         gridL.addWidget(w,row,1)
-        w.addItems([
-            'plasma',
-
-            'Greys', 'Purples', 'Blues', 'Greens', 'Oranges', 'Reds',
-            'YlOrBr', 'YlOrRd', 'OrRd', 'PuRd', 'RdPu', 'BuPu',
-            'GnBu', 'PuBu', 'YlGnBu', 'PuBuGn', 'BuGn', 'YlGn',
-
-            'PiYG', 'PRGn', 'BrBG', 'PuOr', 'RdGy', 'RdBu', 'RdYlBu',
-            'RdYlGn', 'Spectral', 'coolwarm', 'bwr', 'seismic',
-
-            'fixed'
-        ])
+        maps = [map for map in pp.colormaps() if not map.endswith('_r')]
+        maps.sort(key=lambda x: x.lower())
+        w.addItems(
+          maps
+        )
         w.currentTextChanged.connect( lambda v: self.inputs.map.set(v) )
         row += 1
 
