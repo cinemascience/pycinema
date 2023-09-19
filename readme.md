@@ -1,5 +1,8 @@
 # Cinema Engine
-![smoke](https://github.com/cinemascience/pycinema/actions/workflows/RenderTest.yml/badge.svg)
+![RenderTest](https://github.com/cinemascience/pycinema/actions/workflows/RenderTest.yml/badge.svg)
+![QUeryWriteTest](https://github.com/cinemascience/pycinema/actions/workflows/QueryWriteTest.yml/badge.svg)
+![TableQueryTest](https://github.com/cinemascience/pycinema/actions/workflows/TableQueryTest.yml/badge.svg)
+![cinema](https://github.com/cinemascience/pycinema/actions/workflows/cinema.yml/badge.svg)
 
 Cinema v2.0 is a toolkit of python-based components for creating, filtering, transforming and viewing Cinema databases. Cinema databases are a compact and interactive output format that can be created from scientific visualization tools and infrastructures (ParaView, Ascent, etc.) or created through other code by writing to the common output format. There is more information about the Cinema project [here](https://cinemascience.github.io).
 
