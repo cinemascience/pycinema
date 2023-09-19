@@ -99,8 +99,8 @@ Documentation for this project can be found on [readthedocs.org](https://pycinem
 # Related repositories
 
 - ```pycinema-data``` example Cinema datasets.
+- ```pycinema-examples``` examples referenced in the [readthedocs site](https://pycinema.readthedocs.org)
 - ```pycinema-testdata``` Cinema databases used for unit testing and CI testing.
-- ```pycinema-binder``` binder online examples of Cinema databases and viewers. 
 
 # Design proposals
 
