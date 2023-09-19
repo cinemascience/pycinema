@@ -325,6 +325,7 @@ ImageView_0.inputs.images.set(ImageAnnotation_0.outputs.images, False)
                 script = script_file.read()
                 script_file.close()
                 self.reset(True)
+                self.setWindowTitle("Cinema:Theater (" + script_file_name + ")")
                 self.executeScript(script)
             except:
                 return
