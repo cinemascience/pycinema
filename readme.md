@@ -55,16 +55,6 @@ pip install --upgrade pip
 pip install -i https://test.pypi.org/simple/ --extra-index https://pypi.org/simple pycinema
 ```
 
-- Creating a local python environment
-
-To create a local python environment for this project, run the following commands within the repository directory:
-```
-python3 -m venv pcenv
-source pcenv/bin/activate
-pip install --upgrade pip
-pip install .
-```
-
 - Running examples
 
 You can now use this python environment to run examples from the repository. Run `cinema` and select a file from the `data` directory:
@@ -101,10 +91,6 @@ Documentation for this project can be found on [readthedocs.org](https://pycinem
 - ```pycinema-data``` example Cinema datasets.
 - ```pycinema-examples``` examples referenced in the [readthedocs site](https://pycinema.readthedocs.org)
 - ```pycinema-testdata``` Cinema databases used for unit testing and CI testing.
-
-# Design proposals
-
-- [CIS image proposal](doc/cis_proposal.md)
 
 # Citing this work
 
