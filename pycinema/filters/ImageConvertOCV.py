@@ -3,7 +3,7 @@ from pycinema import Filter
 import cv2
 import numpy
 
-class ImageFilterOCV(Filter):
+class ImageConvertOCV(Filter):
 
     def __init__(self):
         super().__init__(
@@ -20,7 +20,7 @@ class ImageFilterOCV(Filter):
         results = []
 
         if self.inputs.conversion.get() == 'GRAY':
-            conversion = cv2.COLOR_BGRA2GRAY)
+            conversion = cv2.COLOR_BGRA2GRAY
 
         for image in self.inputs.images.get():
             # convert from pycinema to cv2 format
