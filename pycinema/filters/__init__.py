@@ -9,6 +9,7 @@ from .ImageAnnotation import *
 from .ImageBorder import *
 from .ImageCanny import *
 from .ImageConvertGrayscale import *
+from .ImageFilterPIL import *
 from .ImageReader import *
 from .MaskCompositing import *
 from .ShaderDemoScene import *
