@@ -8,6 +8,7 @@ from .DepthCompositing import *
 from .ImageAnnotation import *
 from .ImageBorder import *
 from .ImageCanny import *
+from .ImageConvertOCV import *
 from .ImageConvertGrayscale import *
 from .ImageFilterPIL import *
 from .ImageReader import *
