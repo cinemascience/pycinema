@@ -52,7 +52,6 @@ class TableQuery(Filter):
               row += '"' + str(v) + '",'
             sql += row[0:-1] + '),\n'
         sql = sql[0:-2];
-        print(sql)
         self.executeSQL(db,sql)
 
     def queryData(self, db, sqlQuery):
