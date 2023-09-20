@@ -339,3 +339,6 @@ class NodeEditorView(View):
 
         self.view = QtNodeEditorView()
         self.content.layout().addWidget(self.view,1)
+
+        QtCore.QTimer.singleShot(0, self.view.fitInView)
+

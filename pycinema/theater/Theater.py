@@ -291,30 +291,14 @@ ImageView_0.inputs.images.set(ImageAnnotation_0.outputs.images, False)
           QtNodeEditorView.skip_layout_animation = True
           QtNodeEditorView.computeLayout()
           QtNodeEditorView.skip_layout_animation = False
-          # for view in QtNodeEditorView.instances:
-          #   view.fitInView()
           if self.centralWidget().count()<1:
             self.centralWidget().insertView(0,NodeEditorView())
+
+          editors = self.centralWidget().findChildren(QtNodeEditorView)
+          for editor in editors:
+            editor.fitInView()
           return
         QtCore.QTimer.singleShot(0, lambda: call())
-
-        # namespace = {}
-        # lines = script.splitlines()
-        # def call(idx):
-        #     if len(lines)<=idx:
-        #         QtNodeEditorView.auto_layout = True
-        #         QtNodeEditorView.auto_connect = True
-        #         QtNodeEditorView.skip_layout_animation = True
-        #         QtNodeEditorView.computeLayout()
-        #         QtNodeEditorView.skip_layout_animation = False
-        #         for view in QtNodeEditorView.instances:
-        #           view.fitInView()
-        #         if self.centralWidget().count()<1:
-        #           self.centralWidget().insertView(0,NodeEditorView())
-        #         return
-        #     exec(lines[idx], namespace)
-        #     QtCore.QTimer.singleShot(0, lambda: call(idx+1))
-        # QtCore.QTimer.singleShot(0, lambda: call(0))
 
     def loadScript(self, script_file_name=None):
         if not script_file_name:
