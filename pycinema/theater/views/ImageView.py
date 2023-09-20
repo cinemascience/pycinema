@@ -15,8 +15,7 @@ class _ImageViewer(QtWidgets.QGraphicsView):
         self.setResizeAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        l = 10000
-        self.setSceneRect(-l,-l,2*l,2*l)
+        self.setSceneRect(-1,-1,1,1)
 
         self._scene = QtWidgets.QGraphicsScene(self)
         self.setScene(self._scene)
@@ -111,11 +110,15 @@ class ImageView(Filter, FilterView):
         nRows = int(numpy.floor(numpy.sqrt(n)))
         nCols = int(numpy.ceil(n/nRows))
 
+        total_h = 4*nRows*max_h
+        total_w = 4*nCols*max_w
+        self.view.setSceneRect(-total_w,-total_h,2*total_w,2*total_h)
+
         for i, image in enumerate(images):
           r = numpy.floor(i/nCols)
           c = i-r*nCols
           self.view.addImage(image,c*max_w,r*max_h)
 
-        # self.view.fitInView()
+        self.view.fitInView()
 
         return 1
