@@ -11,9 +11,9 @@ def test_writetable():
 
     # properties
     CinemaDatabaseReader_0.inputs.path.set("data/sphere.cdb", False)
-    CinemaDatabaseReader_0.inputs.file_column.set("file", False)
+    CinemaDatabaseReader_0.inputs.file_column.set("FILE", False)
     TableQuery_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
-    TableQuery_0.inputs.sql.set("SELECT theta,phi FROM input WHERE phi>0", False)
+    TableQuery_0.inputs.sql.set("SELECT * FROM input WHERE phi>0", False)
     TableWriter_0.inputs.path.set("TableQueryTest.csv", False)
     TableWriter_0.inputs.table.set(TableQuery_0.outputs.table, False)
 
