@@ -6,11 +6,11 @@ if testing:
     if platform in ["linux","linux2"]:
         import pytest_xvfb
         @pytest.fixture(autouse=True, scope='session')
-        def ensure_xvfb():
-            if not pytest_xvfb.xvfb_available():
+        def ensure_xvfb() -> None:
+            if not pytest_xvfb.has_executable("Xvfb"):
                 raise Exception("Tests need Xvfb to run.")
 
-import pycinema
+import pycinema.filters
 
 def test_render():
 
@@ -19,7 +19,7 @@ def test_render():
     theta_samples = (20,20,45)
     time_samples = 0.1
 
-    plane_images = pycinema.DemoScene()
+    plane_images = pycinema.filters.ShaderDemoScene()
     plane_images.inputs.objects.set((1,0,0),False) # Plane Only
     plane_images.inputs.resolution.set(resolution,False)
     plane_images.inputs.phi_samples.set(phi_samples,False)
@@ -27,7 +27,7 @@ def test_render():
     plane_images.inputs.time_samples.set(time_samples,False)
     plane_images.update()
 
-    sphere_images = pycinema.DemoScene()
+    sphere_images = pycinema.filters.ShaderDemoScene()
     sphere_images.inputs.objects.set((0,1,1),False) # Big and Small Sphere
     sphere_images.inputs.resolution.set(resolution,False)
     sphere_images.inputs.phi_samples.set(phi_samples,False)
@@ -35,45 +35,45 @@ def test_render():
     sphere_images.inputs.time_samples.set(time_samples,False)
     sphere_images.update()
 
-    spheres_colored_by_y = pycinema.ColorMapping()
+    spheres_colored_by_y = pycinema.filters.ColorMapping()
     spheres_colored_by_y.inputs.channel.set( "y", False )
     spheres_colored_by_y.inputs.map.set( "plasma", False )
     spheres_colored_by_y.inputs.range.set( (0,2), False )
     spheres_colored_by_y.inputs.images.set( sphere_images.outputs.images )
 
-    depth_compositing = pycinema.DepthCompositing()
+    depth_compositing = pycinema.filters.DepthCompositing()
     depth_compositing.inputs.images_a.set(plane_images.outputs.images, False )
     depth_compositing.inputs.images_b.set(spheres_colored_by_y.outputs.images, False )
     depth_compositing.update()
 
-    ssao = pycinema.ShaderSSAO()
+    ssao = pycinema.filters.ShaderSSAO()
     ssao.inputs.radius.set( 0.1, False )
     ssao.inputs.samples.set( 256, False )
     ssao.inputs.diff.set( 0.5, False )
     ssao.inputs.images.set( depth_compositing.outputs.images )
 
-    image_canny = pycinema.ImageCanny()
+    image_canny = pycinema.filters.ImageCanny()
     image_canny.inputs.thresholds.set( [50,60], False )
     image_canny.inputs.images.set( depth_compositing.outputs.images )
 
-    color_source = pycinema.ColorSource()
+    color_source = pycinema.filters.ColorSource()
     color_source.inputs.rgba.set((200,0,0,255))
 
-    mask_compositing = pycinema.MaskCompositing()
+    mask_compositing = pycinema.filters.MaskCompositing()
     mask_compositing.inputs.opacity.set(1.0)
     mask_compositing.inputs.images_a.set(ssao.outputs.images, False )
     mask_compositing.inputs.images_b.set(color_source.outputs.rgba, False )
     mask_compositing.inputs.masks.set(image_canny.outputs.images, False )
     mask_compositing.inputs.mask_channel.set('canny')
 
-    annotation = pycinema.Annotation()
+    annotation = pycinema.filters.ImageAnnotation()
     annotation.inputs.color.set( (200,200,200), False )
     annotation.inputs.size.set( 14, False )
     annotation.inputs.xy.set( (10,10), False )
     annotation.inputs.spacing.set( 10, False )
     annotation.inputs.images.set( mask_compositing.outputs.images )
 
-    border = pycinema.Border()
+    border = pycinema.filters.ImageBorder()
     border.inputs.color.set( (0,140,140,255) )
     border.inputs.width.set( 5 )
     border.inputs.images.set( annotation.outputs.images )
