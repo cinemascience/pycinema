@@ -44,7 +44,8 @@ class ImageFilterPIL(Filter):
         elif filterType == 'BLUR': 
             imFilter = ImageFilter.BLUR
         else:
-            print("FILTER NOT FOUND")
+            print("FILTER NOT FOUND " + filterType)
+            print("  applying default filter ...")
 
         for image in self.inputs.images.get():
             rgbImage = PIL.Image.fromarray(image.channels['rgba'])
