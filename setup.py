@@ -6,13 +6,11 @@ this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, 'doc/description.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-version_text = ""
-with open(path.join(this_directory, 'version.md'), encoding='utf-8') as f:
-    version_text = f.read().strip()
+exec(open("pycinema/_version.py").read())
 
 setuptools.setup(
     name="pycinema",
-    version=version_text,
+    version=__version__,
     author="David H. Rogers",
     author_email="dhr@lanl.gov",
     description="Cinema scientific toolset.",
@@ -20,7 +18,7 @@ setuptools.setup(
     long_description_content_type='text/markdown',
     url="https://github.com/cinemascience/pycinema",
     include_package_data=True,
-    packages=[  "pycinema"  ],
+    packages=[  "pycinema", "pycinema.filters", "pycinema.theater", "pycinema.theater.node_editor", "pycinema.theater.views", "pycinema.ipy" ],
     install_requires=[
         "numpy==1.24.2",
         "scipy==1.10.0",
@@ -31,7 +29,9 @@ setuptools.setup(
         "moderngl<6",
         "opencv-python==4.7.0.68",
         "ipycanvas==0.13.1",
-        "ipywidgets==8.0.6"
+        "ipywidgets==8.0.6",
+        "PySide6>=6.0.0",
+        "python-igraph>=0.10.5"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -40,6 +40,6 @@ setuptools.setup(
     ],
     scripts=[
         'doc/description.md',
-        'version.md'
+        'scripts/cinema'
     ],
 )

@@ -1,4 +1,4 @@
-name: RenderTest
+name: TableQueryTest
 
 on:
   push:
@@ -19,14 +19,13 @@ jobs:
       - name: Test Environment
         run: |
           python -m pip install --upgrade pip
-          sudo apt-get install libglu1-mesa-dev xvfb
           python -m pip install pytest pytest-xvfb
       - name: Dependencies
         run: |
           python setup.py install
-      - name: Test using ModernGL
+      - name: Test query 
         run: |
-          python -m pytest -s testing/RenderTest.py
+          python -m pytest -s testing/TableQueryTest.py
 
   macos:
     strategy:
@@ -46,9 +45,9 @@ jobs:
           python -m pip install --upgrade pip setuptools
           python -m pip install pytest
           python setup.py install
-      - name: Test using ModernGL
+      - name: Test query 
         run: |
-          python -m pytest -s testing/RenderTest.py
+          python -m pytest -s testing/TableQueryTest.py
 
   # windows:
   #   runs-on: windows-latest
