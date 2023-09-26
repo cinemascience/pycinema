@@ -40,6 +40,9 @@ class PlotView(Filter, FilterView):
         self.content.layout().addWidget(self.plot)
 
     def _update(self):
+        # clear on update
+        self.plot.clear()
+
         # get the ids of the value names
         xID = self.getColumnIndex(self.inputs.x_values.get())
         yID = self.getColumnIndex(self.inputs.y_values.get())
