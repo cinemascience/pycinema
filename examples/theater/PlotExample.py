@@ -20,7 +20,7 @@ vf2.setVerticalOrientation()
 PlotView_2 = vf2.insertView( 0, pycinema.theater.views.PlotView() )
 PlotView_3 = vf2.insertView( 1, pycinema.theater.views.PlotView() )
 vf2.setSizes([421, 421])
-vf0.setSizes([533, 532, 533])
+vf0.setSizes([599, 563, 581])
 
 # filters
 CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
