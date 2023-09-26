@@ -7,3 +7,4 @@ from .TableView import TableView
 from .ParallelCoordinatesView import ParallelCoordinatesView
 from .NodeEditorView import NodeEditorView
 from .InspectorView import InspectorView
+from .PlotView import PlotView
