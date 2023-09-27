@@ -58,7 +58,6 @@ class PlotView(Filter, FilterView):
 
         # set up the plot
         self.plot.setBackground(self.inputs.background.get())
-        # self.plot.setStyleSheet("background: yellow; border: 5px solid green")
         self.plot.setTitle(self.inputs.title.get())
         self.plot.setLabel("left", self.inputs.y_values.get())
         self.plot.setLabel("bottom", self.inputs.x_values.get())
