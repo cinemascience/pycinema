@@ -20,13 +20,14 @@ class PlotView(Filter, FilterView):
         Filter.__init__(
           self,
           inputs={
-            'title'   : 'Plot Title',
-            'x_values': 'none',
-            'y_values': 'none',
-            'table' : []
+            'title'      : 'Plot Title',
+            'background' : 'white',
+            'x_values'   : 'none',
+            'y_values'   : 'none',
+            'table'      : []
           }
         )
-
+        
     def getColumnIndex(self, colname):
         ID = 0
 
@@ -56,9 +57,11 @@ class PlotView(Filter, FilterView):
         ydata = row[1:].astype(float)
 
         # set up the plot
+        self.plot.setBackground(self.inputs.background.get())
+        # self.plot.setStyleSheet("background: yellow; border: 5px solid green")
         self.plot.setTitle(self.inputs.title.get())
         self.plot.setLabel("left", self.inputs.y_values.get())
         self.plot.setLabel("bottom", self.inputs.x_values.get())
-        self.plot.setBackground('w')
         self.plot.plot(xdata, ydata)
+
         return 1
