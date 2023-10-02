@@ -69,7 +69,10 @@ class PlotView(Filter, FilterView):
             ydata = row[1:].astype(float)
 
             # pen
-            newpen = pg.mkPen(color = i[2], style=self.PenStyles[i[1]],width=i[3])
+            pencolor = i[2]
+            if pencolor == 'default':
+                pencolor = 'black'
+            newpen = pg.mkPen(color = pencolor, style=self.PenStyles[i[1]],width=i[3])
             newpen.setStyle(self.PenStyles[i[1]])
 
             # set up the plot
