@@ -12,6 +12,7 @@ from .ImageConvertGrayscale import *
 from .ImageFilterPIL import *
 from .ImageReader import *
 from .MaskCompositing import *
+from .PlotItems import *
 from .ShaderDemoScene import *
 from .ShaderFXAA import *
 from .ShaderIBS import *
@@ -21,4 +22,5 @@ from .Shader import *
 from .ShaderSSAO import *
 from .ShaderLineAO import *
 from .ShaderPointAO import *
+from .TextFileReader import *
 from .TableWriter import *

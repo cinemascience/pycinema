@@ -9,6 +9,14 @@ import numpy as np
 import pyqtgraph as pg
 
 class PlotView(Filter, FilterView):
+    PenStyles = {
+                    'dash'      : QtCore.Qt.DashLine,
+                    'dashdot'   : QtCore.Qt.DashDotLine,
+                    'dashdotdot': QtCore.Qt.DashDotDotLine,
+                    'default'   : QtCore.Qt.SolidLine,
+                    'dot'       : QtCore.Qt.DotLine,
+                    'solid'     : QtCore.Qt.SolidLine
+                }
 
     def __init__(self):
         FilterView.__init__(
@@ -20,11 +28,10 @@ class PlotView(Filter, FilterView):
         Filter.__init__(
           self,
           inputs={
-            'title'      : 'Plot Title',
-            'background' : 'white',
-            'x_values'   : 'none',
-            'y_values'   : 'none',
-            'table'      : []
+            'title'     : 'Plot Title',
+            'background': 'white',
+            'plotitems' : 'none',
+            'table'     : []
           }
         )
         
@@ -44,23 +51,32 @@ class PlotView(Filter, FilterView):
         # clear on update
         self.plot.clear()
 
-        # get the ids of the value names
-        xID = self.getColumnIndex(self.inputs.x_values.get())
-        yID = self.getColumnIndex(self.inputs.y_values.get())
+        # get plot items
+        items = self.inputs.plotitems.get()
+        for i in items:
+            axes = i[0]
 
-        # convert the table data and get the two arrays
-        data = self.inputs.table.get()
-        t = np.array(data)
-        column = t[:, xID]
-        xdata = column[1:].astype(float)
-        row = t[:, yID]
-        ydata = row[1:].astype(float)
+            # get the ids of the value names
+            xID = self.getColumnIndex(axes[0])
+            yID = self.getColumnIndex(axes[1])
 
-        # set up the plot
-        self.plot.setBackground(self.inputs.background.get())
-        self.plot.setTitle(self.inputs.title.get())
-        self.plot.setLabel("left", self.inputs.y_values.get())
-        self.plot.setLabel("bottom", self.inputs.x_values.get())
-        self.plot.plot(xdata, ydata)
+            # convert the table data and get the two arrays
+            data = self.inputs.table.get()
+            t = np.array(data)
+            column = t[:, xID]
+            xdata = column[1:].astype(float)
+            row = t[:, yID]
+            ydata = row[1:].astype(float)
+
+            # pen
+            newpen = pg.mkPen(color = i[2], style=self.PenStyles[i[1]],width=i[3])
+            newpen.setStyle(self.PenStyles[i[1]])
+
+            # set up the plot
+            self.plot.setBackground(self.inputs.background.get())
+            self.plot.setTitle(self.inputs.title.get())
+            self.plot.setLabel("left", axes[0]) 
+            self.plot.setLabel("bottom", axes[1]) 
+            self.plot.plot(xdata, ydata, pen = newpen)
 
         return 1
