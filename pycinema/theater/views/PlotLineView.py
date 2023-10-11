@@ -79,8 +79,8 @@ class PlotLineView(Filter, FilterView):
         # set up the plot
         self.plot.setBackground(self.inputs.background.get())
         self.plot.setTitle(self.inputs.title.get())
-        self.plot.setLabel("left", axes[0]) 
-        self.plot.setLabel("bottom", axes[1]) 
+        self.plot.setLabel("left", axes[1]) 
+        self.plot.setLabel("bottom", axes[0]) 
         self.plot.plot(xdata, ydata, pen = newpen)
 
         return 1

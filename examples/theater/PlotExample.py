@@ -19,7 +19,7 @@ vf2.setVerticalOrientation()
 PlotLineView_0 = vf2.insertView( 0, pycinema.theater.views.PlotLineView() )
 PlotBarView_0 = vf2.insertView( 1, pycinema.theater.views.PlotBarView() )
 vf2.setSizes([421, 421])
-vf0.setSizes([908, 906])
+vf0.setSizes([509, 508])
 
 # filters
 CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
@@ -46,7 +46,7 @@ PlotLineItem_0.inputs.y.set("b", False)
 PlotLineItem_0.inputs.line.set("default", False)
 PlotLineItem_0.inputs.color.set("blue", False)
 PlotLineItem_0.inputs.width.set(1.0, False)
-PlotBarItem_0.inputs.y.set("a", False)
+PlotBarItem_0.inputs.y.set("b", False)
 PlotBarItem_0.inputs.color.set("red", False)
 PlotBarItem_0.inputs.width.set(0.5, False)
 
