@@ -19,7 +19,7 @@ vf2.setVerticalOrientation()
 PlotLineView_0 = vf2.insertView( 0, pycinema.theater.views.PlotLineView() )
 PlotBarView_0 = vf2.insertView( 1, pycinema.theater.views.PlotBarView() )
 vf2.setSizes([421, 421])
-vf0.setSizes([509, 508])
+vf0.setSizes([908, 906])
 
 # filters
 CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
@@ -29,11 +29,11 @@ PlotBarItem_0 = pycinema.filters.PlotBarItem()
 
 # properties
 TableView_0.inputs.table.set(TableQuery_0.outputs.table, False)
-PlotLineView_0.inputs.title.set("Plot Title", False)
+PlotLineView_0.inputs.title.set("Line Chart Example", False)
 PlotLineView_0.inputs.background.set("white", False)
 PlotLineView_0.inputs.plotitems.set(PlotLineItem_0.outputs.item, False)
 PlotLineView_0.inputs.table.set(TableQuery_0.outputs.table, False)
-PlotBarView_0.inputs.title.set("Plot Title", False)
+PlotBarView_0.inputs.title.set("Bar Chart Example", False)
 PlotBarView_0.inputs.background.set("white", False)
 PlotBarView_0.inputs.plotitems.set(PlotBarItem_0.outputs.item, False)
 PlotBarView_0.inputs.table.set(TableQuery_0.outputs.table, False)
