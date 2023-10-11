@@ -4,13 +4,13 @@ import PIL
 import numpy
 
 #
-# PlotItems
+# PlotLineItem
 #
 # To be paired with a plot view
 # Question: should this be a filter, or some new thing?
 # Doesn't seem to fit the design of a view or filter
 #
-class PlotItems(Filter):
+class PlotLineItem(Filter):
 
     def __init__(self):
         super().__init__(
@@ -22,13 +22,13 @@ class PlotItems(Filter):
             'width' : 1.0 
           },
           outputs={
-            'items' : 'none'
+            'item' : 'none'
           }
         )
 
     def _update(self):
-        outs = [[[  self.inputs.x.get(), self.inputs.y.get()], 
-                    self.inputs.line.get(), self.inputs.color.get(), self.inputs.width.get()]]
-        self.outputs.items.set(outs)
+        out = [ [self.inputs.x.get(), self.inputs.y.get()], 
+                self.inputs.line.get(), self.inputs.color.get(), self.inputs.width.get()]
+        self.outputs.item.set(out)
 
         return 1

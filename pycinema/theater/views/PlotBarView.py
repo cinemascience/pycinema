@@ -8,7 +8,7 @@ import pprint
 import numpy as np
 import pyqtgraph as pg
 
-class PlotView(Filter, FilterView):
+class PlotBarView(Filter, FilterView):
     PenStyles = {
                     'dash'      : QtCore.Qt.DashLine,
                     'dashdot'   : QtCore.Qt.DashDotLine,
@@ -34,7 +34,7 @@ class PlotView(Filter, FilterView):
             'table'     : []
           }
         )
-        
+
     def getColumnIndex(self, colname):
         ID = 0
 
@@ -52,34 +52,32 @@ class PlotView(Filter, FilterView):
         self.plot.clear()
 
         # get plot items
-        items = self.inputs.plotitems.get()
-        for i in items:
-            axes = i[0]
+        # for now, there is only one item, but there will be a list in the future
+        item = self.inputs.plotitems.get()
 
-            # get the ids of the value names
-            xID = self.getColumnIndex(axes[0])
-            yID = self.getColumnIndex(axes[1])
+        # get the ids of the value names
+        yID = self.getColumnIndex(item[0])
 
-            # convert the table data and get the two arrays
-            data = self.inputs.table.get()
-            t = np.array(data)
-            column = t[:, xID]
-            xdata = column[1:].astype(float)
-            row = t[:, yID]
-            ydata = row[1:].astype(float)
+        # convert the table data and get the two arrays
+        data = self.inputs.table.get()
+        t = np.array(data)
+        row = t[:, yID]
+        ydata = row[1:].astype(float)
+        # xdata is an array using the axes 0 value
+        xdata = np.arange(len(ydata)) 
 
-            # pen
-            pencolor = i[2]
-            if pencolor == 'default':
-                pencolor = 'black'
-            newpen = pg.mkPen(color = pencolor, style=self.PenStyles[i[1]],width=i[3])
-            newpen.setStyle(self.PenStyles[i[1]])
+        # color
+        barcolor = item[1]
+        if barcolor == 'default':
+            barcolor = 'black'
 
-            # set up the plot
-            self.plot.setBackground(self.inputs.background.get())
-            self.plot.setTitle(self.inputs.title.get())
-            self.plot.setLabel("left", axes[0]) 
-            self.plot.setLabel("bottom", axes[1]) 
-            self.plot.plot(xdata, ydata, pen = newpen)
+        # graph item
+        bgItem = pg.BarGraphItem(x=xdata, height=ydata, width=item[2], brush=barcolor)
+
+        # set up the plot
+        self.plot.setBackground(self.inputs.background.get())
+        self.plot.setTitle(self.inputs.title.get())
+        self.plot.setLabel("left", item[0]) 
+        self.plot.addItem(bgItem)
 
         return 1
