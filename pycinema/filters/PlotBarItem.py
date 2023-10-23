@@ -15,6 +15,7 @@ class PlotBarItem(PlotItem):
         super().__init__(
           inputs={
             'table'     : None,
+            'x'         : 'none',
             'y'         : 'none',
             'barcolor'  : 'default',
             'barwidth'  : 1.0 
@@ -25,13 +26,13 @@ class PlotBarItem(PlotItem):
         )
 
     def _update(self):
+        xID = self._getColumnIndex(self.inputs.x.get())
+        xdata = self._getFloatArrayFromTable(xID)
         yID = self._getColumnIndex(self.inputs.y.get())
         ydata = self._getFloatArrayFromTable(yID)
-        # xdata is a default
-        xdata = np.arange(len(ydata)) 
 
         out = { 'x' : {
-                        'label' : 'x',
+                        'label' : self.inputs.x.get(),
                         'data'  : xdata
                       },
                 'y' : {
