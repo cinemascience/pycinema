@@ -1,7 +1,6 @@
-from pycinema import Filter
+from .PlotItem import * 
 
-import PIL
-import numpy
+import numpy as np
 
 #
 # PlotBarItem
@@ -10,23 +9,41 @@ import numpy
 # Question: should this be a filter, or some new thing?
 # Doesn't seem to fit the design of a view or filter
 #
-class PlotBarItem(Filter):
+class PlotBarItem(PlotItem):
 
     def __init__(self):
         super().__init__(
           inputs={
-            'y'     : 'none',
-            'color' : 'default',
-            'width' : 1.0 
+            'table'     : None,
+            'y'         : 'none',
+            'barcolor'  : 'default',
+            'barwidth'  : 1.0 
           },
           outputs={
-            'item' : 'none'
+            'plotitem' : {} 
           }
         )
 
     def _update(self):
-        out = [ self.inputs.y.get(), 
-                self.inputs.color.get(), self.inputs.width.get()]
-        self.outputs.item.set(out)
+        yID = self._getColumnIndex(self.inputs.y.get())
+        ydata = self._getFloatArrayFromTable(yID)
+        # xdata is a default
+        xdata = np.arange(len(ydata)) 
+
+        out = { 'x' : {
+                        'label' : 'x',
+                        'data'  : xdata
+                      },
+                'y' : {
+                        'label' : self.inputs.y.get(),
+                        'data'  : ydata
+                      },
+                'bar' : {
+                            'color' : self.inputs.barcolor.get(), 
+                            'width' : self.inputs.barwidth.get() 
+                        }
+              }
+        self.outputs.plotitem.set({})
+        self.outputs.plotitem.set(out)
 
         return 1

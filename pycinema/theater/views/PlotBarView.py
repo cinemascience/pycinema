@@ -9,14 +9,6 @@ import numpy as np
 import pyqtgraph as pg
 
 class PlotBarView(Filter, FilterView):
-    PenStyles = {
-                    'dash'      : QtCore.Qt.DashLine,
-                    'dashdot'   : QtCore.Qt.DashDotLine,
-                    'dashdotdot': QtCore.Qt.DashDotDotLine,
-                    'default'   : QtCore.Qt.SolidLine,
-                    'dot'       : QtCore.Qt.DotLine,
-                    'solid'     : QtCore.Qt.SolidLine
-                }
 
     def __init__(self):
         FilterView.__init__(
@@ -30,18 +22,9 @@ class PlotBarView(Filter, FilterView):
           inputs={
             'title'     : 'Plot Title',
             'background': 'white',
-            'plotitems' : 'none',
-            'table'     : []
+            'plotitem'  : 'none'
           }
         )
-
-    def getColumnIndex(self, colname):
-        ID = 0
-
-        colnames = self.inputs.table.get()[0]
-        ID = colnames.index(colname)
-
-        return ID 
 
     def generateWidgets(self):
         self.plot = pg.PlotWidget() 
@@ -53,31 +36,20 @@ class PlotBarView(Filter, FilterView):
 
         # get plot items
         # for now, there is only one item, but there will be a list in the future
-        item = self.inputs.plotitems.get()
-
-        # get the ids of the value names
-        yID = self.getColumnIndex(item[0])
-
-        # convert the table data and get the two arrays
-        data = self.inputs.table.get()
-        t = np.array(data)
-        row = t[:, yID]
-        ydata = row[1:].astype(float)
-        # xdata is an array using the axes 0 value
-        xdata = np.arange(len(ydata)) 
+        item = self.inputs.plotitem.get()
 
         # color
-        barcolor = item[1]
+        barcolor = item['bar']['color']
         if barcolor == 'default':
             barcolor = 'black'
 
         # graph item
-        bgItem = pg.BarGraphItem(x=xdata, height=ydata, width=item[2], brush=barcolor)
+        bgItem = pg.BarGraphItem(x=item['x']['data'], height=item['y']['data'], width=item['bar']['width'], brush=barcolor)
 
         # set up the plot
         self.plot.setBackground(self.inputs.background.get())
         self.plot.setTitle(self.inputs.title.get())
-        self.plot.setLabel("left", item[0]) 
+        self.plot.setLabel("left", item['y']['label']) 
         self.plot.addItem(bgItem)
 
         return 1

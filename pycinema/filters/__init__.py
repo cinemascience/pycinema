@@ -12,6 +12,7 @@ from .ImageConvertGrayscale import *
 from .ImageFilterPIL import *
 from .ImageReader import *
 from .MaskCompositing import *
+from .PlotItem import *
 from .PlotBarItem import *
 from .PlotLineItem import *
 from .ShaderDemoScene import *
