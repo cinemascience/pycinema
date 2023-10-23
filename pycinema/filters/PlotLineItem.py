@@ -1,7 +1,4 @@
-from pycinema import Filter
-
-import PIL
-import numpy
+from .PlotItem import * 
 
 #
 # PlotLineItem
@@ -10,25 +7,44 @@ import numpy
 # Question: should this be a filter, or some new thing?
 # Doesn't seem to fit the design of a view or filter
 #
-class PlotLineItem(Filter):
+class PlotLineItem(PlotItem):
 
     def __init__(self):
         super().__init__(
           inputs={
-            'x'     : 'none',
-            'y'     : 'none',
-            'line'  : 'default',
-            'color' : 'default',
-            'width' : 1.0 
+            'table'     : None,
+            'x'         : 'none',
+            'y'         : 'none',
+            'linetype'  : 'default',
+            'linecolor' : 'default',
+            'linewidth' : 1.0 
           },
           outputs={
-            'item' : 'none'
+            'plotitem' : 'none'
           }
         )
 
     def _update(self):
-        out = [ [self.inputs.x.get(), self.inputs.y.get()], 
-                self.inputs.line.get(), self.inputs.color.get(), self.inputs.width.get()]
-        self.outputs.item.set(out)
+        xID = self._getColumnIndex(self.inputs.x.get())
+        xdata = self._getFloatArrayFromTable(xID)
+        yID = self._getColumnIndex(self.inputs.y.get())
+        ydata = self._getFloatArrayFromTable(yID)
+
+        out = { 'x' : {
+                        'label' : self.inputs.x.get(), 
+                        'data'  : xdata
+                      },
+                'y' : {
+                        'label' : self.inputs.y.get(), 
+                        'data'  : ydata
+                      },
+                'line'  : {
+                            'type'  : self.inputs.linetype.get(), 
+                            'color' : self.inputs.linecolor.get(), 
+                            'width' : self.inputs.linewidth.get()
+                          }
+              }
+        self.outputs.plotitem.set({})
+        self.outputs.plotitem.set(out)
 
         return 1
