@@ -30,8 +30,7 @@ class PlotLineView(Filter, FilterView):
           inputs={
             'title'     : 'Plot Title',
             'background': 'white',
-            'plotitem'  : 'none',
-            'table'     : []
+            'plotitem'  : 'none'
           }
         )
         
