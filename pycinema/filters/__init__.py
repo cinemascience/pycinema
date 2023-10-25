@@ -15,6 +15,7 @@ from .MaskCompositing import *
 from .PlotItem import *
 from .PlotBarItem import *
 from .PlotLineItem import *
+from .PlotScatterItem import *
 from .ShaderDemoScene import *
 from .ShaderFXAA import *
 from .ShaderIBS import *
