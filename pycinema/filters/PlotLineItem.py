@@ -15,9 +15,9 @@ class PlotLineItem(PlotItem):
             'table'     : None,
             'x'         : 'none',
             'y'         : 'none',
-            'linetype'  : 'default',
-            'linecolor' : 'default',
-            'linewidth' : 1.0 
+            'penstyle'  : 'default',
+            'pencolor'  : 'default',
+            'penwidth'  : 1.0 
           },
           outputs={
             'plotitem' : 'none'
@@ -38,10 +38,10 @@ class PlotLineItem(PlotItem):
                         'label' : self.inputs.y.get(), 
                         'data'  : ydata
                       },
-                'line'  : {
-                            'type'  : self.inputs.linetype.get(), 
-                            'color' : self.inputs.linecolor.get(), 
-                            'width' : self.inputs.linewidth.get()
+                'pen'  : {
+                            'style' : self.inputs.penstyle.get(), 
+                            'color' : self.inputs.pencolor.get(), 
+                            'width' : self.inputs.penwidth.get()
                           }
               }
         self.outputs.plotitem.set({})

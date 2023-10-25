@@ -47,16 +47,16 @@ class PlotLineView(Filter, FilterView):
         item = self.inputs.plotitem.get()
 
         # pen
-        pencolor = item['line']['color']
+        pencolor = item['pen']['color']
         if pencolor == 'default':
             pencolor = 'black'
-        newpen = pg.mkPen(color = pencolor, style=self.PenStyles[item['line']['type']],width=item['line']['width'])
+        itempen = pg.mkPen(color = pencolor, style=self.PenStyles[item['pen']['style']],width=item['pen']['width'])
 
         # set up the plot
         self.plot.setBackground(self.inputs.background.get())
         self.plot.setTitle(self.inputs.title.get())
         self.plot.setLabel("left", item['y']['label']) 
         self.plot.setLabel("bottom", item['x']['label']) 
-        self.plot.plot(item['x']['data'], item['y']['data'], pen = newpen)
+        self.plot.plot(item['x']['data'], item['y']['data'], pen = itempen)
 
         return 1
