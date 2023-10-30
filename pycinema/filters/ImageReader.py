@@ -5,6 +5,7 @@ import numpy
 import h5py
 import os
 import re
+import requests
 
 from pycinema import getTableExtent
 
@@ -72,7 +73,11 @@ class ImageReader(Filter):
                 file.close()
 
             elif str.lower(extension) in ['png','jpg','jpeg']:
-                rawImage = PIL.Image.open(path)
+                if "https" in path:
+                    rawImage = PIL.Image.open(requests.get(path, stream=True).raw)
+                else:
+                    rawImage = PIL.Image.open(path)
+
                 if rawImage.mode == 'RGB':
                     rawImage = rawImage.convert('RGBA')
                 image = Image({ 'rgba': numpy.asarray(rawImage) })
