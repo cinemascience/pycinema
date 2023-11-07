@@ -27,9 +27,9 @@ class PlotBarItem(PlotItem):
 
     def _update(self):
         xID = self._getColumnIndex(self.inputs.x.get())
-        xdata = self._getFloatArrayFromTable(xID)
+        xdata = self._getColumnFromTable(xID)
         yID = self._getColumnIndex(self.inputs.y.get())
-        ydata = self._getFloatArrayFromTable(yID)
+        ydata = self._getColumnFromTable(yID)
 
         out = { 'x' : {
                         'label' : self.inputs.x.get(),

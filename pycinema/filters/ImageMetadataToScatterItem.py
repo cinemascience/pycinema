@@ -3,18 +3,14 @@ from .PlotItem import *
 import numpy as np
 
 #
-# PlotScatterItem
+# ImageMetadataToScatterItem 
 #
-# To be paired with a plot view
-# Question: should this be a filter, or some new thing?
-# Doesn't seem to fit the design of a view or filter
-#
-class PlotScatterItem(PlotItem):
+class ImageMetadataToScatterItem(PlotItem):
 
     def __init__(self):
         super().__init__(
           inputs={
-            'table' : None,
+            'images' : [], 
             'x'     : 'none',
             'y'     : 'none',
             'pencolor'  : 'default',
@@ -29,10 +25,14 @@ class PlotScatterItem(PlotItem):
         )
 
     def _update(self):
-        xID = self._getColumnIndex(self.inputs.x.get())
-        xdata = self._getColumnFromTable(xID)
-        yID = self._getColumnIndex(self.inputs.y.get())
-        ydata = self._getColumnFromTable(yID)
+
+        xdata = []
+        ydata = []
+        xlabel = self.inputs.x.get()
+        ylabel = self.inputs.y.get()
+        for image in self.inputs.images.get():
+            xdata.append(image.meta[xlabel])
+            ydata.append(image.meta[ylabel])
 
         out = { 'x' : {
                         'label' : self.inputs.x.get(),
