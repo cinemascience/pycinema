@@ -2,6 +2,7 @@ from .CinemaDatabaseReader import *
 from .CinemaDatabaseWriter import *
 from .ColorMapping import *
 from .ColorSource import *
+from .CSVReader import *
 from .TableQuery import *
 from .TableEditor import *
 from .DepthCompositing import *
@@ -11,6 +12,7 @@ from .ImageCanny import *
 from .ImageConvertGrayscale import *
 from .ImageFilterPIL import *
 from .ImageReader import *
+from .ImageMetadataToScatterItem import *
 from .MaskCompositing import *
 from .PlotItem import *
 from .PlotBarItem import *
