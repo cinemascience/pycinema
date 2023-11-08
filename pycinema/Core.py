@@ -44,6 +44,13 @@ class Image():
     def resolution(self):
         return self.shape[:2][::-1]
 
+def isURL(path):
+    s = path.strip()
+    if s.startswith("http") or s.startswith("HTTP"):
+        return True
+    else:
+        return False
+
 def isNumber(s):
     t = type(s)
     if t == int or t == float:
