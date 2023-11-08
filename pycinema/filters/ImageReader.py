@@ -1,4 +1,4 @@
-from pycinema import Filter, Image
+from pycinema import Filter, Image, isURL
 
 import PIL
 import numpy
@@ -73,7 +73,7 @@ class ImageReader(Filter):
                 file.close()
 
             elif str.lower(extension) in ['png','jpg','jpeg']:
-                if "https" in path:
+                if isURL(path):
                     rawImage = PIL.Image.open(requests.get(path, stream=True).raw)
                 else:
                     rawImage = PIL.Image.open(path)
