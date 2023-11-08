@@ -1,4 +1,4 @@
-from pycinema import Filter, isNumber
+from pycinema import Filter, isNumber, getColumnFromTable
 
 import PIL
 import numpy as np
@@ -15,21 +15,5 @@ class PlotItem(Filter):
     def __init__(self, inputs={}, outputs={}):
         super().__init__(inputs, outputs)
 
-    def _getColumnIndex(self, colname):
-        ID = 0
-
-        colnames = self.inputs.table.get()[0]
-        ID = colnames.index(colname)
-
-        return ID 
-
-    def _getColumnFromTable(self, colID):
-        data = self.inputs.table.get()
-        t = np.array(data)
-        coldata = t[:, colID]
-        column = coldata[1:]
-
-        if isNumber(column[0]): 
-            return column.astype(float)
-        else:
-            return column
+    def _getColumnFromTable(self, colname):
+        return getColumnFromTable(self.inputs.table.get(), colname)
