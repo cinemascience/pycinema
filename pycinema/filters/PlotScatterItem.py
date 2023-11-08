@@ -29,10 +29,8 @@ class PlotScatterItem(PlotItem):
         )
 
     def _update(self):
-        xID = self._getColumnIndex(self.inputs.x.get())
-        xdata = self._getColumnFromTable(xID)
-        yID = self._getColumnIndex(self.inputs.y.get())
-        ydata = self._getColumnFromTable(yID)
+        xdata = self._getColumnFromTable(self.inputs.x.get())
+        ydata = self._getColumnFromTable(self.inputs.y.get())
 
         out = { 'x' : {
                         'label' : self.inputs.x.get(),
