@@ -43,14 +43,14 @@ class SqliteDatabaseReader(Filter):
             cnames = [entry[1] for entry in cdata]
             table.append(cnames)
 
-            print(table)
+            # print(table)
             # capture row data
             data = cursor.execute("SELECT * FROM " + tname + "").fetchall() #LIMIT 10
             for row in data:
                 # tuple output convert to list
                 table.append(list(row))
 
-            print(table)
+            # print(table)
             cursor.close()
         except sqlite3.Error as error:
             print("Error while connecting to sqlite", error)
