@@ -27,5 +27,5 @@ from .Shader import *
 from .ShaderSSAO import *
 from .ShaderLineAO import *
 from .ShaderPointAO import *
-from .TextFileReader import *
+from .SqliteDatabaseReader import *
 from .TableWriter import *
