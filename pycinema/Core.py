@@ -46,7 +46,7 @@ class Image():
         return self.shape[:2][::-1]
 
 def isURL(path):
-    s = path.strip() 
+    s = path.strip()
     if s.startswith("http") or s.startswith("HTTP"):
         return True
     else:
