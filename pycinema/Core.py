@@ -3,6 +3,7 @@ import traceback
 import pprint
 import re
 import numpy as np
+from ast import literal_eval
 
 class Image():
     def __init__(self, channels=None, meta=None):
@@ -92,7 +93,16 @@ def getColumnFromTable(table, colname):
         return None
 
     else:
-        return [row [colID] for row in table[1:]]
+        results = [row [colID] for row in table[1:]]
+
+        # cast the results 
+        lval = literal_eval(results[0])
+        if isinstance(lval, int):
+            return [float(i) for i in results]
+        elif isinstance(lval, float):
+            return [int(i) for i in results]
+        elif isinstance(lval, str):
+            return results 
 
 def getTableExtent(table):
     try:
