@@ -2,6 +2,7 @@ import time
 import traceback
 import pprint
 import re
+import numpy as np
 
 class Image():
     def __init__(self, channels=None, meta=None):
@@ -55,13 +56,43 @@ def isNumber(s):
     t = type(s)
     if t == int or t == float:
         return True
-    if t == str:
+    else:
+        # assume it is a string
         try:
             sf = float(s)
             return True
         except ValueError:
             return False
     return False
+
+#
+# table helper functions
+#
+
+#
+# get the column index from a table, return -1 on failure
+#
+def getColumnIndexFromTable(table, colname):
+    ID = -1
+
+    colnames = table[0]
+    if colname in colnames: 
+        ID = colnames.index(colname)
+
+    return ID 
+
+#
+# get a column of values from a table
+#
+def getColumnFromTable(table, colname):
+    colID = getColumnIndexFromTable(table, colname)
+
+    if colID == -1:
+        print("ERROR: no column named \'" + colname + "\'")
+        return None
+
+    else:
+        return [row [colID] for row in table[1:]]
 
 def getTableExtent(table):
     try:
