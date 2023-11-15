@@ -86,18 +86,18 @@ def getColumnIndexFromTable(table, colname):
 # find the first non-empty, non-NaN value in a list of
 # strings and return the literal value of that element
 #
-def getLiteralValueOfList(myList):
-    val = None
-
+def getTypeOfList(myList):
     for i in myList:
-        if i and i.lower() != "nan":
+        if i and i not in ['nan', 'NaN', 'NAN']:
             try:
                 val = literal_eval(i) 
-                return val
+                if isinstance(val, int):
+                    return int
+                elif isinstance(val, float):
+                    return float
             except ValueError:
                 # it's a string or something else 
-                val = None
-                return val
+                return str
 
     # corner case: entire list is empty
     return None 

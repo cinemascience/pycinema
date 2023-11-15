@@ -1,4 +1,4 @@
-from pycinema import Filter, getColumnFromTable, getLiteralValueOfList
+from pycinema import Filter, getColumnFromTable, getTypeOfList
 
 import PIL
 import numpy as np
@@ -44,24 +44,22 @@ class PlotItem(Filter):
 
         # cast the remaining items
         for d in rawData:
-            lval = getLiteralValueOfList(d) 
+            lval = getTypeOfList(d) 
 
-            if isinstance(lval, int):
+            if lval == int: 
                 for i, v in enumerate(d):
                     if v.lower() == "nan":
                         d[i] = np.nan
                     else:
                         d[i] = int(v)
-                # results.append([int(i) for i in d])
                 results.append(d)
 
-            elif isinstance(lval, float):
+            elif lval == float: 
                 for i, v in enumerate(d):
                     if v.lower() == "nan":
                         d[i] = np.nan
                     else:
                         d[i] = float(v)
-                # results.append([float(i) for i in d])
                 results.append(d)
 
             else:
