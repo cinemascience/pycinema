@@ -88,7 +88,7 @@ def getColumnIndexFromTable(table, colname):
 #
 def getTypeOfList(myList):
     for i in myList:
-        if i and i not in ['nan', 'NaN', 'NAN']:
+        if i and i != np.nan and i not in ['nan', 'NaN', 'NAN']:
             try:
                 val = literal_eval(i) 
                 if isinstance(val, int):
