@@ -29,13 +29,15 @@ class PlotBarItem(PlotItem):
         xdata = self._getColumnFromTable(self.inputs.x.get())
         ydata = self._getColumnFromTable(self.inputs.y.get())
 
+        cleanData = self._castAndCleanData([xdata, ydata])
+
         out = { 'x' : {
                         'label' : self.inputs.x.get(),
-                        'data'  : xdata
+                        'data'  : cleanData[0]
                       },
                 'y' : {
                         'label' : self.inputs.y.get(),
-                        'data'  : ydata
+                        'data'  : cleanData[1]
                       },
                 'brush' : {
                             'color' : self.inputs.brushcolor.get(), 

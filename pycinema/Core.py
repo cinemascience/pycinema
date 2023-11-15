@@ -83,6 +83,17 @@ def getColumnIndexFromTable(table, colname):
     return ID
 
 #
+# find the first non-empty, non-NaN value in a list of
+# strings and return the literal value of that element
+#
+def getLiteralValueOfList(myList):
+    for i in myList:
+        if i and i.lower() != "nan":
+            return literal_eval(i)
+
+    # corner case: entire list is empty
+    return literal_eval(None)
+#
 # get a column of values from a table
 #
 def getColumnFromTable(table, colname):
@@ -93,17 +104,7 @@ def getColumnFromTable(table, colname):
         return None
 
     else:
-        results = [row[colID] for row in table[1:]]
-        return results;
-
-        # # cast the results
-        # lval = literal_eval(results[0])
-        # if isinstance(lval, int):
-        #     return [float(i) for i in results]
-        # elif isinstance(lval, float):
-        #     return [int(i) for i in results]
-        # elif isinstance(lval, str):
-        #     return results
+        return [row[colID] for row in table[1:]]
 
 def getTableExtent(table):
     try:
