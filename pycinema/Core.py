@@ -2,6 +2,8 @@ import time
 import traceback
 import pprint
 import re
+import numpy as np
+from ast import literal_eval
 
 class Image():
     def __init__(self, channels=None, meta=None):
@@ -44,17 +46,64 @@ class Image():
     def resolution(self):
         return self.shape[:2][::-1]
 
+def isURL(path):
+    s = path.strip()
+    if s.startswith("http") or s.startswith("HTTP"):
+        return True
+    else:
+        return False
+
 def isNumber(s):
     t = type(s)
     if t == int or t == float:
         return True
-    if t == str:
+    else:
+        # assume it is a string
         try:
             sf = float(s)
             return True
         except ValueError:
             return False
     return False
+
+#
+# table helper functions
+#
+
+#
+# get the column index from a table, return -1 on failure
+#
+def getColumnIndexFromTable(table, colname):
+    ID = -1
+
+    colnames = table[0]
+    if colname in colnames:
+        ID = colnames.index(colname)
+
+    return ID
+
+#
+# get a column of values from a table
+#
+def getColumnFromTable(table, colname):
+    colID = getColumnIndexFromTable(table, colname)
+
+    if colID == -1:
+        print("ERROR: no column named \'" + colname + "\'")
+        return None
+
+    else:
+        results = [row[colID] for row in table[1:]]
+        return results;
+
+        # # cast the results
+        # lval = literal_eval(results[0])
+        # if isinstance(lval, int):
+        #     return [float(i) for i in results]
+        # elif isinstance(lval, float):
+        #     return [int(i) for i in results]
+        # elif isinstance(lval, str):
+        #     return results
 
 def getTableExtent(table):
     try:
