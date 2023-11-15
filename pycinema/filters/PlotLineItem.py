@@ -20,7 +20,7 @@ class PlotLineItem(PlotItem):
             'penwidth'  : 1.0
           },
           outputs={
-            'plotitem' : 'none'
+            'plotitem' : None
           }
         )
 

@@ -36,7 +36,7 @@ class ImageReader(Filter):
 
         try:
             fileColumnIdx = [i for i, item in enumerate(table[0]) if re.search(fileColumn, item, re.IGNORECASE)].pop()
-        except ValueError as e:
+        except Exception as e:
             print("table does not contain '" + fileColumn + "' column!")
             return 0
 
