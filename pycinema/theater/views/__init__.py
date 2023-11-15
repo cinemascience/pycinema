@@ -9,3 +9,4 @@ from .NodeEditorView import NodeEditorView
 from .InspectorView import InspectorView
 from .PlotBarView import PlotBarView
 from .PlotLineView import PlotLineView
+from .PlotScatterView import PlotScatterView

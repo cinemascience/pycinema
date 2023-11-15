@@ -17,8 +17,8 @@ class PlotBarItem(PlotItem):
             'table'     : None,
             'x'         : 'none',
             'y'         : 'none',
-            'barcolor'  : 'default',
-            'barwidth'  : 1.0 
+            'brushcolor': 'default',
+            'width'     : 1.0 
           },
           outputs={
             'plotitem' : {} 
@@ -26,10 +26,8 @@ class PlotBarItem(PlotItem):
         )
 
     def _update(self):
-        xID = self._getColumnIndex(self.inputs.x.get())
-        xdata = self._getFloatArrayFromTable(xID)
-        yID = self._getColumnIndex(self.inputs.y.get())
-        ydata = self._getFloatArrayFromTable(yID)
+        xdata = self._getColumnFromTable(self.inputs.x.get())
+        ydata = self._getColumnFromTable(self.inputs.y.get())
 
         out = { 'x' : {
                         'label' : self.inputs.x.get(),
@@ -39,10 +37,10 @@ class PlotBarItem(PlotItem):
                         'label' : self.inputs.y.get(),
                         'data'  : ydata
                       },
-                'bar' : {
-                            'color' : self.inputs.barcolor.get(), 
-                            'width' : self.inputs.barwidth.get() 
-                        }
+                'brush' : {
+                            'color' : self.inputs.brushcolor.get(), 
+                        },
+                'width' : self.inputs.width.get() 
               }
         self.outputs.plotitem.set({})
         self.outputs.plotitem.set(out)

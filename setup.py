@@ -32,7 +32,8 @@ setuptools.setup(
         "ipywidgets==8.0.6",
         "PySide6>=6.0.0",
         "python-igraph>=0.10.5",
-        "pyqtgraph"
+        "requests>=2.31.0",
+        "pyqtgraph>=0.13.3"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
