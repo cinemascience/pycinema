@@ -36,7 +36,7 @@ def computeValues(header,table):
       v_list = [(float(x),x) for x in v_list]
     v_list.sort()
     if isListOfNumbers:
-      v_list = [x[1] for x in v_list]
+      v_list = [str(x[1]) for x in v_list]
 
     values.append(v_list)
 
@@ -330,7 +330,7 @@ class _ParallelCoordinatesView(QtWidgets.QGraphicsView):
         if vn < 1:
           path.append( (x,0.5) )
         else:
-          path.append( (x,v.index(table[row_idx][column_idx])/vn) )
+          path.append( (x,v.index(str(table[row_idx][column_idx]))/vn) )
         x += dx
 
       lines.append(path)

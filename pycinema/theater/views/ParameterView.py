@@ -15,6 +15,8 @@ class ParameterView(Filter, FilterView):
 
     def __init__(self):
 
+        self.table_time = -2
+
         FilterView.__init__(
           self,
           filter=self,
@@ -72,7 +74,7 @@ class ParameterView(Filter, FilterView):
           v_list = [(float(x),x) for x in v_list]
         v_list.sort()
         if isListOfNumbers:
-          v_list = [x[1] for x in v_list]
+          v_list = [str(x[1]) for x in v_list]
 
         return v_list
 
@@ -161,25 +163,30 @@ class ParameterView(Filter, FilterView):
 
     def updateWidgets(self):
 
+        if self.inputs.table.valueIsPort() and self.table_time==self.inputs.table._value.time:
+          return
+        else:
+          self.table_time = self.inputs.table._value.time
+
+        self.widgets.setParent(None)
+        self.generateWidgets()
+
         table = self.inputs.table.get()
+
         states = self.inputs.state.get()
         ignore = self.inputs.ignore.get()
 
         parameters = [p for p in table[0] if not any([re.search(i, p, re.IGNORECASE) for i in ignore])]
         parameters.sort()
 
-        existing_parameters = [p for p in self.widgetsDict]
-        existing_parameters.sort()
-
-        if parameters != existing_parameters and len(existing_parameters)<1:
-          grid_layout = self.widgets.layout()
-          grid_idx = 0
-          for parameter in parameters:
-              idx = table[0].index(parameter)
-              wt = self.generateWidget(parameter,table,idx,states)
-              self.widgetsDict[parameter] = wt
-              self.addWidgetToLayout(wt,grid_layout,grid_idx)
-              grid_idx += 1
+        grid_layout = self.widgets.layout()
+        grid_idx = 0
+        for parameter in parameters:
+            idx = table[0].index(parameter)
+            wt = self.generateWidget(parameter,table,idx,states)
+            self.widgetsDict[parameter] = wt
+            self.addWidgetToLayout(wt,grid_layout,grid_idx)
+            grid_idx += 1
 
     def _update(self):
 

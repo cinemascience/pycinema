@@ -20,10 +20,6 @@ class FilterView(View):
     def generateWidgets(self):
         self.frame = QtWidgets.QFrame()
         self.frame.setLayout(QtWidgets.QVBoxLayout())
-        for name, port in self.filter.input.ports():
-            self.frame.layout().addWidget( QtWidgets.QLabel(name) )
-        self.frame.layout().addWidget( QtWidgets.QLabel(), 1)
-
         self.content.layout().addWidget(self.frame,1)
 
     def on_filter_created(self,filter):
