@@ -27,8 +27,9 @@ class TableWriter(Filter):
     def _update(self):
 
         path = self.inputs.path.get()
+        path = os.path.expanduser(path)
 
-        # get path components 
+        # get path components
         directory, filename = os.path.split(path)
 
         # ensure folder exists

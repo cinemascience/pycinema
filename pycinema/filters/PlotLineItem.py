@@ -1,4 +1,4 @@
-from .PlotItem import * 
+from .PlotItem import *
 
 #
 # PlotLineItem
@@ -17,10 +17,10 @@ class PlotLineItem(PlotItem):
             'y'         : 'none',
             'penstyle'  : 'default',
             'pencolor'  : 'default',
-            'penwidth'  : 1.0 
+            'penwidth'  : 1.0
           },
           outputs={
-            'plotitem' : 'none'
+            'plotitem' : None
           }
         )
 
@@ -29,16 +29,16 @@ class PlotLineItem(PlotItem):
         ydata = self._getColumnFromTable(self.inputs.y.get())
 
         out = { 'x' : {
-                        'label' : self.inputs.x.get(), 
+                        'label' : self.inputs.x.get(),
                         'data'  : xdata
                       },
                 'y' : {
-                        'label' : self.inputs.y.get(), 
+                        'label' : self.inputs.y.get(),
                         'data'  : ydata
                       },
                 'pen'  : {
-                            'style' : self.inputs.penstyle.get(), 
-                            'color' : self.inputs.pencolor.get(), 
+                            'style' : self.inputs.penstyle.get(),
+                            'color' : self.inputs.pencolor.get(),
                             'width' : self.inputs.penwidth.get()
                           }
               }

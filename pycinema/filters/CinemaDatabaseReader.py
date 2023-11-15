@@ -1,7 +1,7 @@
 from pycinema import Filter
 
 import csv
-from os.path import exists
+import os.path
 import re
 
 class CinemaDatabaseReader(Filter):
@@ -21,11 +21,13 @@ class CinemaDatabaseReader(Filter):
 
         table = []
         dbPath = self.inputs.path.get()
+        dbPath = os.path.expanduser(dbPath)
+
         if not dbPath:
             self.outputs.table.set([[]])
             return 0
 
-        if not exists(dbPath):
+        if not os.path.exists(dbPath):
             print('[ERROR] CDB not found:', dbPath)
             self.outputs.table.set([[]])
             return 0

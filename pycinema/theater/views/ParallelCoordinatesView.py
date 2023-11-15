@@ -1,56 +1,12 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
-import sqlite3
 import re
 
 from pycinema.theater.views.FilterView import FilterView
 from pycinema import Filter, getTableExtent, isNumber
 
-def executeSQL(db,sql):
-  try:
-    c = db.cursor()
-    c.execute(sql)
-  except sqlite3.Error as e:
-    print(e)
-
-def createTable(db, table):
-  sql = 'CREATE TABLE input(id INTEGER PRIMARY KEY AUTOINCREMENT';
-  header = table[0]
-  firstRow = table[1]
-  for i in range(0,len(header)):
-    if header[i].lower()=='id':
-      continue
-    sql = sql + ', ' + header[i] + ' TEXT';
-  sql =  sql + ')';
-  executeSQL(db,sql)
-
-def insertData(db, table):
-  sql = 'INSERT INTO input(';
-  for x in table[0]:
-    sql = sql + x + ', ';
-  sql = sql[0:-2] + ') VALUES\n';
-
-  for i in range(1, len(table)):
-    row = '('
-    for v in table[i]:
-      row += '"' + str(v) + '",'
-    sql += row[0:-1] + '),\n'
-  sql = sql[0:-2];
-  executeSQL(db,sql)
-
-def queryData(db, sqlQuery):
-  c = db.cursor()
-  try:
-    c.execute(sqlQuery)
-  except sqlite3.Error as er:
-    print('[SQL ERROR] %s' % (' '.join(er.args)))
-    return [[]]
-  res = c.fetchall()
-  columns = []
-  for d in c.description:
-    columns.append(d[0])
-  res.insert(0,columns)
-  return res
+import sqlite3
+from pycinema.filters.TableQuery import executeSQL, createTable, insertData, queryData
 
 def createLabel(parent,text):
   _label = QtWidgets.QLabel(str(text))
@@ -80,7 +36,7 @@ def computeValues(header,table):
       v_list = [(float(x),x) for x in v_list]
     v_list.sort()
     if isListOfNumbers:
-      v_list = [x[1] for x in v_list]
+      v_list = [str(x[1]) for x in v_list]
 
     values.append(v_list)
 
@@ -374,7 +330,7 @@ class _ParallelCoordinatesView(QtWidgets.QGraphicsView):
         if vn < 1:
           path.append( (x,0.5) )
         else:
-          path.append( (x,v.index(table[row_idx][column_idx])/vn) )
+          path.append( (x,v.index(str(table[row_idx][column_idx]))/vn) )
         x += dx
 
       lines.append(path)

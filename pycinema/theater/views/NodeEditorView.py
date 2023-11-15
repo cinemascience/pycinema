@@ -273,6 +273,7 @@ class QtNodeEditorView(QtWidgets.QGraphicsView):
                 node.target = QtCore.QPointF(pos[0],-pos[1])
         else:
             g = igraph.Graph(directed=True)
+
             vertices = [f for f in filters]
             g.add_vertices( [f.id for f in vertices] )
 
