@@ -30,12 +30,12 @@ class PlotLineView(Filter, FilterView):
           inputs={
             'title'     : 'Plot Title',
             'background': 'white',
-            'plotitem'  : 'none'
+            'plotitem'  : []
           }
         )
-        
+
     def generateWidgets(self):
-        self.plot = pg.PlotWidget() 
+        self.plot = pg.PlotWidget()
         self.content.layout().addWidget(self.plot)
 
     def _update(self):
@@ -43,20 +43,21 @@ class PlotLineView(Filter, FilterView):
         self.plot.clear()
 
         # get plot items
-        # in the future there will be more than one item, but for now only one
-        item = self.inputs.plotitem.get()
+        items = self.inputs.plotitem.get()
+        if not isinstance(items, list):
+          items = [items]
 
-        # pen
-        pencolor = item['line']['color']
-        if pencolor == 'default':
-            pencolor = 'black'
-        newpen = pg.mkPen(color = pencolor, style=self.PenStyles[item['line']['type']],width=item['line']['width'])
-
-        # set up the plot
         self.plot.setBackground(self.inputs.background.get())
         self.plot.setTitle(self.inputs.title.get())
-        self.plot.setLabel("left", item['y']['label']) 
-        self.plot.setLabel("bottom", item['x']['label']) 
-        self.plot.plot(item['x']['data'], item['y']['data'], pen = newpen)
+
+        # pen
+        for item in items:
+          self.plot.setLabel("left", item['y']['label'])
+          self.plot.setLabel("bottom", item['x']['label'])
+          pencolor = item['line']['color']
+          if pencolor == 'default':
+              pencolor = 'black'
+          newpen = pg.mkPen(color = pencolor, style=self.PenStyles[item['line']['type']],width=item['line']['width'])
+          self.plot.plot(item['x']['data'], item['y']['data'], pen = newpen)
 
         return 1

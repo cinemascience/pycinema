@@ -64,15 +64,6 @@ class _Theater(QtWidgets.QMainWindow):
         editMenu = menuBar.addMenu("&Edit")
         editMenu.addAction(button_filters)
 
-        # toolbar = QtWidgets.QToolBar("My main toolbar")
-        # self.addToolBar(toolbar)
-        # toolbar.addAction(button_viewCDB)
-        # toolbar.addAction(button_save)
-        # toolbar.addAction(button_load)
-        # toolbar.addAction(button_filters)
-        # toolbar.addAction(button_reset)
-        # toolbar.addAction(button_about)
-
         # status bar
         self.statusBar = QtWidgets.QStatusBar()
         self.setStatusBar(self.statusBar)
@@ -330,6 +321,8 @@ class Theater():
         if len(args)>0 and isinstance(args[0], str):
           if args[0].endswith('.py'):
             Theater.instance.loadScript(args[0])
+          elif args[0].endswith('.cdb') or args[0].endswith('.cdb/'):
+            Theater.instance.viewCDB(args[0])
           elif args[0] in ['view','explorer']:
             path = None
             if len(args)==2 and isinstance(args[1], str): path=args[1]
