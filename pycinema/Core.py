@@ -76,8 +76,6 @@ class Port():
         self.is_input = is_input
         self.connections = []
         self.time = -1
-        # if is_input:
-        #     self.connections.append(self.parent)
         self._value = value
         self.default = value
         t = type(value)
@@ -110,15 +108,26 @@ class Port():
         for listener in self._listeners[eventName]:
             listener(data)
 
+    def valueIsPort(self):
+        return isinstance(self._value, Port)
+
+    def valueIsPortList(self):
+        return isinstance(self._value, list) and len(self._value)>0 and isinstance(self._value[0], Port)
+
     def get(self):
         if isinstance(self._value, Port):
             return self._value.get()
-        return self._value;
+        elif self.valueIsPortList():
+            result = []
+            for port in self._value:
+                result.append(port.get())
+            return result
+        return self._value
 
     def getTime(self):
         if isinstance(self._value, Port):
             return self._value.time
-        return self.time;
+        return self.time
 
     def set(self, value, update = True):
         if Filter._debug:
@@ -134,6 +143,11 @@ class Port():
             self._value.off('value_set', self.propagate_value)
             self._value.connections.remove(self)
             Filter.trigger('connection_removed', [self._value,self])
+        elif self.valueIsPortList():
+            for port in self._value:
+                port.off('value_set', self.propagate_value)
+                port.connections.remove(self)
+                Filter.trigger('connection_removed', [port,self])
 
         # replace old value with new value
         self._value = value
@@ -144,6 +158,11 @@ class Port():
             self._value.on('value_set', self.propagate_value)
             self._value.connections.append(self)
             Filter.trigger('connection_added', [self._value,self])
+        elif self.valueIsPortList():
+            for port in self._value:
+                port.on('value_set', self.propagate_value)
+                port.connections.append(self)
+                Filter.trigger('connection_added', [port,self])
 
         # if value of a port was changed trigger update of listeners
         if self.is_input and update and not Filter._processing:
@@ -207,6 +226,9 @@ class Filter():
         for _, iPort in self.inputs.ports():
             if isinstance(iPort._value, Port):
                 filters.add(iPort._value.parent)
+            elif iPort.valueIsPortList():
+                for port in iPort._value:
+                    filters.add(port._value.parent)
         return filters
 
     def getOutputFilters(self):
@@ -296,7 +318,11 @@ class Filter():
             lt = f.time
             needsUpdate = False
             for _, iPort in f.inputs.ports():
-                if lt<iPort.getTime():
+                if iPort.valueIsPortList():
+                    for p in iPort._value:
+                        if lt<p.getTime():
+                            needsUpdate = True
+                elif lt<iPort.getTime():
                     needsUpdate = True
             if f==self or needsUpdate:
                 t0 = time.time()
