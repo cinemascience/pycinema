@@ -87,12 +87,21 @@ def getColumnIndexFromTable(table, colname):
 # strings and return the literal value of that element
 #
 def getLiteralValueOfList(myList):
+    val = None
+
     for i in myList:
+        print(i)
         if i and i.lower() != "nan":
-            return literal_eval(i)
+            try:
+                val = literal_eval(i) 
+                return val
+            except ValueError:
+                # it's a string or something else 
+                val = None
+                return val
 
     # corner case: entire list is empty
-    return literal_eval(None)
+    return None 
 #
 # get a column of values from a table
 #

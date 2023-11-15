@@ -1,4 +1,4 @@
-from pycinema import Filter, isNumber, getColumnFromTable, getLiteralValueOfList
+from pycinema import Filter, getColumnFromTable, getLiteralValueOfList
 
 import PIL
 import numpy as np
@@ -64,7 +64,8 @@ class PlotItem(Filter):
                 # results.append([float(i) for i in d])
                 results.append(d)
 
-            elif isinstance(lval, str):
+            else:
+                # it is a string
                 results.append(d)
 
         return results 
