@@ -12,13 +12,9 @@ class ImagesToTable(Filter):
           }
         )
 
-    def _update(self):
-
-      images = self.inputs.images.get()
-
+    def imagesToTable(images):
       if len(images)<1:
-        self.outputs.table.set([[]])
-        return 1
+        return [[]]
 
       image0 = images[0]
       header = [h for h in image0.meta]
@@ -27,8 +23,16 @@ class ImagesToTable(Filter):
       table.append(header)
       for image in images:
         table.append([
-          image.meta[k] for k in header
+          str(image.meta[k]) for k in header
         ])
+
+      return table
+
+    def _update(self):
+
+      images = self.inputs.images.get()
+
+      table = ImagesToTable.imagesToTable(images)
 
       self.outputs.table.set(table)
 

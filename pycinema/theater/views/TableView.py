@@ -1,7 +1,8 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
 from pycinema.theater.views.FilterView import FilterView
-from pycinema import Filter
+from pycinema.filters.ImagesToTable import ImagesToTable
+from pycinema import Filter, Image
 
 class TableModel(QtCore.QAbstractTableModel):
     def __init__(self):
@@ -61,6 +62,10 @@ class TableView(Filter, FilterView):
     def _update(self):
 
         table = self.inputs.table.get()
+
+        if len(table)>0 and isinstance(table[0],Image):
+          table = ImagesToTable.imagesToTable(table)
+
         self.model.setData(table)
 
         return 1
