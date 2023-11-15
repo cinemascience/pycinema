@@ -90,8 +90,6 @@ class ImageView(Filter, FilterView):
           }
         )
 
-        print(self.inputs.images.name,self.inputs.images.is_input)
-
     def generateWidgets(self):
         self.view = _ImageViewer()
         self.content.layout().addWidget(self.view,1)

@@ -46,10 +46,6 @@ class PortDisc(QtWidgets.QGraphicsEllipseItem):
             if isinstance(i,Port):
                 t = i
                 break
-        if t:
-          if t.port.name=='images':
-            print(t.port.parent)
-            print(t.port.parent.inputs.images,t.port.parent.inputs.images.is_input)
         if not t or s.is_input == t.port.is_input or s.parent==t.port.parent:
           line.setP2( self.mapToScene(event.pos()) )
           ncl.setLine(line)
