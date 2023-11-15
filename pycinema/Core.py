@@ -90,7 +90,6 @@ def getLiteralValueOfList(myList):
     val = None
 
     for i in myList:
-        print(i)
         if i and i.lower() != "nan":
             try:
                 val = literal_eval(i) 
