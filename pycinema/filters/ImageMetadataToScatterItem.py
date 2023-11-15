@@ -34,13 +34,15 @@ class ImageMetadataToScatterItem(PlotItem):
             xdata.append(image.meta[xlabel])
             ydata.append(image.meta[ylabel])
 
+        cleanData = self._castAndCleanData([xdata, ydata])
+
         out = { 'x' : {
                         'label' : self.inputs.x.get(),
-                        'data'  : xdata
+                        'data'  : cleanData[0]
                       },
                 'y' : {
                         'label' : self.inputs.y.get(),
-                        'data'  : ydata
+                        'data'  : cleanData[1]
                       },
                 'pen' : {
                             'color' : self.inputs.pencolor.get(), 
