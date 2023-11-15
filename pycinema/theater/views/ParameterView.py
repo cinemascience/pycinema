@@ -5,55 +5,8 @@ from PySide6 import QtCore, QtWidgets
 
 import re
 
-# ==============================================================================
-# SQL
-# ==============================================================================
 import sqlite3
-def executeSQL(db,sql):
-  try:
-    c = db.cursor()
-    c.execute(sql)
-  except sqlite3.Error as e:
-    print(e)
-
-def createTable(db, table):
-  sql = 'CREATE TABLE input(id INTEGER PRIMARY KEY AUTOINCREMENT';
-  header = table[0]
-  firstRow = table[1]
-  for i in range(0,len(header)):
-    if header[i].lower()=='id':
-      continue
-    sql = sql + ', ' + header[i] + ' TEXT';
-  sql =  sql + ')';
-  executeSQL(db,sql)
-
-def insertData(db, table):
-  sql = 'INSERT INTO input(';
-  for x in table[0]:
-    sql = sql + x + ', ';
-  sql = sql[0:-2] + ') VALUES\n';
-
-  for i in range(1, len(table)):
-    row = '('
-    for v in table[i]:
-      row += '"' + str(v) + '",'
-    sql += row[0:-1] + '),\n'
-  sql = sql[0:-2];
-  executeSQL(db,sql)
-
-def queryData(db, sqlQuery):
-  c = db.cursor()
-  try:
-    c.execute(sqlQuery)
-  except sqlite3.Error as er:
-    print('[SQL ERROR] %s' % (' '.join(er.args)))
-    return [[]]
-  res = c.fetchall()
-  columns = []
-  for d in c.description:
-    columns.append(d[0])
-  res.insert(0,columns)
-  return res
+from pycinema.filters.TableQuery import executeSQL, createTable, insertData, queryData
 
 # ==============================================================================
 # ParameterView
@@ -61,6 +14,8 @@ def queryData(db, sqlQuery):
 class ParameterView(Filter, FilterView):
 
     def __init__(self):
+
+        self.table_time = -2
 
         FilterView.__init__(
           self,
@@ -119,7 +74,7 @@ class ParameterView(Filter, FilterView):
           v_list = [(float(x),x) for x in v_list]
         v_list.sort()
         if isListOfNumbers:
-          v_list = [x[1] for x in v_list]
+          v_list = [str(x[1]) for x in v_list]
 
         return v_list
 
@@ -208,25 +163,30 @@ class ParameterView(Filter, FilterView):
 
     def updateWidgets(self):
 
+        if self.inputs.table.valueIsPort() and self.table_time==self.inputs.table._value.time:
+          return
+        else:
+          self.table_time = self.inputs.table._value.time
+
+        self.widgets.setParent(None)
+        self.generateWidgets()
+
         table = self.inputs.table.get()
+
         states = self.inputs.state.get()
         ignore = self.inputs.ignore.get()
 
         parameters = [p for p in table[0] if not any([re.search(i, p, re.IGNORECASE) for i in ignore])]
         parameters.sort()
 
-        existing_parameters = [p for p in self.widgetsDict]
-        existing_parameters.sort()
-
-        if parameters != existing_parameters and len(existing_parameters)<1:
-          grid_layout = self.widgets.layout()
-          grid_idx = 0
-          for parameter in parameters:
-              idx = table[0].index(parameter)
-              wt = self.generateWidget(parameter,table,idx,states)
-              self.widgetsDict[parameter] = wt
-              self.addWidgetToLayout(wt,grid_layout,grid_idx)
-              grid_idx += 1
+        grid_layout = self.widgets.layout()
+        grid_idx = 0
+        for parameter in parameters:
+            idx = table[0].index(parameter)
+            wt = self.generateWidget(parameter,table,idx,states)
+            self.widgetsDict[parameter] = wt
+            self.addWidgetToLayout(wt,grid_layout,grid_idx)
+            grid_idx += 1
 
     def _update(self):
 

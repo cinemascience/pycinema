@@ -32,7 +32,7 @@ class FilterList(QtWidgets.QListWidget):
 
 class FilterBrowser(QtWidgets.QDialog):
 
-    filters = dict([(name, cls) for name, cls in pycinema.filters.__dict__.items() if isinstance(cls,type) and issubclass(cls,pycinema.Core.Filter)])
+    filters = dict([(name, cls) for name, cls in pycinema.filters.__dict__.items() if isinstance(cls,type) and issubclass(cls,pycinema.Core.Filter) and len(cls.__subclasses__())<1])
 
     def __init__(self):
         super().__init__()

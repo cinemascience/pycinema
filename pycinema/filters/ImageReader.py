@@ -36,7 +36,7 @@ class ImageReader(Filter):
 
         try:
             fileColumnIdx = [i for i, item in enumerate(table[0]) if re.search(fileColumn, item, re.IGNORECASE)].pop()
-        except ValueError as e:
+        except Exception as e:
             print("table does not contain '" + fileColumn + "' column!")
             return 0
 
@@ -64,7 +64,6 @@ class ImageReader(Filter):
                         raise ValueError('h5 file not formatted correctly')
                     for k in group.keys():
                         data = numpy.array(group.get(k))
-                        # print('xxx',data)
                         if data.dtype == '|S10' and len(data)==1:
                             data = data[0].decode('UTF-8')
                         # elif len(data)==1:
