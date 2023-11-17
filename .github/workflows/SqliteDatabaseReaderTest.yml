@@ -1,4 +1,4 @@
-name: SqliteDatabaseReader
+name: SqliteDatabaseReaderTest
 
 on:
   push:
