@@ -6,6 +6,7 @@ import h5py
 import os
 import re
 import requests
+import logging as log
 
 from pycinema import getTableExtent
 
@@ -37,7 +38,7 @@ class ImageReader(Filter):
         try:
             fileColumnIdx = [i for i, item in enumerate(table[0]) if re.search(fileColumn, item, re.IGNORECASE)].pop()
         except Exception as e:
-            print("table does not contain '" + fileColumn + "' column!")
+            log.error("table does not contain '" + fileColumn + "' column!")
             return 0
 
         images = [];
@@ -73,7 +74,7 @@ class ImageReader(Filter):
 
             elif str.lower(extension) in ['png','jpg','jpeg']:
                 if isURL(path):
-                    print("requestiong " + path)
+                    log.info("requesting " + path)
                     rawImage = PIL.Image.open(requests.get(path, stream=True).raw)
                 else:
                     rawImage = PIL.Image.open(path)
