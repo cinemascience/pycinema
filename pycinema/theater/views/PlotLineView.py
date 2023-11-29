@@ -1,10 +1,7 @@
 from pycinema import Filter
-
-from PySide6 import QtCore, QtWidgets, QtGui
-
 from .FilterView import FilterView
+from PySide6 import QtCore
 
-import pprint
 import numpy as np
 import pyqtgraph as pg
 
@@ -39,18 +36,16 @@ class PlotLineView(Filter, FilterView):
         self.content.layout().addWidget(self.plot)
 
     def _update(self):
-        # clear on update
+        # clear and set attributes 
         self.plot.clear()
+        self.plot.setBackground(self.inputs.background.get())
+        self.plot.setTitle(self.inputs.title.get())
 
-        # get plot items
+        # get and plot items
         items = self.inputs.plotitem.get()
         if not isinstance(items, list):
           items = [items]
 
-        self.plot.setBackground(self.inputs.background.get())
-        self.plot.setTitle(self.inputs.title.get())
-
-        # pen
         for item in items:
           self.plot.setLabel("left", item['y']['label'])
           self.plot.setLabel("bottom", item['x']['label'])
