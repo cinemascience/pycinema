@@ -15,6 +15,8 @@ from .ImageReader import *
 from .ImagesToTable import *
 from .ImageMetadataToScatterItem import *
 from .MaskCompositing import *
+from .MLTFReader import *
+from .MLTFPredictor import *
 from .PlotItem import *
 from .PlotBarItem import *
 from .PlotLineItem import *
