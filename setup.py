@@ -34,7 +34,6 @@ setuptools.setup(
         "python-igraph>=0.10.5",
         "requests>=2.31.0",
         "pyqtgraph>=0.13.3",
-        "torch==2.1.0",        
         "tensorflow==2.14.0"
     ],
     classifiers=[
