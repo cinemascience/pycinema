@@ -33,7 +33,8 @@ setuptools.setup(
         "PySide6>=6.0.0",
         "python-igraph>=0.10.5",
         "requests>=2.31.0",
-        "pyqtgraph>=0.13.3"
+        "pyqtgraph>=0.13.3",
+        "tensorflow==2.14.0"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
