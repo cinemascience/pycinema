@@ -43,6 +43,6 @@ An example of the MNIST dataset with trained TensorFlow models and sample images
 cinema examples/theater/MLScatterPlot.py
 ```
 
-![ML Scatter Plot Workflow](MLScaterPlot.png "ML Scatter Plot")
+![ML Scatter Plot Workflow](MLScatterPlot.png "ML Scatter Plot")
 
 The images are stored in a Cinema database located at data/mnist.cdb. The trained MNIST models are located at MNIST_models/TF/ . All three formats are available for use; the example above uses the `.h5` format. The `CinemaDatabaseReader` filter loads the images and related values from the Cinema Database. The true values for each MNIST image is recorded in the `data.csv` file. The `ImageReader` filter formats the table into the `pycinema` Image format. The `MLTFReader` filer loads the TensorFlow model. The `MLTFPredictor` filter takes both the model and Images and adds the predicted values to each Image metadata. The `ImagesToTable` filter formats the images into a structure the scatter plot can read. The `PlotScatterItem` filter identifies the parameters to plot for the x and y axes, as well as other plotting specifications. The `TableView`, `ImageView` and `PlotScatterView` filters display the data as a table, images and a scatter plot respectively. Note that for the image with True Value **8**, the Predicted Value is **7**. Looking at the corresponding image makes it clear that the skewed writing can easily be mistaken for a **7** instead of an **8**.
