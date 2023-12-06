@@ -4,7 +4,7 @@ import pycinema.theater
 import pycinema.theater.views
 
 # pycinema settings
-PYCINEMA = { 'VERSION' : '2.0.0'}
+PYCINEMA = { 'VERSION' : '2.2.0'}
 
 # layout
 vf0 = pycinema.theater.Theater.instance.centralWidget()
