@@ -1,3 +1,4 @@
+from .Calculator import *
 from .CinemaDatabaseReader import *
 from .CinemaDatabaseWriter import *
 from .ColorMapping import *
@@ -21,6 +22,7 @@ from .PlotItem import *
 from .PlotBarItem import *
 from .PlotLineItem import *
 from .PlotScatterItem import *
+from .Python import *
 from .ShaderDemoScene import *
 from .ShaderFXAA import *
 from .ShaderIBS import *
