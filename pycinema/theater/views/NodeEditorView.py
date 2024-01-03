@@ -296,7 +296,7 @@ class QtNodeEditorView(QtWidgets.QGraphicsView):
             for i, f in enumerate(vertices):
                 node = QtNodeEditorView.node_map[f]
                 coords = layout[i]
-                QtNodeEditorView.node_map[f].target = QtCore.QPointF(coords[1]*scale,coords[0]*scale*0.7)
+                QtNodeEditorView.node_map[f].target = QtCore.QPointF(coords[1]*scale,-coords[0]*scale*0.7)
 
             for f in L:
                 if not f in edgesR:
