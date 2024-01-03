@@ -72,7 +72,7 @@ jobs:
   #         $env:GLCONTEXT_WIN_LIBGL = "C:\msys64\mingw64\bin\opengl32.dll"
   #     - name: Dependencies
   #       run: |
-  #         python setup.py install
+  #         python -m pip install . 
   #     - name: Test using ModernGL
   #       run: |
   #         python -m pytest -s testing/RenderTest.py
