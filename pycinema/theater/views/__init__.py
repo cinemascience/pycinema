@@ -10,3 +10,5 @@ from .InspectorView import InspectorView
 from .PlotBarView import PlotBarView
 from .PlotLineView import PlotLineView
 from .PlotScatterView import PlotScatterView
+from .TextView import TextView
+

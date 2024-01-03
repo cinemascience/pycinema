@@ -100,6 +100,9 @@ class ImageView(Filter, FilterView):
         max_w = 0
         max_h = 0
         images = self.inputs.images.get()
+        if not type(images) is list:
+          return 1
+
         for image in images:
           max_w = max(image.shape[1],max_w)
           max_h = max(image.shape[0],max_h)
