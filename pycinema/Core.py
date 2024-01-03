@@ -4,7 +4,87 @@ import pprint
 import re
 import numpy as np
 from ast import literal_eval
+import PIL
+import io
 
+################################################################################
+# general helper functions
+################################################################################
+def isURL(path):
+    s = path.strip()
+    if s.startswith("http") or s.startswith("HTTP"):
+        return True
+    else:
+        return False
+
+def isNumber(s):
+    t = type(s)
+    if t == int or t == float:
+        return True
+    else:
+        # assume it is a string
+        try:
+            sf = float(s)
+            return True
+        except ValueError:
+            return False
+    return False
+
+def imageFromMatplotlibFigure(figure):
+  # Create image stream
+  image_stream = io.BytesIO()
+  figure.savefig(image_stream, format='png', dpi=100)
+  image_stream.seek(0)
+
+  # Parse stream to pycinema image
+  rawImage = PIL.Image.open(image_stream)
+  if rawImage.mode == 'RGB':
+    rawImage = rawImage.convert('RGBA')
+  image = Image({ 'rgba': np.asarray(rawImage) })
+  return image
+
+################################################################################
+# table helper functions
+################################################################################
+
+# get the column index from a table, return -1 on failure
+def getColumnIndexFromTable(table, colname):
+    ID = -1
+
+    colnames = table[0]
+    if colname in colnames:
+        ID = colnames.index(colname)
+
+    return ID
+
+# get a column of values from a table
+def getColumnFromTable(table, colname):
+    colID = getColumnIndexFromTable(table, colname)
+
+    if colID == -1:
+        print("ERROR: no column named \'" + colname + "\'")
+        return None
+    else:
+        results = [row[colID] for row in table[1:]]
+        return results;
+
+# get extent of the table (nRows,nCols)
+def getTableExtent(table):
+    try:
+        nRows = len(table)
+        if nRows < 1:
+            return (0,0)
+        nCols = len(table[1])
+        for i in range(2,nRows):
+            if len(table[i]) != nCols:
+                return (nRows,-1)
+        return (nRows,nCols)
+    except:
+        return (-1,-1)
+
+################################################################################
+# Image Class
+################################################################################
 class Image():
     def __init__(self, channels=None, meta=None):
         self.meta = meta or {}
@@ -46,78 +126,9 @@ class Image():
     def resolution(self):
         return self.shape[:2][::-1]
 
-def isURL(path):
-    s = path.strip()
-    if s.startswith("http") or s.startswith("HTTP"):
-        return True
-    else:
-        return False
-
-def isNumber(s):
-    t = type(s)
-    if t == int or t == float:
-        return True
-    else:
-        # assume it is a string
-        try:
-            sf = float(s)
-            return True
-        except ValueError:
-            return False
-    return False
-
-#
-# table helper functions
-#
-
-#
-# get the column index from a table, return -1 on failure
-#
-def getColumnIndexFromTable(table, colname):
-    ID = -1
-
-    colnames = table[0]
-    if colname in colnames:
-        ID = colnames.index(colname)
-
-    return ID
-
-#
-# get a column of values from a table
-#
-def getColumnFromTable(table, colname):
-    colID = getColumnIndexFromTable(table, colname)
-
-    if colID == -1:
-        print("ERROR: no column named \'" + colname + "\'")
-        return None
-
-    else:
-        results = [row[colID] for row in table[1:]]
-        return results;
-
-        # # cast the results
-        # lval = literal_eval(results[0])
-        # if isinstance(lval, int):
-        #     return [float(i) for i in results]
-        # elif isinstance(lval, float):
-        #     return [int(i) for i in results]
-        # elif isinstance(lval, str):
-        #     return results
-
-def getTableExtent(table):
-    try:
-        nRows = len(table)
-        if nRows < 1:
-            return (0,0)
-        nCols = len(table[1])
-        for i in range(2,nRows):
-            if len(table[i]) != nCols:
-                return (nRows,-1)
-        return (nRows,nCols)
-    except:
-        return (-1,-1)
-
+################################################################################
+# Port Class
+################################################################################
 class Port():
     def __init__(self, name, value, parent, is_input = False):
         self.parent = parent
@@ -227,6 +238,9 @@ class PortList():
     def ports(self):
         return self.__ports.items()
 
+################################################################################
+# Filter Class
+################################################################################
 class Filter():
 
     _debug = False
