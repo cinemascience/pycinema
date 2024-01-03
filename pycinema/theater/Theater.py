@@ -107,8 +107,10 @@ import pycinema.theater.views
                     v = iPort.get()
                     if iPort.type == int or iPort.type == float:
                         script += filter.id + '.inputs.'+iPortName+ '.set(' + str(v) +', False)\n'
-                    elif iPort.type == str:
+                    elif iPort.type == str and len(v.splitlines())<2:
                         script += filter.id + '.inputs.'+iPortName+ '.set("' + str(v) +'", False)\n'
+                    elif iPort.type == str and len(v.splitlines())>1:
+                        script += filter.id + '.inputs.'+iPortName+ '.set(\'\'\'' + str(v) +'\'\'\', False)\n'
                     else:
                         script += filter.id + '.inputs.'+iPortName+ '.set(' + str(v) +', False)\n'
 
