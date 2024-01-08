@@ -18,11 +18,11 @@ for cols, mark in zip([["Model Year", "Electric Range"], ["Model Year", "DOL Veh
     figure = plt.figure(figsize=(10,8), dpi=200)
     x = getColumnFromTable(inputs, cols[0])
     xvals = np.asarray(x, dtype='int')
-    print(xvals)
+    # print(xvals)
 
     y = getColumnFromTable(inputs, cols[1])
     yvals = np.asarray(y, dtype='int')
-    print(yvals)
+    # print(yvals)
 
     plt.scatter(xvals, yvals, marker=mark)
     plt.xlabel(cols[0])
