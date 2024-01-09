@@ -14,7 +14,7 @@ imDPI = 200
 # a general loop for looping over column pairings and marks
 for image in inputs: 
     rgbImage = PIL.Image.fromarray(image.channels['rgba'])
-    # for this layout, make the plots the same size as the images
+    # for this layout, make the plots the same aspect ratio as the images
     width, height = rgbImage.size
 
     r, g, b, a = rgbImage.split()
