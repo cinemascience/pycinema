@@ -136,7 +136,7 @@ class ImageView(Filter, FilterView):
           }
         )
 
-        self.layout = _ImageLayout()
+        self.imagelayout = _ImageLayout()
 
     def generateWidgets(self):
         self.view = _ImageViewer()
@@ -144,6 +144,6 @@ class ImageView(Filter, FilterView):
 
     def _update(self):
         self.view.removeImages()
-        self.layout.addImages( self.view, self.inputs.images.get() )
+        self.imagelayout.addImages( self.view, self.inputs.images.get() )
 
         return 1
