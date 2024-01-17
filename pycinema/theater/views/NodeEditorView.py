@@ -105,31 +105,28 @@ class QtNodeEditorView(QtWidgets.QGraphicsView):
         if not node_a or not node_b or (not force and not QtNodeEditorView.auto_connect):
             return
 
-        node_a_ports = node_a.filter.outputs.ports()
-        node_b_ports = node_b.filter.inputs.ports()
+        o_ports = [p for n,p in node_a.filter.outputs.ports()]
+        i_ports = [p for n,p in node_b.filter.inputs.ports()]
+        if len(o_ports)<1 or len(i_ports)<1:
+            return
 
-        if len(node_b_ports)==1:
-          for o_portName, o_port in node_a_ports:
-              for i_portName, i_port in node_b_ports:
-                  bridge_ports = list(o_port.connections)
-                  i_port.set(o_port)
-                  for bridge_port in bridge_ports:
-                      if bridge_port.parent==node_b.filter: continue
-                      for o_portName_, o_port_ in node_b.filter.outputs.ports():
-                          if bridge_port.name == o_portName_:
-                              bridge_port.set(o_port_)
-                  return
+        matches = [(o, i) for o in o_ports for i in i_ports if o.name == i.name]
 
-        for o_portName, o_port in node_a_ports:
-            for i_portName, i_port in node_b_ports:
-                if o_portName==i_portName:
-                    bridge_ports = list(o_port.connections)
-                    i_port.set(o_port)
-                    for bridge_port in bridge_ports:
-                        if bridge_port.parent==node_b.filter: continue
-                        for o_portName_, o_port_ in node_b.filter.outputs.ports():
-                            if bridge_port.name == o_portName_:
-                                bridge_port.set(o_port_)
+        if len(matches)<1:
+            free_i_ports = [i for i in i_ports if not isinstance(i._value, pycinema.Port)]
+            if len(free_i_ports)>0:
+                matches = [(o_ports[0],free_i_ports[0])]
+            else:
+                matches = [(o_ports[0],i_ports[0])]
+
+        for (o,i) in matches:
+            bridge_ports = list(o.connections)
+            i.set(o)
+            for b in bridge_ports:
+                if b.parent==node_b.filter: continue
+                for _, o2 in node_b.filter.outputs.ports():
+                    if b.name == o2.name:
+                        b.set(o2)
 
     def fitInView(self):
         rect = QtCore.QRectF(QtNodeEditorView.scene.itemsBoundingRect())
