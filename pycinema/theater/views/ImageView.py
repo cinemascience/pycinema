@@ -123,6 +123,7 @@ class _ImageViewer(QtWidgets.QGraphicsView):
 class ImageView(Filter, FilterView):
 
     def __init__(self):
+
         FilterView.__init__(
           self,
           filter=self,
@@ -136,10 +137,10 @@ class ImageView(Filter, FilterView):
           }
         )
 
-        self.imagelayout = _ImageLayout()
 
     def generateWidgets(self):
         self.view = _ImageViewer()
+        self.imagelayout = _ImageLayout()
         self.content.layout().addWidget(self.view,1)
 
     def _update(self):
