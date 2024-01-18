@@ -4,6 +4,7 @@ import sqlite3
 
 from os.path import exists
 import re
+import logging as log
 
 class SqliteDatabaseReader(Filter):
 

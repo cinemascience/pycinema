@@ -7,6 +7,7 @@ from pycinema import Filter, getTableExtent, isNumber
 
 import sqlite3
 from pycinema.filters.TableQuery import executeSQL, createTable, insertData, queryData
+import logging as log
 
 def createLabel(parent,text):
   _label = QtWidgets.QLabel(str(text))
@@ -144,7 +145,7 @@ class Axis(QtWidgets.QGraphicsItem):
         self.addTick(i,t)
         i += d
     else:
-      return print('ERROR: unsupported axis type')
+      return log.error(" unsupported axis type.")
 
     # highlight bar
     self.bar = QtWidgets.QGraphicsRectItem(0,0,0,0,self)
