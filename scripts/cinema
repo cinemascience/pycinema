@@ -3,7 +3,7 @@
 import sys
 import argparse
 import pycinema
-import logging
+import logging as log
 
 # create help text and handle some command line arguments 
 helptext = "\n\
@@ -31,8 +31,15 @@ parser.add_argument( "filenames", nargs='*' )
 
 args = parser.parse_args()
 
+# set up logging
+formatter = log.Formatter(fmt='%(levelname)s: %(message)s')
+handler = log.StreamHandler()
+handler.setFormatter(formatter)
+log.getLogger().addHandler(handler)
+log.getLogger().setLevel(log.INFO)
 if args.verbose:
-    logging.basicConfig(level=logging.INFO)
+    log.getLogger().setLevel(log.DEBUG)
+
 
 # keep going if the command line args allow it
 import pycinema.theater
