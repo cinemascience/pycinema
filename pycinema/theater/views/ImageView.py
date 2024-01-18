@@ -145,6 +145,10 @@ class ImageView(Filter, FilterView):
 
     def _update(self):
         self.view.removeImages()
-        self.imagelayout.addImages( self.view, self.inputs.images.get() )
+
+        if len(self.inputs.images.get()) > 0:
+          self.imagelayout.addImages( self.view, self.inputs.images.get() )
+        else:
+          print("WARNING: no images to lay out")
 
         return 1
