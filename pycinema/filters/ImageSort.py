@@ -1,4 +1,5 @@
 from pycinema import Filter, isNumber
+import logging as log
 
 class ImageSort(Filter):
 
@@ -15,7 +16,6 @@ class ImageSort(Filter):
         )
 
     def _update(self):
-
         images = self.inputs.images.get()
 
         results = []
@@ -30,6 +30,7 @@ class ImageSort(Filter):
 
           # if the column name is in the metadata
           if colname in images[0].meta:
+            log.debug("sorting on colname '" + colname + "'")
             # sort, based on the type of the data 
             if isNumber(images[0].meta[colname]):
               self.outputs.images.set(sorted(images, key= lambda k: float(k.meta[colname]), reverse=self.inputs.reverse.get()))
@@ -37,6 +38,12 @@ class ImageSort(Filter):
             else:
               self.outputs.images.set(sorted(images, key= lambda k: str(k.meta[colname]), reverse=self.inputs.reverse.get()))
               images_sorted = True
+
+          else:
+            log.warning("colname '" + colname + "' does not exist")
+
+        else:
+          log.warning("colname '" + colname + "' is empty")
 
         if not images_sorted:
           results = []
