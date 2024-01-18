@@ -1,6 +1,7 @@
 from pycinema import Filter, isURL
 import csv
 import requests
+import logging as log
 from os.path import exists
 
 class CSVReader(Filter):
@@ -22,7 +23,7 @@ class CSVReader(Filter):
 
         if isURL(csvPath):
             with requests.Session() as s:
-                print("requesting " + csvPath)
+                log.info("requesting " + csvPath)
                 download   = s.get(csvPath)
                 decoded    = download.content.decode('utf-8')
                 csvdecoded = csv.reader(decoded.splitlines(), delimiter=',')
@@ -36,7 +37,7 @@ class CSVReader(Filter):
                 return 0
 
             if not exists(csvPath):
-                print('[ERROR] file not found:', csvPath)
+                log.error("file not found: '" + csvPath + "'")
                 self.outputs.table.set([[]])
                 return 0
 
@@ -46,7 +47,7 @@ class CSVReader(Filter):
                     for row in rows:
                         table.append(row)
             except:
-                print('[ERROR] Unable to open file:', csvPath)
+                log.error("Unable to open file: '" + csvPath + "'")
                 self.outputs.table.set([[]])
                 return 0
 
