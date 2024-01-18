@@ -23,7 +23,7 @@ class CSVReader(Filter):
 
         if isURL(csvPath):
             with requests.Session() as s:
-                log.info("requesting " + csvPath)
+                log.debug("requesting " + csvPath)
                 download   = s.get(csvPath)
                 decoded    = download.content.decode('utf-8')
                 csvdecoded = csv.reader(decoded.splitlines(), delimiter=',')
