@@ -13,6 +13,7 @@ from .ImageCanny import *
 from .ImageConvertGrayscale import *
 from .ImageFilterPIL import *
 from .ImageReader import *
+from .ImageSort import *
 from .ImagesToTable import *
 from .ImageMetadataToScatterItem import *
 from .MaskCompositing import *
