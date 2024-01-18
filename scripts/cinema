@@ -32,10 +32,11 @@ parser.add_argument( "filenames", nargs='*' )
 args = parser.parse_args()
 
 # set up logging
-formatter = log.Formatter(fmt='%(levelname)s: %(message)s')
-handler = log.StreamHandler()
-handler.setFormatter(formatter)
-log.getLogger().addHandler(handler)
+  # turn off external logging
+log.getLogger("tensorflow").setLevel(log.WARNING)
+log.getLogger("PIL").setLevel(log.WARNING)
+log.getLogger("urllib3").setLevel(log.WARNING)
+log.getLogger("matplotlib").setLevel(log.WARNING)
 log.getLogger().setLevel(log.INFO)
 if args.verbose:
     log.getLogger().setLevel(log.DEBUG)

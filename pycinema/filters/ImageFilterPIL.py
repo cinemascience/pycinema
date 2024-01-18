@@ -3,6 +3,7 @@ from pycinema import Filter
 import PIL
 from PIL import ImageFilter
 import numpy
+import logging as log
 
 class ImageFilterPIL(Filter):
 
@@ -44,8 +45,8 @@ class ImageFilterPIL(Filter):
         elif filterType == 'BLUR': 
             imFilter = ImageFilter.BLUR
         else:
-            print("FILTER NOT FOUND " + filterType)
-            print("  applying default filter ...")
+            log.warning(" Filter not found: '" + filterType + "'")
+            log.warning(" applying default filter ...")
 
         for image in self.inputs.images.get():
             rgbImage = PIL.Image.fromarray(image.channels['rgba'])
