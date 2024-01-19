@@ -1,4 +1,4 @@
-name: QueryWriteTest
+name: PythonPlotTest
 
 on:
   push:
