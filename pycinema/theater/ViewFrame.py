@@ -114,7 +114,6 @@ class ViewFrame(QtWidgets.QSplitter):
     self.split(view,QtCore.Qt.Vertical)
 
   def replaceView(self,view,cls):
-    # print(view,cls)
     idx = self.indexOf(view)
     sizes = self.sizes()
 

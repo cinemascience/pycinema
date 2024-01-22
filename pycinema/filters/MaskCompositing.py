@@ -1,5 +1,6 @@
 from pycinema import Filter
 import numpy
+import logging as log
 
 class MaskCompositing(Filter):
 
@@ -42,7 +43,7 @@ class MaskCompositing(Filter):
             M = masks[min(i,len(masks)-1)]
 
             if type(A) is tuple and type(B) is tuple:
-                print('ERROR', 'Unable to composit just two color inputs')
+                log.error(' Unable to composite just two color inputs')
                 return 0
 
             result = None
