@@ -2,6 +2,7 @@ from pycinema import Filter
 
 import numpy
 import re
+import logging as log
 
 class DepthCompositing(Filter):
 
@@ -115,7 +116,7 @@ class DepthCompositing(Filter):
 
         nImages = len(imagesA)
         if len(imagesB)>0 and nImages!=len(imagesB):
-          print('ERROR', 'Input image lists must be of equal size.' )
+          log.error("Input image lists must be of equal size.")
           self.outputs.images.set(results)
           return 0
 

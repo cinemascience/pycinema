@@ -74,7 +74,7 @@ class ImageReader(Filter):
 
             elif str.lower(extension) in ['png','jpg','jpeg']:
                 if isURL(path):
-                    log.info("requesting " + path)
+                    log.debug("requesting " + path)
                     rawImage = PIL.Image.open(requests.get(path, stream=True).raw)
                 else:
                     rawImage = PIL.Image.open(path)

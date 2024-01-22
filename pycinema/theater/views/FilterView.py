@@ -1,6 +1,7 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
 from pycinema.theater.View import View
+import logging as log
 
 class FilterView(View):
 
@@ -15,7 +16,7 @@ class FilterView(View):
         self.generateWidgets()
 
     def __del__(self):
-        print('del FilterView')
+        log.debug('del FilterView')
 
     def generateWidgets(self):
         self.frame = QtWidgets.QFrame()

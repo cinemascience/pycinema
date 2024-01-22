@@ -3,6 +3,7 @@ from pycinema.theater.views.FilterView import FilterView
 
 import numpy
 from PySide6 import QtCore, QtWidgets, QtGui
+import logging as log
 
 #
 # a class to manage the layout of images in an ImageView 
@@ -149,6 +150,6 @@ class ImageView(Filter, FilterView):
         if len(self.inputs.images.get()) > 0:
           self.imagelayout.addImages( self.view, self.inputs.images.get() )
         else:
-          print("WARNING: no images to lay out")
+          log.warning(" no images to lay out.")
 
         return 1

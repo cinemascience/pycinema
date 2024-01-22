@@ -2,6 +2,7 @@ from PySide6 import QtCore, QtWidgets, QtGui
 
 import pycinema
 import pycinema.filters
+import logging as log
 
 from pycinema.theater.View import View
 from pycinema.theater.FilterBrowser import FilterBrowser
