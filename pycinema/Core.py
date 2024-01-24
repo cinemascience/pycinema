@@ -6,6 +6,9 @@ import numpy as np
 from ast import literal_eval
 import PIL
 import io
+import logging as log
+
+CORE_NAN_VALUES = ['NaN', 'NAN', 'nan']
 
 ################################################################################
 # general helper functions
@@ -58,15 +61,64 @@ def getColumnIndexFromTable(table, colname):
     return ID
 
 # get a column of values from a table
-def getColumnFromTable(table, colname):
+def getColumnFromTable(table, colname, autocast=False, nan_remove=False, nan_replace=None, missing_remove=False, missing_replace=None):
     colID = getColumnIndexFromTable(table, colname)
 
     if colID == -1:
-        print("ERROR: no column named \'" + colname + "\'")
+        log.Error("ERROR: no column named \'" + colname + "\'")
         return None
+
     else:
-        results = [row[colID] for row in table[1:]]
-        return results;
+        # start with all values
+        # these will be strings
+        cleaned_column = [row[colID] for row in table[1:]]
+
+        # remove values
+        if nan_remove:
+            cleaned_column = [x for x in cleaned_column if x not in CORE_NAN_VALUES]
+        if missing_remove:
+            cleaned_column = [x for x in cleaned_column if x != ''] 
+
+        # replace values
+        if nan_replace:
+            i = 0
+            while i < len(cleaned_column):
+                if cleaned_column[i] in CORE_NAN_VALUES:
+                    print("replacing " + cleaned_column[i])
+                    cleaned_column[i] = nan_replace
+                i += 1
+
+        if missing_replace:
+            i = 0
+            while i < len(cleaned_column):
+                if cleaned_column[i] == '': 
+                    cleaned_column[i] = missing_replace
+                i += 1
+
+        # TODO: create a separate function call to determine column type
+        if autocast:
+            t = str
+            for value in cleaned_column:
+                if value != '' and value not in CORE_NAN_VALUES:
+                    t = type(value)
+                    if t == str: 
+                        try:
+                            si = int(value)
+                            t = int
+                        except ValueError:
+                            try:
+                                sf = float(value)
+                                t = float
+                            except ValueError:
+                                t = str
+                    break
+            try:
+                cleaned_column = np.asarray(cleaned_column, dtype=t)
+            except ValueError:
+                cleaned_column = []
+
+        return cleaned_column
+
 
 # get extent of the table (nRows,nCols)
 def getTableExtent(table):
