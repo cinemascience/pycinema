@@ -34,3 +34,4 @@ from .ShaderLineAO import *
 from .ShaderPointAO import *
 from .SqliteDatabaseReader import *
 from .TableWriter import *
+from .TableView import *

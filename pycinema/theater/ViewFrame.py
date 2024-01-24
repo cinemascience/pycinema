@@ -3,7 +3,7 @@ from PySide6 import QtCore, QtWidgets, QtGui
 from pycinema.theater.View import View
 from pycinema.theater.ViewStyle import ViewStyle
 from pycinema.theater.views import SelectionView
-from pycinema.theater.views import FilterView
+from pycinema.theater.views import FilterView, FilterView2
 from pycinema.theater.views import NodeEditorView
 from pycinema import Filter
 
@@ -113,7 +113,7 @@ class ViewFrame(QtWidgets.QSplitter):
   def s_splitV(self,view):
     self.split(view,QtCore.Qt.Vertical)
 
-  def replaceView(self,view,cls):
+  def replaceView(self,view,cls=None):
     # print(view,cls)
     idx = self.indexOf(view)
     sizes = self.sizes()
@@ -121,15 +121,22 @@ class ViewFrame(QtWidgets.QSplitter):
     self.disconnectView(view)
     view.setParent(None)
 
-    newView = cls()
+    if cls==None:
+        items = NodeEditorView.xxx.scene.selectedItems()
+        print(items)
+        newView = FilterView2.FilterView2(
+          items[0].filter
+        )
+    else:
+        newView = cls()
     self.insertView(idx,newView)
 
     self.setSizes(sizes)
 
-    if issubclass(cls,Filter) and issubclass(cls,FilterView):
-      return newView.filter
-    else:
-      return newView
+    # if issubclass(cls,Filter) and issubclass(cls,FilterView):
+    #   return newView.filter
+    # else:
+    #   return newView
 
   def export(self):
     r = ''
