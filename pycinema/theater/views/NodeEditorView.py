@@ -331,6 +331,8 @@ class QtNodeEditorView(QtWidgets.QGraphicsView):
 
 class NodeEditorView(View):
 
+    xxx = QtNodeEditorView
+
     def __init__(self):
         super().__init__()
         self.setTitle(self.__class__.__name__)

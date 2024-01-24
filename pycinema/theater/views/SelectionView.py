@@ -16,6 +16,15 @@ class SelectionButton(QtWidgets.QPushButton):
   def replaceView(self):
     self.parent().parent().replaceView(self.parent(),self.cls)
 
+class ActiveFilterButton(QtWidgets.QPushButton):
+  def __init__(self,parent):
+    super().__init__('Active Filter',parent)
+    self.clicked.connect(self.replaceView)
+
+  def replaceView(self):
+    self.parent().parent().replaceView(self.parent())
+    # self.parent().parent().replaceView(self.parent(),self.cls)
+
 class SelectionView(View):
   def __init__(self):
     super().__init__()
@@ -29,5 +38,7 @@ class SelectionView(View):
 
     for cls in view_list:
       self.layout().addWidget( SelectionButton(re.sub(r'(\w)([A-Z])', r'\1 \2', cls.__name__.replace('View','')), self, cls) )
+
+    self.layout().addWidget( ActiveFilterButton(self) )
 
     self.layout().addWidget(QtWidgets.QLabel(),1)
