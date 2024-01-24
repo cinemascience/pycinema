@@ -1,0 +1,1 @@
+from .ViewCinemaDatabase import ViewCinemaDatabase

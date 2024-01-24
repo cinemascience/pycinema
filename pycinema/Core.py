@@ -461,3 +461,18 @@ class Filter():
 
     def help(self):
         print('Documentation Missing')
+
+
+################################################################################
+# Workflow Class
+################################################################################
+class Workflow():
+
+    def __init__(self):
+        self._script = ""
+
+    def getScript(self):
+        return self._script
+
+    def setScript(self, filename):
+        self._script = filename
