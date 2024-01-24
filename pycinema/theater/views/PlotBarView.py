@@ -1,7 +1,5 @@
 from pycinema import Filter
 
-from PySide6 import QtCore, QtWidgets, QtGui
-
 from .FilterView import FilterView
 
 import numpy as np
