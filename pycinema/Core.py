@@ -474,5 +474,7 @@ class Workflow():
     def getScript(self):
         return self._script
 
-    def setScript(self, filename):
-        self._script = filename
+    def initializeScript(self, **kwargs):
+        print("base class")
+        self._script = ""
+
