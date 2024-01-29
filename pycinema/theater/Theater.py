@@ -4,6 +4,7 @@ from PySide6.QtWidgets import QMessageBox
 import pycinema
 from pycinema.theater import View
 from pycinema.theater.ViewFrame import *
+from pycinema.theater.TabFrame import *
 from pycinema.theater.FilterBrowser import *
 from pycinema.theater.views.NodeEditorView import *
 from pycinema.theater.Icons import Icons
@@ -70,7 +71,9 @@ class _Theater(QtWidgets.QMainWindow):
 
         vf = ViewFrame(root=True)
         vf.insertView(0,NodeEditorView())
-        self.setCentralWidget(vf)
+        tf = TabFrame(root=True)
+        tf.insertTab(0,vf)
+        self.setCentralWidget(tf)
 
     def showFilterBrowser(self):
         dialog = FilterBrowser()
@@ -87,14 +90,10 @@ import pycinema.theater.views
 
         script += '# pycinema settings\n'
         script += 'PYCINEMA = { \'VERSION\' : \'' + pycinema.__version__ + '\'}\n'
-        script += '\n# layout\n'
-        script += self.centralWidget().id+' = pycinema.theater.Theater.instance.centralWidget()\n'
-        script += self.centralWidget().export()
 
         script += '\n# filters\n'
         for _,filter in pycinema.Filter._filters.items():
-            if not isinstance(filter,View):
-                script += filter.id + ' = pycinema.filters.' + filter.__class__.__name__+'()\n'
+          script += filter.id + ' = pycinema.filters.' + filter.__class__.__name__+'()\n'
 
         script += '\n# properties\n'
         for _,filter in pycinema.Filter._filters.items():
@@ -113,6 +112,10 @@ import pycinema.theater.views
                         script += filter.id + '.inputs.'+iPortName+ '.set(\'\'\'' + str(v) +'\'\'\', False)\n'
                     else:
                         script += filter.id + '.inputs.'+iPortName+ '.set(' + str(v) +', False)\n'
+
+        script += '\n# layout\n'
+        script += self.centralWidget().id+' = pycinema.theater.Theater.instance.centralWidget()\n'
+        script += self.centralWidget().export()
 
         script += '\n# execute pipeline\n'
         for _,filter in pycinema.Filter._filters.items():
@@ -154,7 +157,9 @@ import pycinema.theater.views
             views.append(w)
 
       views = []
-      findAllViews(views,root)
+      for i in range(0,root.count()-1):
+        findAllViews(views,root.widget(i))
+      print(views)
       for v in views:
         v.parent().s_close(v)
 

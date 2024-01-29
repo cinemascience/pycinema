@@ -15,6 +15,7 @@ from .ImageFilterPIL import *
 from .ImageReader import *
 from .ImagesToTable import *
 from .ImageMetadataToScatterItem import *
+from .ImageView import *
 from .MaskCompositing import *
 from .MLTFReader import *
 from .MLTFPredictor import *
@@ -35,3 +36,5 @@ from .ShaderPointAO import *
 from .SqliteDatabaseReader import *
 from .TableWriter import *
 from .TableView import *
+from .TextView import *
+from .TableToWidgets import *
