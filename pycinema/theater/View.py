@@ -57,9 +57,6 @@ class View(QtWidgets.QFrame):
 
         self.layout().addWidget(self.content,1)
 
-    # def __del__(self):
-    #   print('del VIEW')
-
     def emitClose(self):
       self.s_close.emit(self)
     def emitSplitH(self):

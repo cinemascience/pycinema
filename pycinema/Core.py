@@ -257,9 +257,9 @@ class Filter():
 
     @staticmethod
     def off(eventName,listener):
-        if not eventName in Filter._listeners:
-            return
-        Filter._listeners[eventName].remove(listener)
+        if not eventName in Filter._listeners: return
+        id = listener.__repr__()
+        Filter._listeners[eventName] = [l for l in Filter._listeners[eventName] if l.__repr__()!=id]
 
     @staticmethod
     def trigger(eventName, data):
@@ -404,7 +404,6 @@ class Filter():
                 print('SKIP',f)
 
         Filter._processing = False
-
         return 1
 
     def help(self):

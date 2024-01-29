@@ -2,9 +2,7 @@ from PySide6 import QtCore, QtWidgets, QtGui
 
 from pycinema.theater.View import View
 from pycinema.theater.ViewStyle import ViewStyle
-from pycinema.theater.views import SelectionView
-from pycinema.theater.views import FilterView, FilterView2
-from pycinema.theater.views import NodeEditorView
+from pycinema.theater.views import SelectionView, FilterView
 from pycinema import Filter
 
 class ViewFrame(QtWidgets.QSplitter):
@@ -42,6 +40,9 @@ class ViewFrame(QtWidgets.QSplitter):
       return frame
 
   def insertView(self,idx,view):
+      if isinstance(view,Filter):
+        view = FilterView(view)
+
       self.connectView(view)
       self.insertWidget(idx, view)
       return view
@@ -49,10 +50,6 @@ class ViewFrame(QtWidgets.QSplitter):
   def s_close(self, widget):
     idx = self.indexOf(widget)
     widget.setParent(None)
-    # if isinstance(widget, ViewFrame):
-    #   widget.deleteLater()
-    # else:
-    #   self.disconnectView(widget)
 
     if self.count()<1:
       if self.root:
@@ -113,30 +110,13 @@ class ViewFrame(QtWidgets.QSplitter):
   def s_splitV(self,view):
     self.split(view,QtCore.Qt.Vertical)
 
-  def replaceView(self,view,cls=None):
-    # print(view,cls)
-    idx = self.indexOf(view)
+  def replaceView(self,old_view,new_view):
+    idx = self.indexOf(old_view)
     sizes = self.sizes()
-
-    self.disconnectView(view)
-    view.setParent(None)
-
-    if cls==None:
-        items = NodeEditorView.xxx.scene.selectedItems()
-        print(items)
-        newView = FilterView2.FilterView2(
-          items[0].filter
-        )
-    else:
-        newView = cls()
-    self.insertView(idx,newView)
-
+    self.disconnectView(old_view)
+    old_view.setParent(None)
+    self.insertView(idx,new_view)
     self.setSizes(sizes)
-
-    # if issubclass(cls,Filter) and issubclass(cls,FilterView):
-    #   return newView.filter
-    # else:
-    #   return newView
 
   def export(self):
     r = ''
@@ -150,8 +130,8 @@ class ViewFrame(QtWidgets.QSplitter):
       if isinstance(w,ViewFrame):
         r += w.id + ' = ' + self.id + '.insertFrame('+str(i)+')\n'
         r += w.export()
-      elif isinstance(w,Filter):
-        r += w.id + ' = ' + self.id+'.insertView( '+str(i)+', pycinema.theater.views.'+w.__class__.__name__+'() )\n'
+      elif isinstance(w,FilterView):
+        r += w.id + ' = ' + self.id+'.insertView( '+str(i)+', '+w.filter.id+' )\n'
       else:
         r += self.id+'.insertView( '+str(i)+', pycinema.theater.views.'+w.__class__.__name__+'() )\n'
 

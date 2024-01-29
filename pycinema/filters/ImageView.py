@@ -1,12 +1,11 @@
 from pycinema import Filter
-from pycinema.theater.views.FilterView import FilterView
 
 import numpy
 from PySide6 import QtCore, QtWidgets, QtGui
 
 class _ImageViewer(QtWidgets.QGraphicsView):
 
-    def __init__(self):
+    def __init__(self, scene):
         super().__init__()
 
         self.setRenderHints(QtGui.QPainter.Antialiasing)
@@ -15,39 +14,13 @@ class _ImageViewer(QtWidgets.QGraphicsView):
         self.setResizeAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.setSceneRect(-1,-1,1,1)
 
-        self._scene = QtWidgets.QGraphicsScene(self)
-        self.setScene(self._scene)
+        self.setScene(scene)
 
         self.items = []
-
-    def removeImages(self):
-        for item in self.items:
-            self._scene.removeItem(item)
-        self.items = []
-
-    def addImage(self,image,x,y):
-        item = QtWidgets.QGraphicsPixmapItem()
-
-        rgba = image.getChannel('rgba')
-        qimage = QtGui.QImage(
-          rgba,
-          rgba.shape[1], rgba.shape[0],
-          rgba.shape[1] * 4,
-          QtGui.QImage.Format_RGBA8888
-        )
-        item.setPixmap( QtGui.QPixmap(qimage) )
-        item.setShapeMode(QtWidgets.QGraphicsPixmapItem.BoundingRectShape)
-        item.setTransformationMode(QtCore.Qt.SmoothTransformation)
-
-        item.setPos(x,y)
-
-        self._scene.addItem(item)
-        self.items.append(item)
 
     def fitInView(self):
-        rect = QtCore.QRectF(self._scene.itemsBoundingRect())
+        rect = QtCore.QRectF(self.scene().itemsBoundingRect())
         if rect.isNull():
             return
 
@@ -74,14 +47,10 @@ class _ImageViewer(QtWidgets.QGraphicsView):
         super().resizeEvent(event)
         self.fitInView()
 
-class ImageView(Filter, FilterView):
+class ImageView(Filter):
 
     def __init__(self):
-        FilterView.__init__(
-          self,
-          filter=self,
-          delete_filter_on_close = True
-        )
+        self.scene = QtWidgets.QGraphicsScene()
 
         Filter.__init__(
           self,
@@ -91,11 +60,31 @@ class ImageView(Filter, FilterView):
         )
 
     def generateWidgets(self):
-        self.view = _ImageViewer()
-        self.content.layout().addWidget(self.view,1)
+        widget = _ImageViewer(self.scene)
+        return widget
+
+    def addImage(self,image,x,y):
+        item = QtWidgets.QGraphicsPixmapItem()
+
+        rgba = image.getChannel('rgba')
+        qimage = QtGui.QImage(
+          rgba,
+          rgba.shape[1], rgba.shape[0],
+          rgba.shape[1] * 4,
+          QtGui.QImage.Format_RGBA8888
+        )
+        item.setPixmap( QtGui.QPixmap(qimage) )
+        item.setShapeMode(QtWidgets.QGraphicsPixmapItem.BoundingRectShape)
+        item.setTransformationMode(QtCore.Qt.SmoothTransformation)
+        item.setPos(x,y)
+        self.scene.addItem(item)
+
+    def removeImages(self):
+        for i in [i for i in self.scene.items()]:
+            self.scene.removeItem(i)
 
     def _update(self):
-        self.view.removeImages()
+        self.removeImages()
 
         max_w = 0
         max_h = 0
@@ -115,13 +104,12 @@ class ImageView(Filter, FilterView):
 
         total_h = 4*nRows*max_h
         total_w = 4*nCols*max_w
-        self.view.setSceneRect(-total_w,-total_h,2*total_w,2*total_h)
 
         for i, image in enumerate(images):
           r = numpy.floor(i/nCols)
           c = i-r*nCols
-          self.view.addImage(image,c*max_w,r*max_h)
+          self.addImage(image,c*max_w,r*max_h)
 
-        self.view.fitInView()
+        self.scene.setSceneRect(-total_w,-total_h,2*total_w,2*total_h)
 
         return 1
