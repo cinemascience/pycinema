@@ -1,5 +1,6 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 from PySide6.QtWidgets import QMessageBox
+import logging as log
 
 import pycinema
 from pycinema.theater import View
@@ -172,14 +173,20 @@ import pycinema.theater.views
 
         self.reset(True)
 
-        workflow = None
-        if wfname == "browse":
-            workflow = BrowseCinemaDatabase() 
-        elif wfname == "view":
-            workflow = ViewCinemaDatabase() 
+        # default case
+        workflow = BrowseCinemaDatabase() 
+        if wfname in ['view','explore', 'browse']:
+
+            # if we've identified a valid use case, create the correct instance 
+            if wfname == "browse":
+                workflow = BrowseCinemaDatabase() 
+            elif wfname == "view":
+                workflow = ViewCinemaDatabase() 
+            else:
+                # default
+                workflow = ExploreCinemaDatabase() 
         else:
-            # default
-            workflow = ExploreCinemaDatabase() 
+            log.warning("workflow \'" + wfname + "\' not recognized")
 
         workflow.initializeScript( filename=path )
 
@@ -252,7 +259,7 @@ class Theater():
           elif args[0].endswith('.cdb') or args[0].endswith('.cdb/'):
             Theater.instance.runWorkflowOnCDB('browse', args[0])
 
-          elif args[0] in ['view','explore']:
+          elif args[0] in ['view','explore', 'browse']:
 
             path = None
             if len(args)==2 and isinstance(args[1], str): 
@@ -262,9 +269,8 @@ class Theater():
                 path=QtWidgets.QFileDialog.getExistingDirectory(Theater.instance, "Select Cinema Database")
 
             if path:
-              if args[0]=='view':
-                Theater.instance.runWorkflowOnCDB('view', path)
-              else:
-                Theater.instance.runWorkflowOnCDB('explore', path)
+              Theater.instance.runWorkflowOnCDB(args[0], path)
+          else:
+            log.warning("workflow \'" + args[0] + "\' not recognized")
 
         sys.exit(app.exec())
