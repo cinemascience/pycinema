@@ -252,7 +252,7 @@ class Theater():
           elif args[0].endswith('.cdb') or args[0].endswith('.cdb/'):
             Theater.instance.runWorkflowOnCDB('browse', args[0])
 
-          elif args[0] in ['view','explorer']:
+          elif args[0] in ['view','explore']:
 
             path = None
             if len(args)==2 and isinstance(args[1], str): 
@@ -265,6 +265,6 @@ class Theater():
               if args[0]=='view':
                 Theater.instance.runWorkflowOnCDB('view', path)
               else:
-                Theater.instance.runWorkflowOnCDB('explorer', path)
+                Theater.instance.runWorkflowOnCDB('explore', path)
 
         sys.exit(app.exec())
