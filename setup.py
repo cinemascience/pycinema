@@ -18,7 +18,7 @@ setuptools.setup(
     long_description_content_type='text/markdown',
     url="https://github.com/cinemascience/pycinema",
     include_package_data=True,
-    packages=[  "pycinema", "pycinema.filters", "pycinema.theater", "pycinema.theater.node_editor", "pycinema.theater.views", "pycinema.ipy" ],
+    packages=[  "pycinema", "pycinema.filters", "pycinema.theater", "pycinema.workflow", "pycinema.theater.node_editor", "pycinema.theater.views", "pycinema.ipy" ],
     install_requires=[
         "numpy==1.24.2",
         "scipy==1.10.0",

@@ -475,6 +475,4 @@ class Workflow():
         return self._script
 
     def initializeScript(self, **kwargs):
-        print("base class")
         self._script = ""
-

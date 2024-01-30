@@ -1,2 +1,3 @@
 from .BrowseCinemaDatabase import BrowseCinemaDatabase
+from .ExploreCinemaDatabase import ExploreCinemaDatabase
 from .ViewCinemaDatabase import ViewCinemaDatabase
