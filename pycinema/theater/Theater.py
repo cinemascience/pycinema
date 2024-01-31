@@ -9,9 +9,9 @@ from pycinema.theater.FilterBrowser import *
 from pycinema.theater.views.NodeEditorView import *
 from pycinema.theater.Icons import Icons
 from pycinema.theater.node_editor.NodeEditorStyle import NodeEditorStyle
-from pycinema.workflow.BrowseCinemaDatabase import *
-from pycinema.workflow.ExploreCinemaDatabase import *
-from pycinema.workflow.ViewCinemaDatabase import *
+from pycinema.workspace.BrowseCinemaDatabase import *
+from pycinema.workspace.ExploreCinemaDatabase import *
+from pycinema.workspace.ViewCinemaDatabase import *
 
 import sys
 
@@ -27,7 +27,7 @@ class _Theater(QtWidgets.QMainWindow):
         # make actions
         button_viewCDB = QtGui.QAction("Open Cinema database ...", self)
         button_viewCDB.setStatusTip("open local cinema database")
-        button_viewCDB.triggered.connect(self.runWorkflowOnCDB)
+        button_viewCDB.triggered.connect(self.runWorkspaceOnCDB)
 
         button_save = QtGui.QAction("Save script ...", self)
         button_save.setStatusTip("save script")
@@ -165,7 +165,7 @@ import pycinema.theater.views
       if no_views:
         self.centralWidget().widget(0).setParent(None)
 
-    def runWorkflowOnCDB(self, wfname, path=None):
+    def runWorkspaceOnCDB(self, wfname, path=None):
         if not path:
           path = QtWidgets.QFileDialog.getExistingDirectory(self, "Open Cinema Database")
         if not path:
@@ -174,24 +174,24 @@ import pycinema.theater.views
         self.reset(True)
 
         # default case
-        workflow = BrowseCinemaDatabase() 
+        workspace = BrowseCinemaDatabase() 
         if wfname in ['view','explore', 'browse']:
 
             # if we've identified a valid use case, create the correct instance 
             if wfname == "browse":
-                workflow = BrowseCinemaDatabase() 
+                workspace = BrowseCinemaDatabase() 
             elif wfname == "view":
-                workflow = ViewCinemaDatabase() 
+                workspace = ViewCinemaDatabase() 
             else:
                 # default
-                workflow = ExploreCinemaDatabase() 
+                workspace = ExploreCinemaDatabase() 
         else:
-            log.warning("workflow \'" + wfname + "\' not recognized")
+            log.warning("workspace \'" + wfname + "\' not recognized")
 
-        workflow.initializeScript( filename=path )
+        workspace.initializeScript( filename=path )
 
         self.setWindowTitle("Cinema:" + wfname + " (" + path + ")")
-        self.executeScript(workflow.getScript())
+        self.executeScript(workspace.getScript())
 
     def quit(self, no_views=False):
         QtWidgets.QApplication.quit()
@@ -257,7 +257,7 @@ class Theater():
             Theater.instance.loadScript(args[0])
 
           elif args[0].endswith('.cdb') or args[0].endswith('.cdb/'):
-            Theater.instance.runWorkflowOnCDB('browse', args[0])
+            Theater.instance.runWorkspaceOnCDB('browse', args[0])
 
           elif args[0] in ['view','explore', 'browse']:
 
@@ -269,8 +269,8 @@ class Theater():
                 path=QtWidgets.QFileDialog.getExistingDirectory(Theater.instance, "Select Cinema Database")
 
             if path:
-              Theater.instance.runWorkflowOnCDB(args[0], path)
+              Theater.instance.runWorkspaceOnCDB(args[0], path)
           else:
-            log.warning("workflow \'" + args[0] + "\' not recognized")
+            log.warning("workspace \'" + args[0] + "\' not recognized")
 
         sys.exit(app.exec())

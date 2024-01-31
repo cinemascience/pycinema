@@ -1,9 +1,9 @@
-# Workflow classes
+# Workspace classes
 
-A workflow is a script that has been abstracted to take some set of named inputs
+A workspace is a script that has been abstracted to take some set of named inputs
 and substitute them into a python string that is then run as a script.
 
-The API for a workflow is:
+The API for a workspace is:
 
 def initializeScript(\*\*kwargs), where **kwargs** is a keyword/value dictionary
 that looks like this:

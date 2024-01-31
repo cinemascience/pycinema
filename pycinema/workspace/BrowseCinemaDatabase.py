@@ -1,6 +1,6 @@
-from pycinema import Workflow
+from pycinema import Workspace
 
-class BrowseCinemaDatabase(Workflow):
+class BrowseCinemaDatabase(Workspace):
     def __init__(self):
         super().__init__()
 
@@ -21,10 +21,14 @@ PYCINEMA = { 'VERSION' : '2.1.0'}
 
 # layout
 vf0 = pycinema.theater.Theater.instance.centralWidget()
-vf0.setHorizontalOrientation()
+vf0.setVerticalOrientation()
 vf0.insertView( 0, pycinema.theater.views.NodeEditorView() )
-ImageView_1 = vf0.insertView( 1, pycinema.theater.views.ImageView() )
-vf0.setSizes([999, 999])
+vf1 = vf0.insertFrame(1)
+vf1.setHorizontalOrientation()
+TableView_0 = vf1.insertView( 0, pycinema.theater.views.TableView() )
+ImageView_1 = vf1.insertView( 1, pycinema.theater.views.ImageView() )
+vf1.setSizes([636, 735])
+vf0.setSizes([462, 461])
 
 # filters
 CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
@@ -32,14 +36,18 @@ TableQuery_0 = pycinema.filters.TableQuery()
 ImageReader_0 = pycinema.filters.ImageReader()
 
 # properties
-CinemaDatabaseReader_0.inputs.path.set("data/sphere.cdb", False)
 CinemaDatabaseReader_0.inputs.file_column.set("FILE", False)
 TableQuery_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
 TableQuery_0.inputs.sql.set("SELECT * FROM input LIMIT 100", False)
 ImageReader_0.inputs.table.set(TableQuery_0.outputs.table, False)
 ImageReader_0.inputs.file_column.set("FILE", False)
 ImageReader_0.inputs.cache.set(True, False)
+TableView_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
+TableView_0.inputs.selection.set([], False)
 ImageView_1.inputs.images.set(ImageReader_0.outputs.images, False)
+
+# execute pipeline
+CinemaDatabaseReader_0.update()
 
 # set path to database
 """
