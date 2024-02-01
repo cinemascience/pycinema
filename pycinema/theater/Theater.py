@@ -271,14 +271,19 @@ ImageView_0.inputs.images.set(ImageAnnotation_0.outputs.images, False)
         msgBox = QtWidgets.QMessageBox.about(self, "About", "pycinema v" + pycinema.__version__);
         return
 
-    def executeScript(self, script):
+    def executeScript(self, script, args=[]):
         QtNodeEditorView.auto_layout = False
         QtNodeEditorView.auto_connect = False
 
+        variables = {}
+        for i,arg in enumerate(args):
+          variables['PYCINEMA_ARG_'+str(i)] = arg
+
         try:
-          exec(script)
-        except:
-          return
+          exec(script, variables)
+        except Exception as err:
+          traceback.print_exc()
+          self.reset(False)
 
         def call():
           QtNodeEditorView.auto_layout = True
@@ -295,7 +300,7 @@ ImageView_0.inputs.images.set(ImageAnnotation_0.outputs.images, False)
           return
         QtCore.QTimer.singleShot(0, lambda: call())
 
-    def loadScript(self, script_file_name=None):
+    def loadScript(self, script_file_name=None, args=[]):
         if not script_file_name:
             script_file_name = QtWidgets.QFileDialog.getOpenFileName(self, "Load Script")[0]
         if script_file_name and len(script_file_name)>0:
@@ -305,7 +310,7 @@ ImageView_0.inputs.images.set(ImageAnnotation_0.outputs.images, False)
                 script_file.close()
                 self.reset(True)
                 self.setWindowTitle("Cinema:Theater (" + script_file_name + ")")
-                self.executeScript(script)
+                self.executeScript(script,args)
             except:
                 return
 
@@ -323,10 +328,13 @@ class Theater():
         Theater.instance.show()
 
         if len(args)>0 and isinstance(args[0], str):
+
           if args[0].endswith('.py'):
             Theater.instance.loadScript(args[0])
+
           elif args[0].endswith('.cdb') or args[0].endswith('.cdb/'):
             Theater.instance.viewCDB(args[0])
+
           elif args[0] in ['view','explorer']:
             path = None
             if len(args)==2 and isinstance(args[1], str): path=args[1]
