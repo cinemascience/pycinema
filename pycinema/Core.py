@@ -7,6 +7,7 @@ from ast import literal_eval
 import PIL
 import io
 import logging as log
+import os
 
 CORE_NAN_VALUES = ['NaN', 'NAN', 'nan']
 
@@ -46,6 +47,36 @@ def imageFromMatplotlibFigure(figure):
   image = Image({ 'rgba': np.asarray(rawImage) })
   return image
 
+def getModulePath():
+    import pkg_resources
+
+    return os.path.dirname(pkg_resources.resource_filename(__name__, 'Core.py'))
+
+def getScriptPath(name):
+
+    scriptdir = "" 
+    if 'PYCINEMA_SCRIPT_DIR' in os.environ:
+        scriptdir = os.path.abspath(os.environ['PYCINEMA_SCRIPT_DIR'])
+    else: 
+        scriptdir = os.path.join(getModulePath(), 'scripts')
+
+    scriptpath = None 
+    if os.path.exists(scriptdir):
+        scriptpath = os.path.join(scriptdir, name)
+        # first, assume the user supplied the correct filename
+        if not os.path.isfile(scriptpath):
+            # add .py extension, if that's not there and try again
+            if os.path.isfile(scriptpath + ".py"):
+                scriptpath = scriptpath + ".py" 
+            else:
+                log.error("script does not exist: \'" + scriptpath + "\'")
+    else:
+        log.error("script directory does not exist: \'" + scriptdir + "\'")
+
+    return scriptpath
+
+
+
 ################################################################################
 # table helper functions
 ################################################################################
@@ -65,7 +96,7 @@ def getColumnFromTable(table, colname, autocast=False, nan_remove=False, nan_rep
     colID = getColumnIndexFromTable(table, colname)
 
     if colID == -1:
-        log.Error("ERROR: no column named \'" + colname + "\'")
+        log.error("no column named \'" + colname + "\'")
         return None
 
     else:
