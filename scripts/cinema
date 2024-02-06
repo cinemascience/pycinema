@@ -25,6 +25,8 @@ parser = argparse.ArgumentParser( description="a command to access cinema viewer
 
 parser.add_argument( "--version", action="version", version=pycinema.__version__)
 parser.add_argument( "-v", "--verbose", action="store_true" )
+parser.add_argument(       "--logtofile", action="store_true" )
+parser.add_argument(       "--logfile", default=None)
 
 # positional argument
 parser.add_argument( "filenames", nargs='*' )
@@ -32,6 +34,15 @@ parser.add_argument( "filenames", nargs='*' )
 args = parser.parse_args()
 
 # set up logging
+logfile = args.logfile
+if args.logtofile:
+
+    if logfile == None:
+        logfile = "log.txt"
+
+    file_handler = log.FileHandler(logfile)
+    log.getLogger().addHandler(file_handler)
+        
   # turn off external logging
 log.getLogger("tensorflow").setLevel(log.WARNING)
 log.getLogger("PIL").setLevel(log.WARNING)

@@ -192,7 +192,6 @@ import pycinema.theater.views
         return
 
     def executeScript(self, script, args=[]):
-        log.debug("execute script: " + args[0])
         QtNodeEditorView.auto_layout = False
         QtNodeEditorView.auto_connect = False
 
