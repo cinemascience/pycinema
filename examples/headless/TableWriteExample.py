@@ -1,16 +1,8 @@
 import pycinema
 import pycinema.filters
-import pycinema.theater
-import pycinema.theater.views
 
 # pycinema settings
 PYCINEMA = { 'VERSION' : '1.1.0'}
-
-# layout
-vf0 = pycinema.theater.Theater.instance.centralWidget()
-vf0.setHorizontalOrientation()
-vf0.insertView( 0, pycinema.theater.views.NodeEditorView() )
-vf0.setSizes([1024])
 
 # filters
 CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()

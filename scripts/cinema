@@ -34,10 +34,8 @@ parser.add_argument( "--version", action="version", version=pycinema.__version__
 parser.add_argument( "-v", "--verbose", action="store_true" )
 parser.add_argument(       "--logtofile", nargs="?", type=str, action=LogfileAction, help="write log messages to file; optionally provide filename (default is log.txt)") 
 
-# positional argument
-parser.add_argument( "filenames", nargs='*' )
-
-args = parser.parse_args()
+# parse args, gather unknowns
+args, remainder = parser.parse_known_args()
 
 # set up logging
 if args.logtofile:
@@ -59,5 +57,5 @@ else:
 # keep going if the command line args allow it
 import pycinema.theater
 
-pycinema.theater.Theater(args.filenames)
+pycinema.theater.Theater(remainder)
 

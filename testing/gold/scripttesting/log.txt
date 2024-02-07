@@ -1,0 +1,2 @@
+Executing default key script from command line: browse
+script directory does not exist: '/Users/dhr/LANL/dev/cinemascience/pycinema/pcenv/lib/python3.10/site-packages/pycinema/scripts'

@@ -1,0 +1,2 @@
+Executing script key from command line: query
+script directory does not exist: '/Users/dhr/LANL/dev/cinemascience/pycinema/testing/scripts'

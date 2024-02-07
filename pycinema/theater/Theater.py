@@ -161,7 +161,22 @@ import pycinema.theater.views
       if no_views:
         self.centralWidget().widget(0).setParent(None)
 
-    def executeScriptOnCDB(self, scriptname, cdbpath=None):
+    #
+    # read a script from a path 
+    #
+    def readScriptFromPath(self, scriptpath):
+        scriptfile = open(scriptpath, 'r')
+        return scriptfile.read() 
+
+    #
+    # read a script from a pycinema module script or a user script
+    #
+    def readScriptFromKey(self, scriptkey):
+        scriptpath =  pycinema.Core.getScriptPath(scriptkey)
+        scriptfile = open(scriptpath, 'r')
+        return scriptfile.read() 
+
+    def executeScriptOnCDB(self, scriptkey, cdbpath=None):
         if not cdbpath:
           cdbpath = QtWidgets.QFileDialog.getExistingDirectory(self, "Open Cinema Database")
         if not cdbpath:
@@ -169,12 +184,9 @@ import pycinema.theater.views
 
         # clean up UI
         self.reset(True)
-        self.setWindowTitle("Cinema:" + scriptname + " (" + cdbpath + ")")
+        self.setWindowTitle("Cinema:" + scriptkey + " (" + cdbpath + ")")
 
-        # load and execute script
-        scriptname =  pycinema.Core.getScriptPath(scriptname)
-        scriptfile = open(scriptname, 'r')
-        script = scriptfile.read() 
+        script = self.readScriptFromKey(scriptkey)
         self.executeScript(script, [cdbpath])
 
     def viewCDB(self, path):
@@ -192,6 +204,8 @@ import pycinema.theater.views
         return
 
     def executeScript(self, script, args=[]):
+        self.reset(True)
+
         QtNodeEditorView.auto_layout = False
         QtNodeEditorView.auto_connect = False
 
@@ -218,6 +232,7 @@ import pycinema.theater.views
           for editor in editors:
             editor.fitInView()
           return
+
         QtCore.QTimer.singleShot(0, lambda: call())
 
     def loadScript(self, script_file_name=None, args=[]):
@@ -228,7 +243,6 @@ import pycinema.theater.views
                 script_file = open(script_file_name, "r")
                 script = script_file.read()
                 script_file.close()
-                self.reset(True)
                 self.setWindowTitle("Cinema:Theater (" + script_file_name + ")")
                 self.executeScript(script,args)
             except:
@@ -247,42 +261,27 @@ class Theater():
         Theater.instance.resize(1024, 900)
         Theater.instance.show()
 
-        if len(args)>0 and isinstance(args[0], str):
+        if len(args) > 0:
 
+          allscripts = pycinema.Core.getPycinemaModuleScripts()
           if args[0].endswith('.py'):
             # this is a python script
-            log.debug("Executing script from command line: " + args[0])
-            Theater.instance.loadScript(args[0])
+            log.debug("Executing named script from command line: " + args[0])
+            script = Theater.instance.readScriptFromPath(args[0])
+            Theater.instance.executeScript( script, args[1:] )
 
           elif args[0].endswith('.cdb') or args[0].endswith('.cdb/'):
             # default behavior
-            Theater.instance.executeScriptOnCDB( 'browse', args[0])
-
-          # TODO: automate this list
-          # TODO: combine logic for module and user scripts
-          elif args[0] in ['browse', 'explore', 'view']:
-            # this is a standard script, included with the module
-            path = None
-            if len(args)==2 and isinstance(args[1], str): 
-              path=args[1]
-
-            if not path: 
-              path=QtWidgets.QFileDialog.getExistingDirectory(Theater.instance, "Select Cinema Database")
-
-            if path:
-              Theater.instance.executeScriptOnCDB( args[0], path)
+            log.debug("Executing default key script from command line: browse")
+            script = Theater.instance.readScriptFromKey('browse')
+            Theater.instance.executeScript( script, args)
 
           else:
-            # the request is for a user-managed script
-            path = None
-            if len(args)==2 and isinstance(args[1], str): 
-              path=args[1]
-
-            if not path: 
-              path=QtWidgets.QFileDialog.getExistingDirectory(Theater.instance, "Select Cinema Database")
-
-            if path:
-              Theater.instance.executeScriptOnCDB( args[0], path)
+            # the first argument is a script key, and it will be searched for
+            # in both the module install area and, if defined, a user-designated dir
+            log.debug("Executing script key from command line: " + args[0])
+            script = Theater.instance.readScriptFromKey(args[0])
+            Theater.instance.executeScript( script, args[1:] )
 
         sys.exit(app.exec())
 
