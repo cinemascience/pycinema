@@ -5,6 +5,13 @@ import argparse
 import pycinema
 import logging as log
 
+class LogfileAction(argparse.Action):
+    def __call__(self, parser, namespace, filename, option_string=None):
+        if not filename:
+            filename = "log.txt"
+        setattr(namespace, self.dest, filename)
+
+
 # create help text and handle some command line arguments 
 helptext = "\n\
 \n\
@@ -25,8 +32,7 @@ parser = argparse.ArgumentParser( description="a command to access cinema viewer
 
 parser.add_argument( "--version", action="version", version=pycinema.__version__)
 parser.add_argument( "-v", "--verbose", action="store_true" )
-parser.add_argument(       "--logtofile", action="store_true" )
-parser.add_argument(       "--logfile", default=None)
+parser.add_argument(       "--logtofile", nargs="?", type=str, action=LogfileAction, help="write log messages to file; optionally provide filename (default is log.txt)") 
 
 # positional argument
 parser.add_argument( "filenames", nargs='*' )
@@ -34,23 +40,20 @@ parser.add_argument( "filenames", nargs='*' )
 args = parser.parse_args()
 
 # set up logging
-logfile = args.logfile
 if args.logtofile:
-
-    if logfile == None:
-        logfile = "log.txt"
-
-    file_handler = log.FileHandler(logfile)
+    file_handler = log.FileHandler(args.logtofile)
     log.getLogger().addHandler(file_handler)
-        
+
   # turn off external logging
 log.getLogger("tensorflow").setLevel(log.WARNING)
 log.getLogger("PIL").setLevel(log.WARNING)
 log.getLogger("urllib3").setLevel(log.WARNING)
 log.getLogger("matplotlib").setLevel(log.WARNING)
-log.getLogger().setLevel(log.INFO)
+log.getLogger("h5py").setLevel(log.WARNING)
 if args.verbose:
     log.getLogger().setLevel(log.DEBUG)
+else: 
+    log.getLogger().setLevel(log.INFO)
 
 
 # keep going if the command line args allow it
