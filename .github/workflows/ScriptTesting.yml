@@ -26,6 +26,8 @@ jobs:
       - name: Test scripting 
         run: |
           ./testing/scripttesting.sh
+          ll *.txt
+          sleep 5
           python -m pytest -s testing/ScriptTesting.py
 
   macos:
@@ -49,6 +51,8 @@ jobs:
       - name: Test scripting 
         run: |
           ./testing/scripttesting.sh
+          ll *.txt
+          sleep 5
           python -m pytest -s testing/ScriptTesting.py
 
   # windows:
