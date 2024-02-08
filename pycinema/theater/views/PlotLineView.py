@@ -1,10 +1,9 @@
 from pycinema import Filter
 
-from PySide6 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore
 
 from .FilterView import FilterView
 
-import pprint
 import numpy as np
 import pyqtgraph as pg
 

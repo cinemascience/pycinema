@@ -56,9 +56,7 @@ class SplitFrame(QtWidgets.QSplitter):
     if self.count()<1:
       if isinstance(self.parent(),SplitFrame):
         self.parent().s_close(self)
-        print('close child')
       else:
-        print('at root')
         self.insertView(0, SelectionView())
 
   def split(self,view,orientation):
@@ -114,12 +112,12 @@ class SplitFrame(QtWidgets.QSplitter):
   def s_splitV(self,view):
     self.split(view,QtCore.Qt.Vertical)
 
-  def replaceView(self,old_view,new_view):
-    idx = self.indexOf(old_view)
+  def replaceView(self,oldView,newView):
+    idx = self.indexOf(oldView)
     sizes = self.sizes()
-    self.disconnectView(old_view)
-    old_view.setParent(None)
-    self.insertView(idx,new_view)
+    self.disconnectView(oldView)
+    oldView.setParent(None)
+    self.insertView(idx,newView)
     self.setSizes(sizes)
 
   def export(self):

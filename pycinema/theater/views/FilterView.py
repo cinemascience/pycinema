@@ -1,6 +1,7 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
 from pycinema.theater.View import View
+import logging as log
 
 class FilterView(View):
 

@@ -104,7 +104,7 @@ class Axis(QtWidgets.QGraphicsItem):
 
     # pens
     palette = QtCore.QCoreApplication.instance().palette()
-    self.pen_grid = QtGui.QPen(palette.mid().color())
+    self.pen_grid = QtGui.QPen(palette.light().color())
 
     # main line
     self.line = QtWidgets.QGraphicsLineItem(
@@ -437,17 +437,29 @@ class ParallelCoordinates(Filter):
     inputTimes = [self.inputs.table.getTime(),self.inputs.ignore.get()]
     if self.inputTimes!=inputTimes:
       self.inputTimes = inputTimes
-      state = {}
       ignore = self.inputs.ignore.get()
       parameterIndices = [idx for idx in range(0,tableExtent[1]) if not any([re.search(i, table[0][idx], re.IGNORECASE) for i in ignore])]
+
+      # repair state
+      new_state = {}
       for i in parameterIndices:
-        state[table[0][i]] = {
-          'C': False,
-          'O': computeValues(table,i),
-          'V': [0],
-          'M': 'S'
-        }
-      self.inputs.state.set(state)
+        o = computeValues(table,i)
+        parameter = table[0][i]
+        if parameter in state:
+          new_state[parameter] = state[parameter]
+          new_state[i]['O'] = o
+          if new_state[i]['V']>len(o):
+            new_state[i]['V'] = [0]
+        else:
+          new_state[parameter] = {
+            'C': False,
+            'O': o,
+            'V': [0],
+            'M': 'S'
+          }
+
+      self.inputs.state.set(new_state)
+      state = new_state
 
     # sql output
     sql = 'SELECT * FROM input WHERE '

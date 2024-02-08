@@ -22,7 +22,7 @@ jobs:
           python -m pip install pytest pytest-xvfb
       - name: Dependencies
         run: |
-          python setup.py install
+          python -m pip install .
       - name: Test query 
         run: |
           python -m pytest -s testing/TableQueryTest.py
@@ -44,7 +44,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools
           python -m pip install pytest
-          python setup.py install
+          python -m pip install .
       - name: Test query 
         run: |
           python -m pytest -s testing/TableQueryTest.py
@@ -71,7 +71,7 @@ jobs:
   #         $env:GLCONTEXT_WIN_LIBGL = "C:\msys64\mingw64\bin\opengl32.dll"
   #     - name: Dependencies
   #       run: |
-  #         python setup.py install
+  #         python -m pip install .
   #     - name: Test using ModernGL
   #       run: |
   #         python -m pytest -s testing/RenderTest.py
