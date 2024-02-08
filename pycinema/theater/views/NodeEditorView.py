@@ -2,6 +2,7 @@ from PySide6 import QtCore, QtWidgets, QtGui
 
 import pycinema
 import pycinema.filters
+import logging as log
 
 from pycinema.theater.View import View
 from pycinema.theater.FilterBrowser import FilterBrowser
@@ -47,10 +48,10 @@ class QtNodeEditorView(QtWidgets.QGraphicsView):
         self.setSceneRect(-l,-l,2*l,2*l)
 
         if not QtNodeEditorView.scene:
-          QtNodeEditorView.init_gobal()
+          QtNodeEditorView.init_global()
         self.setScene(QtNodeEditorView.scene)
 
-    def init_gobal():
+    def init_global():
         node_connection_line = QtWidgets.QGraphicsLineItem()
         node_connection_line.setPen(QtGui.QPen(NES.COLOR_NORMAL, 2, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
         node_connection_line.setZValue(1000)

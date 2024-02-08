@@ -11,7 +11,7 @@ from pycinema.theater.views.NodeEditorView import *
 from pycinema.theater.Icons import Icons
 from pycinema.theater.node_editor.NodeEditorStyle import NodeEditorStyle
 
-import sys
+import sys, os
 
 class _Theater(QtWidgets.QMainWindow):
     def __init__(self):
@@ -25,7 +25,7 @@ class _Theater(QtWidgets.QMainWindow):
         # make actions
         button_viewCDB = QtGui.QAction("Open Cinema database ...", self)
         button_viewCDB.setStatusTip("open local cinema database")
-        button_viewCDB.triggered.connect(self.viewCDB)
+        button_viewCDB.triggered.connect(self.viewDatabase)
 
         button_save = QtGui.QAction("Save script ...", self)
         button_save.setStatusTip("save script")
@@ -71,6 +71,15 @@ class _Theater(QtWidgets.QMainWindow):
         self.setStatusBar(self.statusBar)
 
         self.reset(False)
+
+        # get default scrips
+        self.defaul_scripts = [f for f in os.listdir('./pycinema/scripts/') if f.endswith('.py')]
+
+    def viewDatabase(self,path):
+      if not path:
+        path = QtWidgets.QFileDialog.getExistingDirectory(Theater.instance, "Select Cinema Database")
+      if path:
+        Theater.instance.loadScript('./pycinema/scripts/view.py',[path])
 
     def showFilterBrowser(self):
         dialog = FilterBrowser()
@@ -152,108 +161,6 @@ import pycinema.theater.views
         tf.insertTab(0,vf)
         self.setCentralWidget(tf)
 
-    def viewCDB(self, path=None):
-        if not path:
-          path = QtWidgets.QFileDialog.getExistingDirectory(self, "Open Cinema Database")
-        if not path:
-          return
-
-        self.reset(True)
-
-        script = '''
-import pycinema
-import pycinema.filters
-import pycinema.theater
-import pycinema.theater.views
-
-# layout
-vf0 = pycinema.theater.Theater.instance.centralWidget()
-vf0.setHorizontalOrientation()
-vf1 = vf0.insertFrame(0)
-vf1.setVerticalOrientation()
-ParameterView_0 = vf1.insertView( 0, pycinema.theater.views.ParameterView() )
-TableView_0 = vf1.insertView( 1, pycinema.theater.views.TableView() )
-ColorMappingView_0 = vf1.insertView( 2, pycinema.theater.views.ColorMappingView() )
-ImageView_0 = vf0.insertView( 1, pycinema.theater.views.ImageView() )
-vf0.setSizes([300,600])
-
-# filters
-CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
-ImageReader_0 = pycinema.filters.ImageReader()
-DepthCompositing_0 = pycinema.filters.DepthCompositing()
-ShaderSSAO_0 = pycinema.filters.ShaderSSAO()
-ImageAnnotation_0 = pycinema.filters.ImageAnnotation()
-
-# properties
-ParameterView_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
-
-TableView_0.inputs.table.set(ParameterView_0.outputs.table, False)
-ImageReader_0.inputs.table.set(ParameterView_0.outputs.table, False)
-DepthCompositing_0.inputs.images_a.set(ImageReader_0.outputs.images, False)
-DepthCompositing_0.inputs.compose.set(ParameterView_0.outputs.compose, False)
-ColorMappingView_0.inputs.images.set(DepthCompositing_0.outputs.images, False)
-ShaderSSAO_0.inputs.images.set(ColorMappingView_0.outputs.images,False)
-ShaderSSAO_0.inputs.samples.set(128,False)
-ImageAnnotation_0.inputs.images.set(ShaderSSAO_0.outputs.images, False)
-ImageView_0.inputs.images.set(ImageAnnotation_0.outputs.images, False)
-'''
-        script += 'CinemaDatabaseReader_0.inputs.path.set("'+path+'", False)\n'
-        script += 'CinemaDatabaseReader_0.update()'
-        self.setWindowTitle("Cinema:View (" + path + ")")
-        self.executeScript(script)
-
-    def exploreCDB(self, path=None):
-        if not path:
-          path = QtWidgets.QFileDialog.getExistingDirectory(self, "Choose Cinema Database")
-        if not path:
-          return
-
-        self.reset(True)
-
-        script = '''
-import pycinema
-import pycinema.filters
-import pycinema.theater
-import pycinema.theater.views
-
-# layout
-vf0 = pycinema.theater.Theater.instance.centralWidget()
-vf0.setHorizontalOrientation()
-vf1 = vf0.insertFrame(0)
-vf1.setVerticalOrientation()
-ParallelCoordinatesView_0 = vf1.insertView( 0, pycinema.theater.views.ParallelCoordinatesView() )
-TableView_0 = vf1.insertView( 1, pycinema.theater.views.TableView() )
-ColorMappingView_0 = vf1.insertView( 2, pycinema.theater.views.ColorMappingView() )
-vf2 = vf0.insertFrame(1)
-vf2.setVerticalOrientation()
-ImageView_0 = vf2.insertView( 0, pycinema.theater.views.ImageView() )
-vf0.setSizes([400,600])
-
-# filters
-CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
-ImageReader_0 = pycinema.filters.ImageReader()
-DepthCompositing_0 = pycinema.filters.DepthCompositing()
-ShaderSSAO_0 = pycinema.filters.ShaderSSAO()
-ImageAnnotation_0 = pycinema.filters.ImageAnnotation()
-
-# properties
-ParallelCoordinatesView_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
-TableView_0.inputs.table.set(ParallelCoordinatesView_0.outputs.table, False)
-ImageView_0.inputs.images.set(ColorMappingView_0.outputs.images, False)
-ImageReader_0.inputs.table.set(ParallelCoordinatesView_0.outputs.table, False)
-DepthCompositing_0.inputs.images_a.set(ImageReader_0.outputs.images, False)
-DepthCompositing_0.inputs.compose.set(ParallelCoordinatesView_0.outputs.compose, False)
-ColorMappingView_0.inputs.images.set(DepthCompositing_0.outputs.images, False)
-ShaderSSAO_0.inputs.images.set(ColorMappingView_0.outputs.images,False)
-ShaderSSAO_0.inputs.samples.set(128,False)
-ImageAnnotation_0.inputs.images.set(ShaderSSAO_0.outputs.images, False)
-ImageView_0.inputs.images.set(ImageAnnotation_0.outputs.images, False)
-'''
-        script += 'CinemaDatabaseReader_0.inputs.path.set("'+path+'", False)\n'
-        script += 'CinemaDatabaseReader_0.update()'
-        self.setWindowTitle("Cinema:Explorer (" + path + ")")
-        self.executeScript(script)
-
     def quit(self, no_views=False):
         QtWidgets.QApplication.quit()
         return
@@ -322,15 +229,12 @@ class Theater():
           if args[0].endswith('.py'):
             Theater.instance.loadScript(args[0],args[1:])
           elif args[0].endswith('.cdb') or args[0].endswith('.cdb/'):
-            Theater.instance.viewCDB(args[0])
-          elif args[0] in ['view','explorer']:
+            Theater.instance.loadScript('./pycinema/scripts/view.py',[args[0]])
+          elif (args[0]+'.py') in Theater.instance.defaul_scripts:
             path = None
-            if len(args)==2 and isinstance(args[1], str): path=args[1]
-            if not path: path=QtWidgets.QFileDialog.getExistingDirectory(Theater.instance, "Select Cinema Database")
-            if path:
-              if args[0]=='view':
-                Theater.instance.viewCDB(path)
-              else:
-                Theater.instance.exploreCDB(path)
+            if len(args)<2:
+              args.append(QtWidgets.QFileDialog.getExistingDirectory(Theater.instance, "Select Cinema Database"))
+            if args[1]:
+              Theater.instance.loadScript('./pycinema/scripts/'+args[0]+'.py',args[1:])
 
         sys.exit(app.exec())

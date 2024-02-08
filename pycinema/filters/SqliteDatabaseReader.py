@@ -4,6 +4,7 @@ import sqlite3
 
 from os.path import exists
 import re
+import logging as log
 
 class SqliteDatabaseReader(Filter):
 
@@ -28,7 +29,7 @@ class SqliteDatabaseReader(Filter):
             return 0
 
         if not exists(dbPath):
-            print('[ERROR] sqlite db not found:', dbPath)
+            log.error(" sqlite db not found: '" + dbPath + "'")
             self.outputs.table.set([[]])
             return 0
 
@@ -43,17 +44,16 @@ class SqliteDatabaseReader(Filter):
             cnames = [entry[1] for entry in cdata]
             table.append(cnames)
 
-            # print(table)
             # capture row data
             data = cursor.execute("SELECT * FROM " + tname + "").fetchall() #LIMIT 10
             for row in data:
                 # tuple output convert to list
                 table.append(list(row))
 
-            # print(table)
             cursor.close()
+
         except sqlite3.Error as error:
-            print("Error while connecting to sqlite", error)
+            log.error(" Error while connecting to sqlite: " + error)
             self.outputs.table.set([[]])
             return 0
         finally:
@@ -69,7 +69,7 @@ class SqliteDatabaseReader(Filter):
         try:
             fileColumnIdx = [i for i, item in enumerate(table[0]) if re.search(self.inputs.file_column.get(), item, re.IGNORECASE)].pop()
         except:
-            print('[ERROR] file column not found:',self.inputs.file_column.get())
+            log.error(" file column not found: '" + self.inputs.file_column.get() + "'")
             self.outputs.table.set([[]])
             return 0
 

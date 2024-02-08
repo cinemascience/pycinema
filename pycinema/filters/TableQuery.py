@@ -3,13 +3,14 @@ from pycinema import Filter, isNumber
 import sqlite3
 
 from pycinema import getTableExtent
+import logging as log
 
 def executeSQL(db,sql):
   try:
     c = db.cursor()
     c.execute(sql)
   except sqlite3.Error as e:
-    print(e)
+    log.error(" sqlite3 error: " + e)
 
 def createTable(db, table, castType=False):
   sql = 'CREATE TABLE input(id INTEGER PRIMARY KEY AUTOINCREMENT';
@@ -52,7 +53,7 @@ def queryData(db, sqlQuery):
   try:
     c.execute(sqlQuery)
   except sqlite3.Error as er:
-    print('[SQL ERROR] %s' % (' '.join(er.args)))
+    log.error(' %s' % (' '.join(er.args)))
     return [[]]
   res = c.fetchall()
   columns = []

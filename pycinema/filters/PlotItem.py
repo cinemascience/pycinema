@@ -16,4 +16,6 @@ class PlotItem(Filter):
         super().__init__(inputs, outputs)
 
     def _getColumnFromTable(self, colname):
-        return getColumnFromTable(self.inputs.table.get(), colname)
+        newcol = getColumnFromTable(self.inputs.table.get(), colname, autocast=True, nan_remove=True, missing_remove=True)
+
+        return newcol 

@@ -1,4 +1,4 @@
-name: QueryWriteTest
+name: PythonPlotTest
 
 on:
   push:
@@ -24,9 +24,9 @@ jobs:
       - name: Dependencies
         run: |
           python -m pip install .
-      - name: Test using ModernGL
+      - name: test python and plotting 
         run: |
-          python -m pytest -s testing/QueryWriteTest.py
+          python -m pytest -s testing/PythonPlotTest.py
 
   macos:
     strategy:
@@ -46,6 +46,6 @@ jobs:
           python -m pip install --upgrade pip setuptools
           python -m pip install pytest
           python -m pip install .
-      - name: Test using ModernGL
+      - name: test python and plotting 
         run: |
-          python -m pytest -s testing/QueryWriteTest.py
+          python -m pytest -s testing/PythonPlotTest.py

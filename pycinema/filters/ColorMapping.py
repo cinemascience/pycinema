@@ -84,7 +84,7 @@ class ColorMapping(Filter):
         wr1 = QtWidgets.QLineEdit()
         wr0.setText('0')
         wr1.setText('1')
-        r_lambda = lambda v: self.inputs.range.set( (float(wr0.text()), float(wr1.text())) )
+        r_lambda = lambda: self.inputs.range.set( (float(wr0.text()), float(wr1.text())) )
         f.layout().addWidget(wr0)
         f.layout().addWidget(wr1)
 
@@ -114,19 +114,24 @@ class ColorMapping(Filter):
         # change listeners
         wc.currentIndexChanged.connect( lambda i: self.inputs.channel.set(self.channel_model.stringList()[i]) )
         wm.currentIndexChanged.connect( lambda i: self.inputs.map.set(self.maps_model.stringList()[i]) )
-        wr0.textChanged.connect(r_lambda)
-        wr1.textChanged.connect(r_lambda)
+        wr0.editingFinished.connect(r_lambda)
+        wr1.editingFinished.connect(r_lambda)
 
         return widgets
 
     def _update(self):
-        self.updateWidgets()
-
         images = self.inputs.images.get()
         if len(images)<1:
           self.outputs.images.set([])
           return 1
         iChannel = self.inputs.channel.get()
+        channels = images[0].channels
+        if iChannel not in channels:
+          if 'rgba' in channels:
+            self.inputs.channel.set('rgba')
+          else:
+            self.inputs.channel.set(channels[0])
+          iChannel = self.inputs.channel.get()
 
         results = []
         map = self.inputs.map.get()
@@ -199,5 +204,7 @@ class ColorMapping(Filter):
                 results.append(result)
 
         self.outputs.images.set(results)
+
+        self.updateWidgets()
 
         return 1
