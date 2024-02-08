@@ -3,19 +3,19 @@ from PySide6 import QtCore, QtWidgets, QtGui
 from pycinema.theater.View import View
 from pycinema.theater.ViewStyle import ViewStyle
 from pycinema.theater.views import SelectionView, FilterView
+import pycinema.theater.TabFrame
 from pycinema import Filter
 
-class ViewFrame(QtWidgets.QSplitter):
+class SplitFrame(QtWidgets.QSplitter):
 
   id_counter = 0
 
-  def __init__(self, orientation=QtCore.Qt.Horizontal,root=False):
+  def __init__(self, orientation=QtCore.Qt.Horizontal):
       super().__init__()
-      self.root = root
       self.setChildrenCollapsible(False)
       self.setStyleSheet(ViewStyle.get_style_sheet())
-      self.id = 'vf'+str(ViewFrame.id_counter)
-      ViewFrame.id_counter += 1
+      self.id = 'splitFrame'+str(SplitFrame.id_counter)
+      SplitFrame.id_counter += 1
       self.setOrientation(orientation)
 
   def setVerticalOrientation(self):
@@ -35,7 +35,7 @@ class ViewFrame(QtWidgets.QSplitter):
       view.s_splitV.disconnect(self.s_splitV)
 
   def insertFrame(self,idx):
-      frame = ViewFrame()
+      frame = SplitFrame()
       self.insertWidget(idx, frame)
       return frame
 
@@ -43,7 +43,9 @@ class ViewFrame(QtWidgets.QSplitter):
       if isinstance(view,Filter):
         view = FilterView(view)
 
-      self.connectView(view)
+      if isinstance(view,View):
+        self.connectView(view)
+
       self.insertWidget(idx, view)
       return view
 
@@ -52,10 +54,12 @@ class ViewFrame(QtWidgets.QSplitter):
     widget.setParent(None)
 
     if self.count()<1:
-      if self.root:
-        self.insertView(0, SelectionView())
-      else:
+      if isinstance(self.parent(),SplitFrame):
         self.parent().s_close(self)
+        print('close child')
+      else:
+        print('at root')
+        self.insertView(0, SelectionView())
 
   def split(self,view,orientation):
     idx = self.indexOf(view)
@@ -89,7 +93,7 @@ class ViewFrame(QtWidgets.QSplitter):
         heights.append(v.height())
 
       self.disconnectView(view)
-      newFrame = ViewFrame(orientation=orientation)
+      newFrame = SplitFrame(orientation=orientation)
       newFrame.insertView(0,view)
       newFrame.insertView(1,SelectionView())
       if orientation==QtCore.Qt.Horizontal:
@@ -119,21 +123,16 @@ class ViewFrame(QtWidgets.QSplitter):
     self.setSizes(sizes)
 
   def export(self):
-    r = ''
+    r = self.id + ' = pycinema.theater.SplitFrame()\n'
     if self.orientation()==QtCore.Qt.Vertical:
-      r = self.id + '.setVerticalOrientation()\n'
+      r += self.id + '.setVerticalOrientation()\n'
     else:
-      r = self.id + '.setHorizontalOrientation()\n'
+      r += self.id + '.setHorizontalOrientation()\n'
 
     for i in range(0,self.count()):
       w = self.widget(i)
-      if isinstance(w,ViewFrame):
-        r += w.id + ' = ' + self.id + '.insertFrame('+str(i)+')\n'
-        r += w.export()
-      elif isinstance(w,FilterView):
-        r += w.id + ' = ' + self.id+'.insertView( '+str(i)+', '+w.filter.id+' )\n'
-      else:
-        r += self.id+'.insertView( '+str(i)+', pycinema.theater.views.'+w.__class__.__name__+'() )\n'
+      r += w.export()
+      r += self.id+'.insertView( '+str(i)+', '+w.id+' )\n'
 
     r += self.id + '.setSizes('+str(self.sizes())+')\n'
     return r

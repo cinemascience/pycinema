@@ -81,14 +81,15 @@ class TableView(Filter):
         self.update_from_selection = False
 
         indices = list(self.inputs.selection.get())
+
         if input_is_image_list:
             self.outputs.table.set(
-                [table[i] for i in indices]
+                [table[i] for i in indices if i<len(table)]
             )
         else:
             indices.insert(0,-1)
             self.outputs.table.set(
-                [table[i+1] for i in indices]
+                [table[i+1] for i in indices  if i+1<len(table)]
             )
 
         self.suppress_selection_update = True

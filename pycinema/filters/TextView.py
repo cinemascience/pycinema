@@ -3,25 +3,10 @@ from pycinema.theater.Icons import Icons
 
 from PySide6 import QtCore, QtWidgets, QtGui
 
-class TextModel(QtCore.QObject):
-# class TextModel(QtWidgets.QWidget):
-  s_changed = QtCore.Signal(str, name='s_changed')
-
-  def __init__(self):
-    super().__init__()
-    self.text = ''
-
-  def set(self,text):
-    if self.text==text:
-      return
-
-    self.text = text
-    self.s_changed.emit(text)
-
 class TextView(Filter):
 
     def __init__(self):
-        self.model = TextModel()
+        self.widgets = []
 
         Filter.__init__(
           self,
@@ -33,7 +18,6 @@ class TextView(Filter):
           }
         )
 
-# self.editor.toPlainText()
     def updateInputFromText(self,text):
       self.inputs.text.set(
         text
@@ -41,7 +25,7 @@ class TextView(Filter):
 
     def generateWidgets(self):
         widget = QtWidgets.QTextEdit()
-        self.model.s_changed.connect(lambda x: widget.setText(x))
+        self.widgets.append(widget)
         return widget
 
         # self.editor_toolbar = QtWidgets.QToolBar()
@@ -62,6 +46,9 @@ class TextView(Filter):
 
     def _update(self):
         text = self.inputs.text.get()
-        self.model.set( text )
         self.outputs.text.set( text )
+
+        for w in self.widgets:
+          w.setText(text)
+
         return 1
