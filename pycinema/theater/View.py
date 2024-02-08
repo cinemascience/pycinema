@@ -7,8 +7,13 @@ class View(QtWidgets.QFrame):
     s_splitH = QtCore.Signal(QtWidgets.QFrame,name='splitH')
     s_splitV = QtCore.Signal(QtWidgets.QFrame,name='splitV')
 
+    id_counter = 0
+
     def __init__(self, content_layout='V'):
         super().__init__()
+
+        self.id = 'view'+str(View.id_counter)
+        View.id_counter += 1
 
         self.setLayout(QtWidgets.QVBoxLayout())
         self.layout().setContentsMargins(4,2,4,0)
@@ -66,3 +71,6 @@ class View(QtWidgets.QFrame):
 
     def setTitle(self,text):
         self.title.setText(text)
+
+    def export(self):
+      return self.id + ' = pycinema.theater.views.'+self.__class__.__name__+'()\n'

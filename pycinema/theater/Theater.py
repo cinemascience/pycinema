@@ -1,9 +1,10 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 from PySide6.QtWidgets import QMessageBox
 
+import traceback
 import pycinema
 from pycinema.theater import View
-from pycinema.theater.ViewFrame import *
+from pycinema.theater.SplitFrame import *
 from pycinema.theater.TabFrame import *
 from pycinema.theater.FilterBrowser import *
 from pycinema.theater.views.NodeEditorView import *
@@ -69,11 +70,7 @@ class _Theater(QtWidgets.QMainWindow):
         self.statusBar = QtWidgets.QStatusBar()
         self.setStatusBar(self.statusBar)
 
-        vf = ViewFrame(root=True)
-        vf.insertView(0,NodeEditorView())
-        tf = TabFrame(root=True)
-        tf.insertTab(0,vf)
-        self.setCentralWidget(tf)
+        self.reset(False)
 
     def showFilterBrowser(self):
         dialog = FilterBrowser()
@@ -114,8 +111,8 @@ import pycinema.theater.views
                         script += filter.id + '.inputs.'+iPortName+ '.set(' + str(v) +', False)\n'
 
         script += '\n# layout\n'
-        script += self.centralWidget().id+' = pycinema.theater.Theater.instance.centralWidget()\n'
         script += self.centralWidget().export()
+        script += 'pycinema.theater.Theater.instance.setCentralWidget('+self.centralWidget().id+')\n'
 
         script += '\n# execute pipeline\n'
         for _,filter in pycinema.Filter._filters.items():
@@ -136,7 +133,7 @@ import pycinema.theater.views
 
         return script
 
-    def reset(self, no_views=False):
+    def reset(self, no_views=True):
       Filter._processing = True
       QtNodeEditorView.auto_layout = False
       QtNodeEditorView.auto_connect = False
@@ -146,25 +143,14 @@ import pycinema.theater.views
       QtNodeEditorView.auto_layout = True
       QtNodeEditorView.auto_connect = True
 
-      root = self.centralWidget()
-
-      def findAllViews(views,vf):
-        for i in range(0,vf.count()):
-          w = vf.widget(i)
-          if isinstance(w, ViewFrame):
-            findAllViews(views,w)
-          else:
-            views.append(w)
-
-      views = []
-      for i in range(0,root.count()-1):
-        findAllViews(views,root.widget(i))
-      print(views)
-      for v in views:
-        v.parent().s_close(v)
-
       if no_views:
-        self.centralWidget().widget(0).setParent(None)
+        self.centralWidget().setParent(None)
+      else:
+        vf = SplitFrame()
+        vf.insertView(0,NodeEditorView())
+        tf = TabFrame()
+        tf.insertTab(0,vf)
+        self.setCentralWidget(tf)
 
     def viewCDB(self, path=None):
         if not path:
@@ -276,14 +262,19 @@ ImageView_0.inputs.images.set(ImageAnnotation_0.outputs.images, False)
         msgBox = QtWidgets.QMessageBox.about(self, "About", "pycinema v" + pycinema.__version__);
         return
 
-    def executeScript(self, script):
+    def executeScript(self, script, args=[]):
         QtNodeEditorView.auto_layout = False
         QtNodeEditorView.auto_connect = False
 
+        variables = {}
+        for i,arg in enumerate(args):
+          variables['PYCINEMA_ARG_'+str(i)] = arg
+
         try:
-          exec(script)
-        except:
-          return
+          exec(script,variables)
+        except Exception as err:
+          traceback.print_exc()
+          self.reset(False)
 
         def call():
           QtNodeEditorView.auto_layout = True
@@ -291,7 +282,7 @@ ImageView_0.inputs.images.set(ImageAnnotation_0.outputs.images, False)
           QtNodeEditorView.skip_layout_animation = True
           QtNodeEditorView.computeLayout()
           QtNodeEditorView.skip_layout_animation = False
-          if self.centralWidget().count()<1:
+          if not self.centralWidget() or self.centralWidget().count()<1:
             self.centralWidget().insertView(0,NodeEditorView())
 
           editors = self.centralWidget().findChildren(QtNodeEditorView)
@@ -300,7 +291,7 @@ ImageView_0.inputs.images.set(ImageAnnotation_0.outputs.images, False)
           return
         QtCore.QTimer.singleShot(0, lambda: call())
 
-    def loadScript(self, script_file_name=None):
+    def loadScript(self, script_file_name=None, args=[]):
         if not script_file_name:
             script_file_name = QtWidgets.QFileDialog.getOpenFileName(self, "Load Script")[0]
         if script_file_name and len(script_file_name)>0:
@@ -310,7 +301,7 @@ ImageView_0.inputs.images.set(ImageAnnotation_0.outputs.images, False)
                 script_file.close()
                 self.reset(True)
                 self.setWindowTitle("Cinema:Theater (" + script_file_name + ")")
-                self.executeScript(script)
+                self.executeScript(script,args)
             except:
                 return
 
@@ -329,7 +320,7 @@ class Theater():
 
         if len(args)>0 and isinstance(args[0], str):
           if args[0].endswith('.py'):
-            Theater.instance.loadScript(args[0])
+            Theater.instance.loadScript(args[0],args[1:])
           elif args[0].endswith('.cdb') or args[0].endswith('.cdb/'):
             Theater.instance.viewCDB(args[0])
           elif args[0] in ['view','explorer']:

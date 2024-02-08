@@ -16,3 +16,6 @@ class FilterView(View):
         if self.filter != filter: return
         self.filter.off('filter_deleted', self.on_filter_deleted)
         self.s_close.emit(self)
+
+    def export(self):
+      return self.id + ' = pycinema.theater.views.'+self.__class__.__name__+'( '+self.filter.id+' )\n'
