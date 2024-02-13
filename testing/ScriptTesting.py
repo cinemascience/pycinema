@@ -1,3 +1,15 @@
+testing = True
+if testing:
+    import pytest
+    from sys import platform
+
+    if platform in ["linux","linux2"]:
+        import pytest_xvfb
+        @pytest.fixture(autouse=True, scope='session')
+        def ensure_xvfb() -> None:
+            if not pytest_xvfb.has_executable("Xvfb"):
+                raise Exception("Tests need Xvfb to run.")
+
 import filecmp
 import subprocess
 import os
