@@ -33,6 +33,7 @@ parser = argparse.ArgumentParser( description="a command to access cinema viewer
 parser.add_argument( "--version", action="version", version=pycinema.__version__)
 parser.add_argument( "-v", "--verbose", action="store_true" )
 parser.add_argument(       "--logtofile", nargs="?", type=str, action=LogfileAction, help="write log messages to file; optionally provide filename (default is log.txt)") 
+parser.add_argument(       "--headless", action="store_true" )
 
 # parse args, gather unknowns
 args, remainder = parser.parse_known_args()
@@ -53,9 +54,20 @@ if args.verbose:
 else: 
     log.getLogger().setLevel(log.INFO)
 
+if args.headless:
+    script = pycinema.Core.readScriptFromPath(remainder[0]) 
 
-# keep going if the command line args allow it
-import pycinema.theater
+    variables = {}
+    for i,arg in enumerate(remainder):
+      variables['PYCINEMA_ARG_'+str(i)] = arg
+    try:
+        exec(script, variables) 
+    except Exception as err:
+      traceback.print_exc()
 
-pycinema.theater.Theater(remainder)
+else:
+    # keep going if the command line args allow it
+    import pycinema.theater
+
+    pycinema.theater.Theater(remainder)
 

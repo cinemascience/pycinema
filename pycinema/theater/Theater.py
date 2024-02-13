@@ -161,21 +161,6 @@ import pycinema.theater.views
       if no_views:
         self.centralWidget().widget(0).setParent(None)
 
-    #
-    # read a script from a path 
-    #
-    def readScriptFromPath(self, scriptpath):
-        scriptfile = open(scriptpath, 'r')
-        return scriptfile.read() 
-
-    #
-    # read a script from a pycinema module script or a user script
-    #
-    def readScriptFromKey(self, scriptkey):
-        scriptpath =  pycinema.Core.getScriptPath(scriptkey)
-        scriptfile = open(scriptpath, 'r')
-        return scriptfile.read() 
-
     def executeScriptOnCDB(self, scriptkey, cdbpath=None):
         if not cdbpath:
           cdbpath = QtWidgets.QFileDialog.getExistingDirectory(self, "Open Cinema Database")
@@ -186,7 +171,7 @@ import pycinema.theater.views
         self.reset(True)
         self.setWindowTitle("Cinema:" + scriptkey + " (" + cdbpath + ")")
 
-        script = self.readScriptFromKey(scriptkey)
+        script = pycinema.Core.readScriptFromKey(scriptkey)
         self.executeScript(script, [cdbpath])
 
     def viewCDB(self, path):
@@ -267,20 +252,20 @@ class Theater():
           if args[0].endswith('.py'):
             # this is a python script
             log.debug("Executing named script from command line: " + args[0])
-            script = Theater.instance.readScriptFromPath(args[0])
+            script = pycinema.Core.readScriptFromPath(args[0])
             Theater.instance.executeScript( script, args[1:] )
 
           elif args[0].endswith('.cdb') or args[0].endswith('.cdb/'):
             # default behavior
             log.debug("Executing default key script from command line: browse")
-            script = Theater.instance.readScriptFromKey('browse')
+            script = pycinema.Core.readScriptFromKey('browse')
             Theater.instance.executeScript( script, args)
 
           else:
             # the first argument is a script key, and it will be searched for
             # in both the module install area and, if defined, a user-designated dir
             log.debug("Executing script key from command line: " + args[0])
-            script = Theater.instance.readScriptFromKey(args[0])
+            script = pycinema.Core.readScriptFromKey(args[0])
             Theater.instance.executeScript( script, args[1:] )
 
         sys.exit(app.exec())

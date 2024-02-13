@@ -90,6 +90,21 @@ def getScriptPath(name):
 
     return scriptpath
 
+#
+# read a script from a path 
+#
+def readScriptFromPath(scriptpath):
+    scriptfile = open(scriptpath, 'r')
+    return scriptfile.read() 
+
+#
+# read a script from a pycinema module script or a user script
+#
+def readScriptFromKey(scriptkey):
+    # scriptpath =  pycinema.Core.getScriptPath(scriptkey)
+    scriptpath =  getScriptPath(scriptkey)
+    scriptfile = open(scriptpath, 'r')
+    return scriptfile.read() 
 
 
 ################################################################################

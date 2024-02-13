@@ -25,9 +25,6 @@ jobs:
           python -m pip install .
       - name: Test scripting 
         run: |
-          ./testing/scripttesting.sh
-          ll *.txt
-          sleep 5
           python -m pytest -s testing/ScriptTesting.py
 
   macos:
@@ -50,9 +47,6 @@ jobs:
           python -m pip install .
       - name: Test scripting 
         run: |
-          ./testing/scripttesting.sh
-          ll *.txt
-          sleep 5
           python -m pytest -s testing/ScriptTesting.py
 
   # windows:
