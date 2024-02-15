@@ -33,10 +33,10 @@ def isNumber(s):
             return False
     return False
 
-def imageFromMatplotlibFigure(figure):
+def imageFromMatplotlibFigure(figure,dpi):
   # Create image stream
   image_stream = io.BytesIO()
-  figure.savefig(image_stream, format='png', dpi=100)
+  figure.savefig(image_stream, format='png', dpi=dpi)
   image_stream.seek(0)
 
   # Parse stream to pycinema image
@@ -77,7 +77,7 @@ def getColumnFromTable(table, colname, autocast=False, nan_remove=False, nan_rep
         if nan_remove:
             cleaned_column = [x for x in cleaned_column if x not in CORE_NAN_VALUES]
         if missing_remove:
-            cleaned_column = [x for x in cleaned_column if x != ''] 
+            cleaned_column = [x for x in cleaned_column if x != '']
 
         # replace values
         if nan_replace:
@@ -91,7 +91,7 @@ def getColumnFromTable(table, colname, autocast=False, nan_remove=False, nan_rep
         if missing_replace:
             i = 0
             while i < len(cleaned_column):
-                if cleaned_column[i] == '': 
+                if cleaned_column[i] == '':
                     cleaned_column[i] = missing_replace
                 i += 1
 
@@ -101,7 +101,7 @@ def getColumnFromTable(table, colname, autocast=False, nan_remove=False, nan_rep
             for value in cleaned_column:
                 if value != '' and value not in CORE_NAN_VALUES:
                     t = type(value)
-                    if t == str: 
+                    if t == str:
                         try:
                             si = int(value)
                             t = int
@@ -245,8 +245,13 @@ class Port():
         if Filter._debug:
             print(type(self.parent).__name__+"->"+self.name, str(value)[:40])
 
-        if self._value == value:
-            return
+        try:
+          np.testing.assert_equal(self._value,value)
+          return
+        except:
+          pass
+        # if self._value == value:
+        #     return
 
         self.time = time.time()
 

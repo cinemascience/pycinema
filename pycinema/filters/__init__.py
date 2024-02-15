@@ -20,11 +20,10 @@ from .ImageView import *
 from .MaskCompositing import *
 from .MLTFReader import *
 from .MLTFPredictor import *
-from .PlotItem import *
-from .PlotBarItem import *
+from .Plot import *
 from .PlotLineItem import *
-from .PlotScatterItem import *
 from .Python import *
+from .GetColumn import *
 from .ShaderDemoScene import *
 from .ShaderFXAA import *
 from .ShaderIBS import *
