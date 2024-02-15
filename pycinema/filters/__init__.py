@@ -36,7 +36,7 @@ from .ShaderPointAO import *
 from .SqliteDatabaseReader import *
 from .TableWriter import *
 from .TableView import *
-from .TextView import *
+from .TextEditor import *
 from .ParametersView import *
 from .ParallelCoordinates import *
 from .InspectorView import *

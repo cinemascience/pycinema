@@ -10,7 +10,16 @@ class FilterView(View):
         self.filter = filter
         self.setTitle(filter.id)
         widgets = filter.generateWidgets()
+        buttons = []
+        if isinstance(widgets,list):
+          buttons=widgets[1]
+          widgets=widgets[0]
         self.content.layout().addWidget(widgets,1)
+        for button in buttons:
+          self.toolbar.insertWidget(self.toolbar.actions()[2],button)
+        if len(buttons):
+          self.toolbar.insertSeparator(self.toolbar.actions()[-3])
+
         self.filter.on('filter_deleted', self.on_filter_deleted)
 
     def on_filter_deleted(self,filter):
