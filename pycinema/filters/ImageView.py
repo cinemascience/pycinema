@@ -32,10 +32,20 @@ class _QGraphicsPixmapItem(QtWidgets.QGraphicsPixmapItem):
       painter.drawRect(self.boundingRect())
 
   def mouseDoubleClickEvent(self,event):
-    if self.highlight:
-      self.filter.inputs.selection.set([])
+    indices = []
+    if event.modifiers() == QtCore.Qt.ControlModifier:
+      indices = list(self.filter.inputs.selection.get())
+
+    if self.idx in indices:
+      indices.remove(self.idx)
     else:
-      self.filter.inputs.selection.set([self.idx])
+      indices.append(self.idx)
+    indices.sort()
+
+    if self.filter.inputs.selection.valueIsPort():
+      self.filter.inputs.selection._value.parent.inputs.value.set(indices)
+    else:
+      self.filter.inputs.selection.set(indices)
 
 class _ImageViewer(QtWidgets.QGraphicsView):
 
