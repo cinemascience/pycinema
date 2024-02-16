@@ -348,7 +348,7 @@ class Filter():
                 filters.add(iPort._value.parent)
             elif iPort.valueIsPortList():
                 for port in iPort._value:
-                    filters.add(port._value.parent)
+                    filters.add(port.parent)
         return filters
 
     def getOutputFilters(self):
