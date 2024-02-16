@@ -6,7 +6,8 @@ class Value(Filter):
         Filter.__init__(
           self,
           inputs = {
-            'value': ''
+            'value': '',
+            'cast': True
           },
           outputs = {
             'value': ''
@@ -15,5 +16,7 @@ class Value(Filter):
 
     def _update(self):
         value = self.inputs.value.get()
+        if isinstance(value, str) and self.inputs.cast.get():
+          value = eval(value)
         self.outputs.value.set( value )
         return 1
