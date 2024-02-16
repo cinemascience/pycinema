@@ -16,14 +16,14 @@ from .ImageReader import *
 from .ImageSort import *
 from .ImagesToTable import *
 from .ImageMetadataToScatterItem import *
+from .ImageView import *
 from .MaskCompositing import *
 from .MLTFReader import *
 from .MLTFPredictor import *
-from .PlotItem import *
-from .PlotBarItem import *
+from .Plot import *
 from .PlotLineItem import *
-from .PlotScatterItem import *
 from .Python import *
+from .GetColumn import *
 from .ShaderDemoScene import *
 from .ShaderFXAA import *
 from .ShaderIBS import *
@@ -35,3 +35,9 @@ from .ShaderLineAO import *
 from .ShaderPointAO import *
 from .SqliteDatabaseReader import *
 from .TableWriter import *
+from .TableView import *
+from .TextEditor import *
+from .ParametersView import *
+from .ParallelCoordinates import *
+from .InspectorView import *
+from .Value import *

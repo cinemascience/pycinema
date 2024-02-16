@@ -2,10 +2,20 @@ from pycinema import Filter
 
 import numpy
 import matplotlib.cm as cm
+import matplotlib.pyplot as pp
+
+from PySide6 import QtCore, QtWidgets
 
 class ColorMapping(Filter):
 
     def __init__(self):
+        self.widgets = []
+        self.channel_model = QtCore.QStringListModel()
+        self.maps_model = QtCore.QStringListModel()
+        maps = [map for map in pp.colormaps() if not map.endswith('_r')]
+        maps.sort(key=lambda x: x.lower())
+        self.maps_model.setStringList(maps)
+
         super().__init__(
           inputs={
             'map': 'plasma',
@@ -20,10 +30,109 @@ class ColorMapping(Filter):
           }
         )
 
-    def _update(self):
+    def updateWidgets(self):
+      images = self.inputs.images.get()
 
-        images = self.inputs.images.get()
+      for widgets in self.widgets:
+        widgets['c'].setEnabled(len(images)>0 and len(images[0].channels)>0)
+
+      if len(images)<1:
+        return
+      else:
         iChannel = self.inputs.channel.get()
+        iMap = self.inputs.map.get()
+        iRange = self.inputs.range.get()
+        iNAN = self.inputs.nan.get()
+        channels = [c for c in images[0].channels]
+        if self.channel_model.stringList()!=channels:
+          self.channel_model.setStringList(channels)
+        for widgets in self.widgets:
+          widgets['c'].setCurrentIndex(channels.index(iChannel))
+          widgets['m'].setCurrentIndex(self.maps_model.stringList().index(iMap))
+          widgets['r'][0].setText(str(iRange[0]))
+          widgets['r'][1].setText(str(iRange[1]))
+          widgets['nan'].setText(str(iNAN))
+
+    def generateWidgets(self):
+        widgets = QtWidgets.QFrame()
+        l = QtWidgets.QGridLayout()
+        l.setAlignment(QtCore.Qt.AlignTop)
+        l.setSpacing(0)
+        l.setContentsMargins(0,0,0,0)
+        widgets.setLayout(l)
+
+        # Channel
+        wc = QtWidgets.QComboBox()
+        wc.channels = []
+        l.addWidget(QtWidgets.QLabel('Channel'),0,0)
+        l.addWidget(wc,0,1)
+        wc.setModel(self.channel_model)
+
+        # Color Map
+        wm = QtWidgets.QComboBox()
+        l.addWidget(QtWidgets.QLabel("Color Map"),1,0)
+        l.addWidget(wm,1,1)
+        wm.setModel(self.maps_model)
+
+        # Range
+        f = QtWidgets.QFrame()
+        f.setLayout( QtWidgets.QHBoxLayout())
+        l.addWidget(QtWidgets.QLabel("Range"),2,0)
+        l.addWidget(f,2,1)
+
+        wr0 = QtWidgets.QLineEdit()
+        wr1 = QtWidgets.QLineEdit()
+        wr0.setText('0')
+        wr1.setText('1')
+        r_lambda = lambda: self.inputs.range.set( (float(wr0.text()), float(wr1.text())) )
+        f.layout().addWidget(wr0)
+        f.layout().addWidget(wr1)
+
+        # NAN COLOR
+        wnan = QtWidgets.QPushButton()
+        def select_color():
+          clrpick = QtWidgets.QColorDialog()
+          clrpick.setOption(QtWidgets.QColorDialog.DontUseNativeDialog)
+          color = clrpick.getColor()
+          if not color.isValid(): return
+          color = (wnan.format(color.redF()),wnan.format(color.greenF()),wnan.format(color.blueF()),wnan.format(color.alphaF()))
+          self.inputs.nan.set(color)
+
+        wnan.clicked.connect(select_color)
+        wnan.format = lambda v: float("{:.3f}".format(v))
+        l.addWidget(QtWidgets.QLabel("NAN Color"),3,0)
+        l.addWidget(wnan,3,1)
+
+        self.widgets.append({
+          'c': wc,
+          'm': wm,
+          'r': [wr0,wr1],
+          'nan': wnan,
+        })
+        self.updateWidgets()
+
+        # change listeners
+        wc.currentIndexChanged.connect( lambda i: self.inputs.channel.set(self.channel_model.stringList()[i]) )
+        wm.currentIndexChanged.connect( lambda i: self.inputs.map.set(self.maps_model.stringList()[i]) )
+        wr0.editingFinished.connect(r_lambda)
+        wr1.editingFinished.connect(r_lambda)
+
+        return widgets
+
+    def _update(self):
+        images = self.inputs.images.get()
+        if len(images)<1:
+          self.outputs.images.set([])
+          return 1
+        iChannel = self.inputs.channel.get()
+        channels = images[0].channels
+        if iChannel not in channels:
+          if 'rgba' in channels:
+            self.inputs.channel.set('rgba')
+          else:
+            self.inputs.channel.set(channels[0])
+          iChannel = self.inputs.channel.get()
+
         results = []
         map = self.inputs.map.get()
         nan = self.inputs.nan.get()
@@ -95,5 +204,7 @@ class ColorMapping(Filter):
                 results.append(result)
 
         self.outputs.images.set(results)
+
+        self.updateWidgets()
 
         return 1

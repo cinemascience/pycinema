@@ -81,7 +81,8 @@ class PortDisc(QtWidgets.QGraphicsEllipseItem):
             s.set( t )
 
     def mouseDoubleClickEvent(self,event):
-        self.parentItem().port.set(self.parentItem().port.default)
+        if self.parentItem().port.is_input:
+          self.parentItem().port.set(self.parentItem().port.default)
 
 class InputTextGraphicsItem(QtWidgets.QGraphicsItem):
     def __init__(self, port, width, parent=None):
