@@ -8,10 +8,11 @@ mpl.use('Agg')
 
 outputs = []
 
+imDPI = 200
 # a general loop for looping over column pairings and marks
 for cols, mark in zip([["phi", "theta"]], ['x']):
 
-    figure = plt.figure(figsize=(10,8), dpi=200)
+    figure = plt.figure(figsize=(10,8), dpi=imDPI)
     x = getColumnFromTable(inputs, cols[0])
     xvals = np.asarray(x, dtype='float')
     # print(xvals)
@@ -25,7 +26,7 @@ for cols, mark in zip([["phi", "theta"]], ['x']):
     plt.ylabel(cols[1])
     plt.title(cols[1] + " vs. " + cols[0])
 
-    outputs.append( imageFromMatplotlibFigure(figure) )
+    outputs.append( imageFromMatplotlibFigure(figure, imDPI) )
 
 plt.close(figure)
 

@@ -27,7 +27,7 @@ for image in inputs:
     plt.ylabel("number of pixels")
     plt.title("Red Channel Histogram")
 
-    outputs.append( imageFromMatplotlibFigure(figure) )
+    outputs.append( imageFromMatplotlibFigure(figure, imDPI) )
 
     plt.close(figure)
 
