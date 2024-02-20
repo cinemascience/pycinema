@@ -6,24 +6,11 @@ import pycinema.theater.views
 # pycinema settings
 PYCINEMA = { 'VERSION' : '2.1.0'}
 
-# layout
-vf0 = pycinema.theater.Theater.instance.centralWidget()
-vf0.setVerticalOrientation()
-vf2 = vf0.insertFrame(0)
-vf2.setHorizontalOrientation()
-vf2.insertView( 0, pycinema.theater.views.NodeEditorView() )
-ImageView_1 = vf2.insertView( 1, pycinema.theater.views.ImageView() )
-vf2.setSizes([761, 761])
-vf1 = vf0.insertFrame(1)
-vf1.setHorizontalOrientation()
-TableView_0 = vf1.insertView( 0, pycinema.theater.views.TableView() )
-ImageView_2 = vf1.insertView( 1, pycinema.theater.views.ImageView() )
-vf1.setSizes([762, 760])
-vf0.setSizes([476, 476])
-
 # filters
 CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
 ImageReader_0 = pycinema.filters.ImageReader()
+TableView_0 = pycinema.filters.TableView()
+ImageView_0 = pycinema.filters.ImageView()
 
 # properties
 CinemaDatabaseReader_0.inputs.path.set("data/sphere.cdb", False)
@@ -32,9 +19,29 @@ ImageReader_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
 ImageReader_0.inputs.file_column.set("FILE", False)
 ImageReader_0.inputs.cache.set(True, False)
 TableView_0.inputs.table.set(ImageReader_0.outputs.images, False)
-TableView_0.inputs.selection.set([2, 3, 4, 5, 6, 7], False)
-ImageView_1.inputs.images.set(ImageReader_0.outputs.images, False)
-ImageView_2.inputs.images.set(TableView_0.outputs.table, False)
+TableView_0.inputs.selection.set([1, 2, 3, 4, 5, 6], False)
+ImageView_0.inputs.images.set(TableView_0.outputs.table, False)
+ImageView_0.inputs.selection.set([], False)
+
+# layout
+tabFrame0 = pycinema.theater.TabFrame()
+splitFrame0 = pycinema.theater.SplitFrame()
+splitFrame0.setHorizontalOrientation()
+view0 = pycinema.theater.views.NodeEditorView()
+splitFrame0.insertView( 0, view0 )
+splitFrame2 = pycinema.theater.SplitFrame()
+splitFrame2.setVerticalOrientation()
+view3 = pycinema.theater.views.FilterView( TableView_0 )
+splitFrame2.insertView( 0, view3 )
+view5 = pycinema.theater.views.FilterView( ImageView_0 )
+splitFrame2.insertView( 1, view5 )
+splitFrame2.setSizes([339, 474])
+splitFrame0.insertView( 1, splitFrame2 )
+splitFrame0.setSizes([754, 754])
+tabFrame0.insertTab(0, splitFrame0)
+tabFrame0.setTabText(0, 'Layout 1')
+tabFrame0.setCurrentIndex(0)
+pycinema.theater.Theater.instance.setCentralWidget(tabFrame0)
 
 # execute pipeline
 CinemaDatabaseReader_0.update()
