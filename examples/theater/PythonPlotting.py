@@ -6,34 +6,16 @@ import pycinema.theater.views
 # pycinema settings
 PYCINEMA = { 'VERSION' : '2.1.0'}
 
-# layout
-vf0 = pycinema.theater.Theater.instance.centralWidget()
-vf0.setHorizontalOrientation()
-vf1 = vf0.insertFrame(0)
-vf1.setHorizontalOrientation()
-vf2 = vf1.insertFrame(0)
-vf2.setVerticalOrientation()
-vf2.insertView( 0, pycinema.theater.views.NodeEditorView() )
-TableView_0 = vf2.insertView( 1, pycinema.theater.views.TableView() )
-vf2.setSizes([425, 425])
-vf3 = vf1.insertFrame(1)
-vf3.setVerticalOrientation()
-ImageView_0 = vf3.insertView( 0, pycinema.theater.views.ImageView() )
-TextView_0 = vf3.insertView( 1, pycinema.theater.views.TextView() )
-vf3.setSizes([404, 446])
-vf1.setSizes([510, 510])
-vf0.setSizes([1024])
-
 # filters
 CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
 Calculator_0 = pycinema.filters.Calculator()
 TableQuery_0 = pycinema.filters.TableQuery()
 Python_0 = pycinema.filters.Python()
+TableView_0 = pycinema.filters.TableView()
+ImageView_0 = pycinema.filters.ImageView()
 
 # properties
-TableView_0.inputs.table.set(Calculator_0.outputs.table, False)
-ImageView_0.inputs.images.set(Python_0.outputs.outputs, False)
-CinemaDatabaseReader_0.inputs.path.set("./data/ScalarImages.cdb/", False)
+CinemaDatabaseReader_0.inputs.path.set("data/ScalarImages.cdb", False)
 CinemaDatabaseReader_0.inputs.file_column.set("FILE", False)
 Calculator_0.inputs.table.set(TableQuery_0.outputs.table, False)
 Calculator_0.inputs.label.set("result", False)
@@ -41,32 +23,32 @@ Calculator_0.inputs.expression.set("time*id", False)
 TableQuery_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
 TableQuery_0.inputs.sql.set("SELECT * FROM input", False)
 Python_0.inputs.inputs.set(Calculator_0.outputs.table, False)
-Python_0.inputs.code.set(TextView_0.outputs.text, False)
-TextView_0.inputs.text.set('''
-from pycinema import getColumnFromTable, imageFromMatplotlibFigure
-import matplotlib.pyplot as plt
+Python_0.inputs.code.set("examples/pythonfilter/SimplePlot.py", False)
+TableView_0.inputs.table.set(Calculator_0.outputs.table, False)
+TableView_0.inputs.selection.set([], False)
+ImageView_0.inputs.images.set(Python_0.outputs.outputs, False)
+ImageView_0.inputs.selection.set([], False)
 
-# use offscreen backend
-import matplotlib as mpl
-mpl.use('Agg')
-
-outputs = []
-for column in ['result','time','phi','theta']:
-
-  figure = plt.figure()
-  plt.plot(
-    getColumnFromTable(inputs, "id"),
-    getColumnFromTable(inputs, column)
-  )
-  plt.xlabel('id')
-  plt.ylabel(column)
-  plt.title('id x ' + column)
-
-  outputs.append( imageFromMatplotlibFigure(figure) )
-
-  plt.close(figure)
-
-''', False)
+# layout
+tabFrame0 = pycinema.theater.TabFrame()
+splitFrame0 = pycinema.theater.SplitFrame()
+splitFrame0.setHorizontalOrientation()
+view0 = pycinema.theater.views.NodeEditorView()
+splitFrame0.insertView( 0, view0 )
+splitFrame0.setSizes([1295])
+tabFrame0.insertTab(0, splitFrame0)
+tabFrame0.setTabText(0, 'Layout 1')
+splitFrame2 = pycinema.theater.SplitFrame()
+splitFrame2.setHorizontalOrientation()
+view4 = pycinema.theater.views.FilterView( TableView_0 )
+splitFrame2.insertView( 0, view4 )
+view6 = pycinema.theater.views.FilterView( ImageView_0 )
+splitFrame2.insertView( 1, view6 )
+splitFrame2.setSizes([768, 767])
+tabFrame0.insertTab(1, splitFrame2)
+tabFrame0.setTabText(1, 'Layout 3')
+tabFrame0.setCurrentIndex(1)
+pycinema.theater.Theater.instance.setCentralWidget(tabFrame0)
 
 # execute pipeline
-TableView_0.update()
+CinemaDatabaseReader_0.update()
