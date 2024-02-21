@@ -4,6 +4,7 @@
 - `theater` directory. These are scripts that execute with `cinema <path/to/script>`
 
 # To be updated 
+- MLScatterPlot.py
 - SimplePlot.py
 - TableWriteExample.py 
 
