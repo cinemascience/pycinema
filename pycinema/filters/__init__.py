@@ -15,7 +15,6 @@ from .ImageFilterPIL import *
 from .ImageReader import *
 from .ImageSort import *
 from .ImagesToTable import *
-from .ImageMetadataToScatterItem import *
 from .ImageView import *
 from .MaskCompositing import *
 from .MLTFReader import *
