@@ -228,8 +228,10 @@ class Theater():
         if len(args)>0 and isinstance(args[0], str):
           if args[0].endswith('.py'):
             Theater.instance.loadScript(args[0],args[1:])
+
           elif args[0].endswith('.cdb') or args[0].endswith('.cdb/'):
-            Theater.instance.loadScript('./pycinema/scripts/view.py',[args[0]])
+            Theater.instance.loadScript('./pycinema/scripts/browse.py',[args[0]])
+
           elif (args[0]+'.py') in Theater.instance.defaul_scripts:
             path = None
             if len(args)<2:
