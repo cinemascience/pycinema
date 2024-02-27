@@ -230,13 +230,18 @@ class Theater():
             Theater.instance.loadScript(args[0],args[1:])
 
           elif args[0].endswith('.cdb') or args[0].endswith('.cdb/'):
-            Theater.instance.loadScript('./pycinema/scripts/browse.py',[args[0]])
+            script = pycinema.getPathForScript('browse')
+            Theater.instance.loadScript(script, [args[0]])
 
-          elif (args[0]+'.py') in Theater.instance.defaul_scripts:
-            path = None
-            if len(args)<2:
-              args.append(QtWidgets.QFileDialog.getExistingDirectory(Theater.instance, "Select Cinema Database"))
-            if args[1]:
-              Theater.instance.loadScript('./pycinema/scripts/'+args[0]+'.py',args[1:])
+          else: 
+            script = pycinema.getPathForScript(args[0])
+            if script:
+              print("loading script: " + script)
+              if len(args)<2:
+                args.append(QtWidgets.QFileDialog.getExistingDirectory(Theater.instance, "Select Cinema Database"))
+
+              Theater.instance.loadScript(script, args[1:])
+            else:
+              print("no script found for key: '" + args[0] + "'")
 
         sys.exit(app.exec())

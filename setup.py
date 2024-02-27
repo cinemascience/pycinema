@@ -3,7 +3,7 @@ import setuptools
 # read the description file
 from os import path
 this_directory = path.abspath(path.dirname(__file__))
-with open(path.join(this_directory, 'doc/description.md'), encoding='utf-8') as f:
+with open(path.join(this_directory, 'doc/pycinema-description.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 exec(open("pycinema/_version.py").read())
@@ -18,7 +18,8 @@ setuptools.setup(
     long_description_content_type='text/markdown',
     url="https://github.com/cinemascience/pycinema",
     include_package_data=True,
-    packages=[  "pycinema", "pycinema.filters", "pycinema.theater", "pycinema.theater.node_editor", "pycinema.theater.views", "pycinema.ipy" ],
+    zip_safe=False,
+    packages=[  "pycinema", "pycinema.filters", "pycinema.scripts", "pycinema.theater", "pycinema.theater.node_editor", "pycinema.theater.views", "pycinema.ipy" ],
     install_requires=[
         "numpy==1.24.2",
         "scipy==1.10.0",
@@ -42,7 +43,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     scripts=[
-        'doc/description.md',
+        'doc/pycinema-description.md',
         'scripts/cinema'
     ],
 )
