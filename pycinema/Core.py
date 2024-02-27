@@ -7,6 +7,7 @@ from ast import literal_eval
 import PIL
 import io
 import logging as log
+import os
 
 CORE_NAN_VALUES = ['NaN', 'NAN', 'nan']
 
@@ -45,6 +46,60 @@ def imageFromMatplotlibFigure(figure,dpi):
     rawImage = rawImage.convert('RGBA')
   image = Image({ 'rgba': np.asarray(rawImage) })
   return image
+
+#
+# get the path where this module has been installed
+#
+def getModulePath():
+    import pkg_resources
+
+    return os.path.dirname(pkg_resources.resource_filename(__name__, 'Core.py'))
+
+#
+# return a list of scripts installed with this module
+#
+def getPycinemaModuleScripts():
+    scriptdir = os.path.join(getModulePath(), 'scripts')
+
+    scripts = glob.glob(scriptdir + "/*.py")
+
+    names = []
+    for script in scripts:
+        curpath, curname = os.path.split(script)
+        if curname != "__init__.py":
+            names.append(curname.removesuffix('.py'))
+
+    return names
+
+#
+# given the base name of a script, search module and environment paths
+# to find and return the full path for that script
+#
+# the base name of the script is the filename, with no '.py' suffix
+#
+def getPathForScript(name):
+
+    scriptdirs = [os.path.join(getModulePath(), 'scripts')]
+    if 'PYCINEMA_SCRIPT_DIR' in os.environ:
+        scriptdirs.append(os.path.abspath(os.environ['PYCINEMA_SCRIPT_DIR']))
+
+    scriptpath = None 
+    for scriptdir in scriptdirs:
+        # iterate over the directories, overwriting the script if it exists
+        if os.path.exists(scriptdir):
+            # first, assume the user supplied the correct filename
+            possible_script = os.path.join(scriptdir, name)
+            if os.path.isfile(possible_script):
+                scriptpath = possible_script
+
+            # if that doesn't exist, search for one with an extension
+            else:
+                if os.path.isfile(possible_script + ".py"):
+                    scriptpath = possible_script + ".py" 
+    else:
+        log.debug("script directory does not exist: \'" + scriptdir + "\'")
+
+    return scriptpath
 
 ################################################################################
 # table helper functions
