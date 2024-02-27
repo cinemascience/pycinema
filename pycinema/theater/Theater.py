@@ -72,9 +72,6 @@ class _Theater(QtWidgets.QMainWindow):
 
         self.reset(False)
 
-        # get default scrips
-        self.defaul_scripts = [f for f in os.listdir('./pycinema/scripts/') if f.endswith('.py')]
-
     def viewDatabase(self,path):
       if not path:
         path = QtWidgets.QFileDialog.getExistingDirectory(Theater.instance, "Select Cinema Database")
