@@ -1,6 +1,6 @@
 from pycinema import Filter
 
-class Value(Filter):
+class ValueSource(Filter):
 
     def __init__(self):
         Filter.__init__(
