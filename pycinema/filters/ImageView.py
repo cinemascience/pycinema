@@ -21,7 +21,7 @@ class _QGraphicsPixmapItem(QtWidgets.QGraphicsPixmapItem):
     self.setShapeMode(QtWidgets.QGraphicsPixmapItem.BoundingRectShape)
     self.setTransformationMode(QtCore.Qt.SmoothTransformation)
 
-    self.highlight = self.idx in self.filter.inputs.selection.get()
+    self.highlight = False
 
   def paint(self, painter, option, widget=None):
     super().paint(painter, option, widget)
@@ -32,15 +32,30 @@ class _QGraphicsPixmapItem(QtWidgets.QGraphicsPixmapItem):
       painter.drawRect(self.boundingRect())
 
   def mouseDoubleClickEvent(self,event):
-    if self.highlight:
-      self.filter.inputs.selection.set([])
+    indices = []
+    if event.modifiers() == QtCore.Qt.ControlModifier:
+      indices = list(self.filter.inputs.selection.get())
+
+    if self.idx in indices:
+      indices.remove(self.idx)
     else:
-      self.filter.inputs.selection.set([self.idx])
+      indices.append(self.idx)
+    indices.sort()
+
+    if self.filter.inputs.selection.valueIsPort():
+      self.filter.inputs.selection._value.parent.inputs.value.set(indices)
+    else:
+      self.filter.inputs.selection.set(indices)
 
 class _ImageViewer(QtWidgets.QGraphicsView):
 
-    def __init__(self,scene):
+    def __init__(self,filter):
         super().__init__()
+
+        self.filter = filter
+
+        self.mode = 0
+        self.mouse_data = []
 
         self.setRenderHints(QtGui.QPainter.Antialiasing)
         self.setTransformationAnchor(QtWidgets.QGraphicsView.ViewportAnchor.AnchorUnderMouse)
@@ -48,7 +63,13 @@ class _ImageViewer(QtWidgets.QGraphicsView):
         self.setResizeAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.setScene(scene)
+        self.setScene(filter.scene)
+
+        self.selection_rect = QtWidgets.QGraphicsRectItem(-100, -100, 200, 200)
+        self.selection_rect.setZValue(1000)
+        self.selection_rect.setBrush(QtGui.QColor(0, 0, 0, 128))
+        self.selection_rect.hide()
+        self.scene().addItem(self.selection_rect)
 
     def fitInView(self):
         rect = QtCore.QRectF(self.scene().itemsBoundingRect())
@@ -70,8 +91,56 @@ class _ImageViewer(QtWidgets.QGraphicsView):
         self.scale(factor, factor)
 
     def keyPressEvent(self,event):
-        if event.key()==32:
-            self.fitInView()
+      if event.key()==32:
+        self.fitInView()
+
+    def update_selection_rect(self):
+      w = self.mouse_data[1].x()-self.mouse_data[0].x()
+      h = self.mouse_data[1].y()-self.mouse_data[0].y()
+      self.selection_rect.setRect(
+        self.mouse_data[0].x(),
+        self.mouse_data[0].y(),
+        1 if w==0 else w,
+        1 if h==0 else h,
+      )
+
+      indices = [i.idx for i in self.scene().items(self.selection_rect.rect()) if isinstance(i,QtWidgets.QGraphicsPixmapItem)]
+      indices.sort()
+
+      if indices==self.filter.inputs.selection.get():
+        return
+
+      if self.filter.inputs.selection.valueIsPort():
+        self.filter.inputs.selection._value.parent.inputs.value.set(indices)
+      else:
+        self.filter.inputs.selection.set(indices)
+
+    def mousePressEvent(self,event):
+      if event.modifiers() == QtCore.Qt.ShiftModifier:
+        self.mouse_data = [
+          self.mapToScene(event.pos()),
+          self.mapToScene(event.pos())
+        ]
+        self.mode = 1
+        self.selection_rect.show()
+        self.update_selection_rect()
+      else:
+        self.mode = 0
+        self.selection_rect.hide()
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self,event):
+      if self.mode == 1:
+        self.mouse_data[1] = self.mapToScene(event.pos())
+        self.update_selection_rect()
+      else:
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self,event):
+      if self.mode != 1:
+        super().mouseReleaseEvent(event)
+      self.mode = 0
+      self.selection_rect.hide()
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -83,6 +152,8 @@ class ImageView(Filter):
         self.scene = QtWidgets.QGraphicsScene()
         self.requiresFit = True
         self.widgets = []
+        self.time_images = -2
+        self.image_items = []
 
         Filter.__init__(
           self,
@@ -94,10 +165,6 @@ class ImageView(Filter):
             'images': []
           }
         )
-
-    def removeImages(self):
-      for i in [i for i in self.scene.items()]:
-        self.scene.removeItem(i)
 
     def addImages(self, images):
         max_w = 0
@@ -124,6 +191,7 @@ class ImageView(Filter):
         if self.requiresFit:
           self.scene.setSceneRect(rect)
 
+        self.image_items = []
         for i, image in enumerate(images):
           r = numpy.floor(i/nCols)
           c = i-r*nCols
@@ -131,22 +199,39 @@ class ImageView(Filter):
           qimage = _QGraphicsPixmapItem(rgba,i,self)
           qimage.setPos(c*max_w,r*max_h)
           self.scene.addItem(qimage)
+          self.image_items.append(qimage)
 
     def generateWidgets(self):
-        widget = _ImageViewer(self.scene)
+        widget = _ImageViewer(self)
         self.widgets.append(widget)
         return widget
 
     def _update(self):
-        self.removeImages()
         images = self.inputs.images.get()
         nImages = len(images)
-        if nImages > 0:
-          self.addImages( images )
-        else:
-          log.warning(" no images to lay out.")
 
-        self.outputs.images.set([ images[i] for i in self.inputs.selection.get() if i>=0 and i<nImages ])
+        # update images if necessary
+        if self.time_images!=self.inputs.images.getTime():
+          self.time_images = self.inputs.images.getTime()
+
+          for i in self.image_items:
+            self.scene.removeItem(i)
+
+          if nImages > 0:
+            self.addImages( images )
+          else:
+            log.warning(" no images to lay out.")
+
+        # update selection
+        for i in self.image_items:
+          i.highlight = False
+        selection = self.inputs.selection.get()
+        for i in selection:
+          if i>=0 and i<nImages:
+            self.image_items[i].highlight = True
+        self.outputs.images.set([ images[i] for i in selection if i>=0 and i<nImages ])
+
+        self.scene.update()
 
         if self.requiresFit:
           for w in self.widgets:

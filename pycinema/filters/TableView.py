@@ -67,7 +67,10 @@ class TableView(Filter):
         self.update_from_selection = True
         indices = list(set(index.row() for index in self.selection_model.selectedIndexes()))
         indices.sort()
-        self.inputs.selection.set(indices)
+        if self.inputs.selection.valueIsPort():
+          self.inputs.selection._value.parent.inputs.value.set(indices)
+        else:
+          self.inputs.selection.set(indices)
 
     def _update(self):
         table = self.inputs.table.get()
