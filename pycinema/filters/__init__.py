@@ -39,4 +39,4 @@ from .TextEditor import *
 from .ParametersView import *
 from .ParallelCoordinates import *
 from .InspectorView import *
-from .Value import *
+from .ValueSource import *
