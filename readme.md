@@ -44,17 +44,6 @@ pip install --upgrade pip
 pip install pycinema 
 ```
 
-- Installing and running with the test pycinema module
-
-```
-mkdir pyc-test
-cd pyc-test
-python3 -m venv pcenv
-source pcenv/bin/activate
-pip install --upgrade pip
-pip install -i https://test.pypi.org/simple/ --extra-index https://pypi.org/simple pycinema
-```
-
 - Running examples
 
 You can now use this python environment to run examples from the repository. Run `cinema` and select a file from the `data` directory:
