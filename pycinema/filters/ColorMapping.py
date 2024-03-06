@@ -4,17 +4,17 @@ import numpy
 import matplotlib.cm as cm
 import matplotlib.pyplot as pp
 
-from PySide6 import QtCore, QtWidgets
+try:
+  from PySide6 import QtGui, QtCore, QtWidgets
+except ImportError:
+  pass
 
 class ColorMapping(Filter):
 
     def __init__(self):
         self.widgets = []
-        self.channel_model = QtCore.QStringListModel()
-        self.maps_model = QtCore.QStringListModel()
-        maps = [map for map in pp.colormaps() if not map.endswith('_r')]
-        maps.sort(key=lambda x: x.lower())
-        self.maps_model.setStringList(maps)
+        self.channel_model = None
+        self.maps_model = None
 
         super().__init__(
           inputs={
@@ -54,6 +54,13 @@ class ColorMapping(Filter):
           widgets['nan'].setText(str(iNAN))
 
     def generateWidgets(self):
+        if not self.channel_model or not self.maps_model:
+          self.channel_model = QtCore.QStringListModel()
+          self.maps_model = QtCore.QStringListModel()
+          maps = [map for map in pp.colormaps() if not map.endswith('_r')]
+          maps.sort(key=lambda x: x.lower())
+          self.maps_model.setStringList(maps)
+
         widgets = QtWidgets.QFrame()
         l = QtWidgets.QGridLayout()
         l.setAlignment(QtCore.Qt.AlignTop)

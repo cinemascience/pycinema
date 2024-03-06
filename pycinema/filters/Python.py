@@ -1,5 +1,8 @@
 from pycinema import Filter
-from PySide6 import QtCore
+try:
+  from PySide6 import QtGui, QtCore, QtWidgets
+except ImportError:
+  pass
 
 class Python(Filter):
 

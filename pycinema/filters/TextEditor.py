@@ -1,7 +1,10 @@
 from pycinema import Filter
 
-from PySide6 import QtCore, QtWidgets
-from pycinema.theater.Icons import Icons
+try:
+  from PySide6 import QtGui, QtCore, QtWidgets
+  from pycinema.theater.Icons import Icons
+except Exception:
+  pass
 
 class TextEditor(Filter):
 
