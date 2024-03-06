@@ -1,150 +1,158 @@
 from pycinema import Filter
 
 import numpy
-from PySide6 import QtCore, QtWidgets, QtGui
 import logging as log
 
-class _QGraphicsPixmapItem(QtWidgets.QGraphicsPixmapItem):
-  def __init__(self,rgba,idx,filter):
-    super().__init__()
+try:
+  from PySide6 import QtGui, QtCore, QtWidgets
+except ImportError:
+  pass
 
-    self.filter = filter
-    self.idx = idx
+try:
+  class _QGraphicsPixmapItem(QtWidgets.QGraphicsPixmapItem):
+    def __init__(self,rgba,idx,filter):
+      super().__init__()
 
-    qimage = QtGui.QImage(
-      rgba,
-      rgba.shape[1], rgba.shape[0],
-      rgba.shape[1] * 4,
-      QtGui.QImage.Format_RGBA8888
-    )
-    self.setPixmap( QtGui.QPixmap(qimage) )
-    self.setShapeMode(QtWidgets.QGraphicsPixmapItem.BoundingRectShape)
-    self.setTransformationMode(QtCore.Qt.SmoothTransformation)
+      self.filter = filter
+      self.idx = idx
 
-    self.highlight = False
-
-  def paint(self, painter, option, widget=None):
-    super().paint(painter, option, widget)
-    if self.highlight:
-      pen = QtGui.QPen(QtGui.QColor("#FF0000"))
-      pen.setWidth(4)
-      painter.setPen(pen)
-      painter.drawRect(self.boundingRect())
-
-  def mouseDoubleClickEvent(self,event):
-    indices = []
-    if event.modifiers() == QtCore.Qt.ControlModifier:
-      indices = list(self.filter.inputs.selection.get())
-
-    if self.idx in indices:
-      indices.remove(self.idx)
-    else:
-      indices.append(self.idx)
-    indices.sort()
-
-    if self.filter.inputs.selection.valueIsPort():
-      self.filter.inputs.selection._value.parent.inputs.value.set(indices)
-    else:
-      self.filter.inputs.selection.set(indices)
-
-class _ImageViewer(QtWidgets.QGraphicsView):
-
-    def __init__(self,filter):
-        super().__init__()
-
-        self.filter = filter
-
-        self.mode = 0
-        self.mouse_data = []
-
-        self.setRenderHints(QtGui.QPainter.Antialiasing)
-        self.setTransformationAnchor(QtWidgets.QGraphicsView.ViewportAnchor.AnchorUnderMouse)
-        self.setDragMode(QtWidgets.QGraphicsView.DragMode.ScrollHandDrag)
-        self.setResizeAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
-        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.setScene(filter.scene)
-
-        self.selection_rect = QtWidgets.QGraphicsRectItem(-100, -100, 200, 200)
-        self.selection_rect.setZValue(1000)
-        self.selection_rect.setBrush(QtGui.QColor(0, 0, 0, 128))
-        self.selection_rect.hide()
-        self.scene().addItem(self.selection_rect)
-
-    def fitInView(self):
-        rect = QtCore.QRectF(self.scene().itemsBoundingRect())
-        if rect.isNull():
-            return
-        self.resetTransform()
-        super().fitInView(rect, QtCore.Qt.KeepAspectRatio)
-
-    def wheelEvent(self, event):
-        ZOOM_INCREMENT_RATIO = 0.1
-
-        angle = event.angleDelta().y()
-        factor = 1.0
-        if angle > 0:
-            factor += ZOOM_INCREMENT_RATIO
-        else:
-            factor -= ZOOM_INCREMENT_RATIO
-
-        self.scale(factor, factor)
-
-    def keyPressEvent(self,event):
-      if event.key()==32:
-        self.fitInView()
-
-    def update_selection_rect(self):
-      w = self.mouse_data[1].x()-self.mouse_data[0].x()
-      h = self.mouse_data[1].y()-self.mouse_data[0].y()
-      self.selection_rect.setRect(
-        self.mouse_data[0].x(),
-        self.mouse_data[0].y(),
-        1 if w==0 else w,
-        1 if h==0 else h,
+      qimage = QtGui.QImage(
+        rgba,
+        rgba.shape[1], rgba.shape[0],
+        rgba.shape[1] * 4,
+        QtGui.QImage.Format_RGBA8888
       )
+      self.setPixmap( QtGui.QPixmap(qimage) )
+      self.setShapeMode(QtWidgets.QGraphicsPixmapItem.BoundingRectShape)
+      self.setTransformationMode(QtCore.Qt.SmoothTransformation)
 
-      indices = [i.idx for i in self.scene().items(self.selection_rect.rect()) if isinstance(i,QtWidgets.QGraphicsPixmapItem)]
+      self.highlight = False
+
+    def paint(self, painter, option, widget=None):
+      super().paint(painter, option, widget)
+      if self.highlight:
+        pen = QtGui.QPen(QtGui.QColor("#FF0000"))
+        pen.setWidth(4)
+        painter.setPen(pen)
+        painter.drawRect(self.boundingRect())
+
+    def mouseDoubleClickEvent(self,event):
+      indices = []
+      if event.modifiers() == QtCore.Qt.ControlModifier:
+        indices = list(self.filter.inputs.selection.get())
+
+      if self.idx in indices:
+        indices.remove(self.idx)
+      else:
+        indices.append(self.idx)
       indices.sort()
-
-      if indices==self.filter.inputs.selection.get():
-        return
 
       if self.filter.inputs.selection.valueIsPort():
         self.filter.inputs.selection._value.parent.inputs.value.set(indices)
       else:
         self.filter.inputs.selection.set(indices)
 
-    def mousePressEvent(self,event):
-      if event.modifiers() == QtCore.Qt.ShiftModifier:
-        self.mouse_data = [
-          self.mapToScene(event.pos()),
-          self.mapToScene(event.pos())
-        ]
-        self.mode = 1
-        self.selection_rect.show()
-        self.update_selection_rect()
-      else:
+  class _ImageViewer(QtWidgets.QGraphicsView):
+
+      def __init__(self,filter):
+          super().__init__()
+
+          self.filter = filter
+
+          self.mode = 0
+          self.mouse_data = []
+
+          self.setRenderHints(QtGui.QPainter.Antialiasing)
+          self.setTransformationAnchor(QtWidgets.QGraphicsView.ViewportAnchor.AnchorUnderMouse)
+          self.setDragMode(QtWidgets.QGraphicsView.DragMode.ScrollHandDrag)
+          self.setResizeAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
+          self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+          self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+          self.setScene(filter.scene)
+
+          self.selection_rect = QtWidgets.QGraphicsRectItem(-100, -100, 200, 200)
+          self.selection_rect.setZValue(1000)
+          self.selection_rect.setBrush(QtGui.QColor(0, 0, 0, 128))
+          self.selection_rect.hide()
+          self.scene().addItem(self.selection_rect)
+
+      def fitInView(self):
+          rect = QtCore.QRectF(self.scene().itemsBoundingRect())
+          if rect.isNull():
+              return
+          self.resetTransform()
+          super().fitInView(rect, QtCore.Qt.KeepAspectRatio)
+
+      def wheelEvent(self, event):
+          ZOOM_INCREMENT_RATIO = 0.1
+
+          angle = event.angleDelta().y()
+          factor = 1.0
+          if angle > 0:
+              factor += ZOOM_INCREMENT_RATIO
+          else:
+              factor -= ZOOM_INCREMENT_RATIO
+
+          self.scale(factor, factor)
+
+      def keyPressEvent(self,event):
+        if event.key()==32:
+          self.fitInView()
+
+      def update_selection_rect(self):
+        w = self.mouse_data[1].x()-self.mouse_data[0].x()
+        h = self.mouse_data[1].y()-self.mouse_data[0].y()
+        self.selection_rect.setRect(
+          self.mouse_data[0].x(),
+          self.mouse_data[0].y(),
+          1 if w==0 else w,
+          1 if h==0 else h,
+        )
+
+        indices = [i.idx for i in self.scene().items(self.selection_rect.rect()) if isinstance(i,QtWidgets.QGraphicsPixmapItem)]
+        indices.sort()
+
+        if indices==self.filter.inputs.selection.get():
+          return
+
+        if self.filter.inputs.selection.valueIsPort():
+          self.filter.inputs.selection._value.parent.inputs.value.set(indices)
+        else:
+          self.filter.inputs.selection.set(indices)
+
+      def mousePressEvent(self,event):
+        if event.modifiers() == QtCore.Qt.ShiftModifier:
+          self.mouse_data = [
+            self.mapToScene(event.pos()),
+            self.mapToScene(event.pos())
+          ]
+          self.mode = 1
+          self.selection_rect.show()
+          self.update_selection_rect()
+        else:
+          self.mode = 0
+          self.selection_rect.hide()
+          super().mousePressEvent(event)
+
+      def mouseMoveEvent(self,event):
+        if self.mode == 1:
+          self.mouse_data[1] = self.mapToScene(event.pos())
+          self.update_selection_rect()
+        else:
+          super().mouseMoveEvent(event)
+
+      def mouseReleaseEvent(self,event):
+        if self.mode != 1:
+          super().mouseReleaseEvent(event)
         self.mode = 0
         self.selection_rect.hide()
-        super().mousePressEvent(event)
 
-    def mouseMoveEvent(self,event):
-      if self.mode == 1:
-        self.mouse_data[1] = self.mapToScene(event.pos())
-        self.update_selection_rect()
-      else:
-        super().mouseMoveEvent(event)
+      def resizeEvent(self, event):
+          super().resizeEvent(event)
+          self.fitInView()
 
-    def mouseReleaseEvent(self,event):
-      if self.mode != 1:
-        super().mouseReleaseEvent(event)
-      self.mode = 0
-      self.selection_rect.hide()
-
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        self.fitInView()
+except NameError:
+  pass
 
 class ImageView(Filter):
 
