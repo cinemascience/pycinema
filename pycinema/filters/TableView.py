@@ -1,35 +1,42 @@
-from PySide6 import QtCore, QtWidgets, QtGui
-
 from pycinema.filters.ImagesToTable import ImagesToTable
 from pycinema import Filter, Image
 
-class TableModel(QtCore.QAbstractTableModel):
-    def __init__(self):
-        super().__init__()
-        self._data = []
+try:
+  from PySide6 import QtGui, QtCore, QtWidgets
+except ImportError:
+  pass
 
-    def setData(self,data):
-        self._data = data
-        self.modelReset.emit()
+try:
+  class TableModel(QtCore.QAbstractTableModel):
+      def __init__(self):
+          super().__init__()
+          self._data = []
 
-    def data(self, index, role):
-        if role == QtCore.Qt.DisplayRole:
-            return self._data[index.row()+1][index.column()]
+      def setData(self,data):
+          self._data = data
+          self.modelReset.emit()
 
-    def rowCount(self, index):
-        return len(self._data)-1
+      def data(self, index, role):
+          if role == QtCore.Qt.DisplayRole:
+              return self._data[index.row()+1][index.column()]
 
-    def columnCount(self, index):
-        if len(self._data)>0:
-            return len(self._data[0])
-        else:
-            return 0
+      def rowCount(self, index):
+          return len(self._data)-1
 
-    def headerData(self, section, orientation, role = QtCore.Qt.DisplayRole):
-        if role == QtCore.Qt.DisplayRole and orientation==QtCore.Qt.Horizontal:
-            return self._data[0][section]
-        else:
-            return super().headerData(section,orientation,role)
+      def columnCount(self, index):
+          if len(self._data)>0:
+              return len(self._data[0])
+          else:
+              return 0
+
+      def headerData(self, section, orientation, role = QtCore.Qt.DisplayRole):
+          if role == QtCore.Qt.DisplayRole and orientation==QtCore.Qt.Horizontal:
+              return self._data[0][section]
+          else:
+              return super().headerData(section,orientation,role)
+
+except NameError:
+  pass
 
 class TableView(Filter):
 
