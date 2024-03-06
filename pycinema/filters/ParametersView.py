@@ -1,16 +1,25 @@
-from PySide6 import QtCore, QtWidgets
 from copy import deepcopy
 import re
 import sqlite3
 
 from pycinema import isNumber, Filter, getTableExtent
-from pycinema.theater.Icons import Icons
 from pycinema.filters.TableQuery import executeSQL, createTable, insertData, queryData
 
-class Emitter(QtCore.QObject):
-  s_update = QtCore.Signal()
-  def __init__(self):
-    super().__init__()
+try:
+  from PySide6 import QtGui, QtCore, QtWidgets
+  from pycinema.theater.Icons import Icons
+except Exception:
+  pass
+
+try:
+  class Emitter(QtCore.QObject):
+    s_update = QtCore.Signal()
+    def __init__(self):
+      super().__init__()
+except NameError:
+  class Emitter():
+    def __init__(self):
+      pass
 
 def computeValues(table,idx):
   vdic = set()

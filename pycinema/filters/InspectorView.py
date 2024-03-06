@@ -1,5 +1,9 @@
 from pycinema import Filter
-from PySide6 import QtCore, QtWidgets, QtGui
+
+try:
+  from PySide6 import QtGui, QtCore, QtWidgets
+except ImportError:
+  pass
 
 import pprint
 
