@@ -38,17 +38,17 @@ try:
 except NameError:
   pass
 
-class NumericSortProxyModel(QtCore.QSortFilterProxyModel):
-    def lessThan(self, left, right):
-        leftData = self.sourceModel().data(left, QtCore.Qt.DisplayRole)
-        rightData = self.sourceModel().data(right, QtCore.Qt.DisplayRole)
+# class NumericSortProxyModel(QtCore.QSortFilterProxyModel):
+#     def lessThan(self, left, right):
+#         leftData = self.sourceModel().data(left, QtCore.Qt.DisplayRole)
+#         rightData = self.sourceModel().data(right, QtCore.Qt.DisplayRole)
 
-        try:
-            leftValue = float(leftData)
-            rightValue = float(rightData)
-            return leftValue > rightValue
-        except ValueError:
-            return leftData > rightData
+#         try:
+#             leftValue = float(leftData)
+#             rightValue = float(rightData)
+#             return leftValue > rightValue
+#         except ValueError:
+#             return leftData > rightData
 
 class TableView(Filter):
 
@@ -56,12 +56,10 @@ class TableView(Filter):
 
         self.model = TableModel()
 
-        self.proxyModel = NumericSortProxyModel() #QtCore.QSortFilterProxyModel()
-        self.proxyModel.setSourceModel(self.model)
-
-
-        self.selection_model = QtCore.QItemSelectionModel(self.proxyModel)
-        #self.selection_model.setModel(self.model)
+        # self.proxyModel = NumericSortProxyModel() #QtCore.QSortFilterProxyModel()
+        # self.proxyModel.setSourceModel(self.model)
+        self.selection_model = QtCore.QItemSelectionModel() #self.proxyModel
+        self.selection_model.setModel(self.model)
         self.selection_model.selectionChanged.connect(self._onSelectionChanged)
 
         self.update_from_selection = False
@@ -76,17 +74,17 @@ class TableView(Filter):
             'selection': []
           },
           outputs={
-            'tableSelection': [[]],
-            'table': [[]]
+            'tableSelection': [[]]#,
+            #'table': [[]]
           }
         )
 
     def generateWidgets(self):
         widget = QtWidgets.QTableView()
         widget.setModel(self.model)
-        widget.setModel(self.proxyModel)
-        widget.setSortingEnabled(True)
-        widget.horizontalHeader().sectionClicked.connect(self._onHeaderClicked)        
+        #widget.setModel(self.proxyModel)
+        #widget.setSortingEnabled(True)
+        #widget.horizontalHeader().sectionClicked.connect(self._onHeaderClicked)        
         widget.setSelectionModel(self.selection_model)
         widget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         return widget
@@ -99,26 +97,26 @@ class TableView(Filter):
         indices.sort()
         self.inputs.selection.set(indices,True,True)
 
-    def _onHeaderClicked(self, logicalIndex):
-        # reorder the output table
-        self.outputTable = list()
-        rowCount = self.proxyModel.rowCount()
-        columnCount = self.proxyModel.columnCount()
+    # def _onHeaderClicked(self, logicalIndex):
+    #     # reorder the output table
+    #     self.outputTable = list()
+    #     rowCount = self.proxyModel.rowCount()
+    #     columnCount = self.proxyModel.columnCount()
 
-        # add header info
-        self.outputTable.append(self.inputs.table.get()[0])
-        for row in range(rowCount):
-            rowData = []
-            for column in range(columnCount):
-                index = self.proxyModel.index(row, column)
-                data = self.proxyModel.data(index, QtCore.Qt.DisplayRole)
-                rowData.append(data)
-            self.outputTable.append(tuple(rowData))
+    #     # add header info
+    #     self.outputTable.append(self.inputs.table.get()[0])
+    #     for row in range(rowCount):
+    #         rowData = []
+    #         for column in range(columnCount):
+    #             index = self.proxyModel.index(row, column)
+    #             data = self.proxyModel.data(index, QtCore.Qt.DisplayRole)
+    #             rowData.append(data)
+    #         self.outputTable.append(tuple(rowData))
 
-        # update indices of selected rows
-        self._onSelectionChanged(None, None)
-        # push to update
-        self.update()
+    #     # update indices of selected rows
+    #     self._onSelectionChanged(None, None)
+    #     # push to update
+    #     self.update()
 
 
     def _update(self):
@@ -150,11 +148,11 @@ class TableView(Filter):
         [self.selection_model.select(i, mode) for i in indices_]
         self.suppress_selection_update = False
 
-        # list empty, ie. no header clicked, then use input as output
-        if len(self.outputTable) == 0: 
-            self.outputs.table.set(list(self.inputs.table.get()))
-        # else, pull order of rows from internal variable
-        else:
-            self.outputs.table.set(self.outputTable)
+        # # list empty, ie. no header clicked, then use input as output
+        # if len(self.outputTable) == 0: 
+        #     self.outputs.table.set(list(self.inputs.table.get()))
+        # # else, pull order of rows from internal variable
+        # else:
+        #     self.outputs.table.set(self.outputTable)
 
         return 1
