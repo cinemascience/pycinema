@@ -31,8 +31,10 @@ try:
     def paint(self, painter, option, widget=None):
       super().paint(painter, option, widget)
       if self.highlight:
-        pen = QtGui.QPen(QtGui.QColor("#FF0000"))
-        pen.setWidth(4)
+        pen = QtGui.QPen(QtGui.QColor("#00D6E0"))
+        pen.setWidth(30)
+        # pen = QtGui.QPen(QtGui.QColor("#FF0000"))
+        # pen.setWidth(4)
         painter.setPen(pen)
         painter.drawRect(self.boundingRect())
 
