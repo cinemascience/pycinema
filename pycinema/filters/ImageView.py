@@ -47,10 +47,7 @@ try:
         indices.append(self.idx)
       indices.sort()
 
-      if self.filter.inputs.selection.valueIsPort():
-        self.filter.inputs.selection._value.parent.inputs.value.set(indices)
-      else:
-        self.filter.inputs.selection.set(indices)
+      self.filter.inputs.selection.set(indices)
 
   class _ImageViewer(QtWidgets.QGraphicsView):
 
@@ -115,10 +112,7 @@ try:
         if indices==self.filter.inputs.selection.get():
           return
 
-        if self.filter.inputs.selection.valueIsPort():
-          self.filter.inputs.selection._value.parent.inputs.value.set(indices)
-        else:
-          self.filter.inputs.selection.set(indices)
+        self.filter.inputs.selection.set(indices)
 
       def mousePressEvent(self,event):
         if event.modifiers() == QtCore.Qt.ShiftModifier:
