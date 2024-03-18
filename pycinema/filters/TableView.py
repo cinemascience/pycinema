@@ -38,17 +38,36 @@ try:
 except NameError:
   pass
 
+class NumericSortProxyModel(QtCore.QSortFilterProxyModel):
+    def lessThan(self, left, right):
+        leftData = self.sourceModel().data(left, QtCore.Qt.DisplayRole)
+        rightData = self.sourceModel().data(right, QtCore.Qt.DisplayRole)
+
+        try:
+            leftValue = float(leftData)
+            rightValue = float(rightData)
+            return leftValue > rightValue
+        except ValueError:
+            return leftData > rightData
+
 class TableView(Filter):
 
     def __init__(self):
 
         self.model = TableModel()
-        self.selection_model = QtCore.QItemSelectionModel()
-        self.selection_model.setModel(self.model)
+
+        self.proxyModel = NumericSortProxyModel() #QtCore.QSortFilterProxyModel()
+        self.proxyModel.setSourceModel(self.model)
+
+
+        self.selection_model = QtCore.QItemSelectionModel(self.proxyModel)
+        #self.selection_model.setModel(self.model)
         self.selection_model.selectionChanged.connect(self._onSelectionChanged)
 
         self.update_from_selection = False
         self.suppress_selection_update = False
+
+        self.outputTable = list()
 
         Filter.__init__(
           self,
@@ -57,6 +76,7 @@ class TableView(Filter):
             'selection': []
           },
           outputs={
+            'tableSelection': [[]],
             'table': [[]]
           }
         )
@@ -64,6 +84,9 @@ class TableView(Filter):
     def generateWidgets(self):
         widget = QtWidgets.QTableView()
         widget.setModel(self.model)
+        widget.setModel(self.proxyModel)
+        widget.setSortingEnabled(True)
+        widget.horizontalHeader().sectionClicked.connect(self._onHeaderClicked)        
         widget.setSelectionModel(self.selection_model)
         widget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         return widget
@@ -79,6 +102,28 @@ class TableView(Filter):
         else:
           self.inputs.selection.set(indices)
 
+    def _onHeaderClicked(self, logicalIndex):
+        # reorder the output table
+        self.outputTable = list()
+        rowCount = self.proxyModel.rowCount()
+        columnCount = self.proxyModel.columnCount()
+
+        # add header info
+        self.outputTable.append(self.inputs.table.get()[0])
+        for row in range(rowCount):
+            rowData = []
+            for column in range(columnCount):
+                index = self.proxyModel.index(row, column)
+                data = self.proxyModel.data(index, QtCore.Qt.DisplayRole)
+                rowData.append(data)
+            self.outputTable.append(tuple(rowData))
+
+        # update indices of selected rows
+        self._onSelectionChanged(None, None)
+        # push to update
+        self.update()
+
+
     def _update(self):
         table = self.inputs.table.get()
         input_is_image_list = len(table)>0 and isinstance(table[0],Image)
@@ -93,12 +138,12 @@ class TableView(Filter):
         indices = list(self.inputs.selection.get())
 
         if input_is_image_list:
-            self.outputs.table.set(
+            self.outputs.tableSelection.set(
                 [table[i] for i in indices if i<len(table)]
             )
         else:
             indices.insert(0,-1)
-            self.outputs.table.set(
+            self.outputs.tableSelection.set(
                 [table[i+1] for i in indices  if i+1<len(table)]
             )
 
@@ -107,5 +152,12 @@ class TableView(Filter):
         mode = QtCore.QItemSelectionModel.Select | QtCore.QItemSelectionModel.Rows
         [self.selection_model.select(i, mode) for i in indices_]
         self.suppress_selection_update = False
+
+        # list empty, ie. no header clicked, then use input as output
+        if len(self.outputTable) == 0: 
+            self.outputs.table.set(list(self.inputs.table.get()))
+        # else, pull order of rows from internal variable
+        else:
+            self.outputs.table.set(self.outputTable)
 
         return 1
