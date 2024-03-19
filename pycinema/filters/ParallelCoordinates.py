@@ -178,10 +178,10 @@ try:
         self.compose = not self.compose
       self.mouse_state = -1
       self.bar.hide()
-      self.updateSelection()
+      self.updateSelection(event.modifiers() == QtCore.Qt.ShiftModifier)
 
-    def updateSelection(self):
-      if event.modifiers() == QtCore.Qt.ShiftModifier:
+    def updateSelection(self,grow=False):
+      if grow:
         parameters = self.filter.computeParameterValues()
       else:
         parameters = {}
