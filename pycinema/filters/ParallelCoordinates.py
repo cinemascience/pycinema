@@ -181,8 +181,10 @@ try:
       self.updateSelection()
 
     def updateSelection(self):
-      # parameters = self.filter.computeParameterValues()
-      parameters = {}
+      if event.modifiers() == QtCore.Qt.ShiftModifier:
+        parameters = self.filter.computeParameterValues()
+      else:
+        parameters = {}
       indices = sorted([self.selection_idx0, self.selection_idx1])
       parameters[self.parameter] = {self.values[s] for s in range(indices[0],indices[1]+1)}
       sql = 'SELECT `id` ' + self.filter.computeSQL(parameters)
