@@ -49,7 +49,7 @@ try:
         indices.append(self.idx)
       indices.sort()
 
-      self.filter.inputs.selection.set(indices)
+      self.filter.inputs.selection.set(indices,True,True)
 
   class _ImageViewer(QtWidgets.QGraphicsView):
 
@@ -114,7 +114,7 @@ try:
         if indices==self.filter.inputs.selection.get():
           return
 
-        self.filter.inputs.selection.set(indices)
+        self.filter.inputs.selection.set(indices,True,True)
 
       def mousePressEvent(self,event):
         if event.modifiers() == QtCore.Qt.ShiftModifier:
