@@ -25,11 +25,12 @@ parser = argparse.ArgumentParser( description="a command to access cinema viewer
 
 parser.add_argument( "--version", action="version", version=pycinema.__version__)
 parser.add_argument( "-v", "--verbose", action="store_true" )
+parser.add_argument( "-H", "--headless", action="store_true" )
 
 # positional argument
 parser.add_argument( "filenames", nargs='*' )
 
-args = parser.parse_args()
+args, remaining = parser.parse_known_args()
 
 # set up logging
   # turn off external logging
@@ -42,8 +43,20 @@ if args.verbose:
     log.getLogger().setLevel(log.DEBUG)
 
 
-# keep going if the command line args allow it
-import pycinema.theater
+if not args.headless:
+    # keep going if the command line args allow it
+    import pycinema.theater
 
-pycinema.theater.Theater(args.filenames)
+    pycinema.theater.Theater(args.filenames)
+
+else:
+    import traceback
+
+    with open(args.filenames[0], 'r') as sfile:
+        script = sfile.read()
+        try:
+            sys.argv = remaining
+            exec(script)
+        except Exception as err:
+            traceback.print_exc()
 
