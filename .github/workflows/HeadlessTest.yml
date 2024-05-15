@@ -26,7 +26,8 @@ jobs:
       - name: Test headless execution 
         run: |
           cinema --headless examples/theater/TableWriteHeadlessExample.py
-          ls -l
+      - name: Test headless results 
+        run: |
           python -m pytest -s testing/HeadlessTest.py
 
   macos:
@@ -50,7 +51,8 @@ jobs:
       - name: Test headless execution 
         run: |
           cinema --headless examples/theater/TableWriteHeadlessExample.py
-          ls -l
+      - name: Test headless results 
+        run: |
           python -m pytest -s testing/HeadlessTest.py
 
   # windows:
