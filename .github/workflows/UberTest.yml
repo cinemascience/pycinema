@@ -1,4 +1,4 @@
-name: HeadlessTest
+name: UberTest 
 
 on:
   push:
@@ -23,12 +23,15 @@ jobs:
       - name: Dependencies
         run: |
           python setup.py install
-      - name: Test headless execution 
+      - name: Test execution 
         run: |
           cinema --headless examples/theater/TableWriteHeadlessExample.py
-      - name: Test headless results 
+      - name: Test results 
         run: |
           python -m pytest -s testing/HeadlessTest.py
+          python -m pytest -s testing/QueryWriteTest.py
+          python -m pytest -s testing/SqliteDatabaseReader.py
+          python -m pytest -s testing/TableQueryTest.py
 
   macos:
     strategy:
@@ -48,36 +51,35 @@ jobs:
           python -m pip install --upgrade pip setuptools
           python -m pip install pytest
           python setup.py install
-      - name: Test headless execution 
+      - name: Test execution 
         run: |
           cinema --headless examples/theater/TableWriteHeadlessExample.py
-      - name: Test headless results 
+      - name: Test results 
         run: |
           python -m pytest -s testing/HeadlessTest.py
+          python -m pytest -s testing/QueryWriteTest.py
+          python -m pytest -s testing/SqliteDatabaseReader.py
+          python -m pytest -s testing/TableQueryTest.py
 
-  # windows:
-  #   runs-on: windows-latest
-  #   strategy:
-  #     matrix:
-  #       python-version: [3.9]
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Set up Python ${{ matrix.python-version }}
-  #       uses: actions/setup-python@v4
-  #       with:
-  #         python-version: ${{ matrix.python-version }}
-  #     - uses: msys2/setup-msys2@v2
-  #       with:
-  #         msystem: MINGW64
-  #         release: false
-  #         install: mingw-w64-x86_64-mesa
-  #     - name: Test Environment
-  #       shell: pwsh
-  #       run: |
-  #         $env:GLCONTEXT_WIN_LIBGL = "C:\msys64\mingw64\bin\opengl32.dll"
-  #     - name: Dependencies
-  #       run: |
-  #         python setup.py install
-  #     - name: Test using ModernGL
-  #       run: |
-  #         python -m pytest -s testing/RenderTest.py
+  windows:
+    strategy:
+      matrix:
+        python-version: [3.9,'3.10','3.11']
+        os-version: [windows-latest]
+
+    runs-on: ${{ matrix.os-version }} 
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools
+          python -m pip install pytest
+          python setup.py install
+      - name: Test script 
+        run: |
+          cinema --version
+          cinema --help
