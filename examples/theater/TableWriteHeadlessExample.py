@@ -1,7 +1,5 @@
 import pycinema
 import pycinema.filters
-import pycinema.theater
-import pycinema.theater.views
 
 # pycinema settings
 PYCINEMA = { 'VERSION' : '3.0.1'}
@@ -18,6 +16,3 @@ TableWriter_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
 
 # execute pipeline
 CinemaDatabaseReader_0.update()
-
-with open("test.csv", 'w') as tfile:
-    tfile.write("test")
