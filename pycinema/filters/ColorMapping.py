@@ -137,7 +137,7 @@ class ColorMapping(Filter):
           if 'rgba' in channels:
             self.inputs.channel.set('rgba')
           else:
-            self.inputs.channel.set(channels[0])
+            self.inputs.channel.set(next(iter(channels)))
           iChannel = self.inputs.channel.get()
 
         results = []
