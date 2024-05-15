@@ -18,3 +18,6 @@ TableWriter_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
 
 # execute pipeline
 CinemaDatabaseReader_0.update()
+
+with open("test.csv", 'w') as tfile:
+    tfile.write("test")
