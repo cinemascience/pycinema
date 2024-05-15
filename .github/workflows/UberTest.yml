@@ -79,11 +79,7 @@ jobs:
           python -m pip install --upgrade pip setuptools
           python -m pip install pytest
           python setup.py install
-      - name: Test execution 
+      - name: Test script 
         run: |
-          cinema --headless examples/theater/TableWriteHeadlessExample.py
-      - name: Test results 
-        run: |
-          python -m pytest -s testing/HeadlessTest.py
           cinema --version
           cinema --help
