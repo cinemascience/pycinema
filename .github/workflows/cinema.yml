@@ -30,8 +30,8 @@ jobs:
       matrix:
         python-version: [3.9, '3.10', '3.11']
         os-version: [macos-11, macos-12]
-
     runs-on: ${{ matrix.os-version }} 
+
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
@@ -52,8 +52,8 @@ jobs:
       matrix:
         python-version: [3.9, '3.10', '3.11']
         os-version: [windows-latest]
-
     runs-on: ${{ matrix.os-version }} 
+
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
