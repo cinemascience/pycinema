@@ -76,7 +76,7 @@ class _Theater(QtWidgets.QMainWindow):
       if not path:
         path = QtWidgets.QFileDialog.getExistingDirectory(Theater.instance, "Select Cinema Database")
       if path:
-        Theater.instance.loadScript('./pycinema/scripts/view.py',[path])
+        Theater.instance.loadScript('./pycinema/scripts/view.py', None, [path])
 
     def showFilterBrowser(self):
         dialog = FilterBrowser()
@@ -195,7 +195,7 @@ import pycinema.theater.views
           return
         QtCore.QTimer.singleShot(0, lambda: call())
 
-    def loadScript(self, script_file_name=None, args=[]):
+    def loadScript(self, script_file_name=None, scriptkey=None, args=[]):
         if not script_file_name:
             script_file_name = QtWidgets.QFileDialog.getOpenFileName(self, "Load Script")[0]
         if script_file_name and len(script_file_name)>0:
@@ -204,7 +204,10 @@ import pycinema.theater.views
                 script = script_file.read()
                 script_file.close()
                 self.reset(True)
-                self.setWindowTitle("Cinema:Theater (" + script_file_name + ")")
+                if not scriptkey:
+                    self.setWindowTitle("Cinema:Theater (" + script_file_name + ")")
+                else:
+                    self.setWindowTitle("Cinema:" + scriptkey)
                 self.executeScript(script,args)
             except:
                 return
@@ -222,13 +225,14 @@ class Theater():
         Theater.instance.resize(1024, 900)
         Theater.instance.show()
 
+        scriptkey = None 
         if len(args)>0 and isinstance(args[0], str):
           if args[0].endswith('.py'):
-            Theater.instance.loadScript(args[0],args[1:])
+            Theater.instance.loadScript(args[0], scriptkey, args[1:])
 
           elif args[0].endswith('.cdb') or args[0].endswith('.cdb/'):
             script = pycinema.getPathForScript('browse')
-            Theater.instance.loadScript(script, [args[0]])
+            Theater.instance.loadScript(script, scriptkey, [args[0]])
 
           else: 
             script = pycinema.getPathForScript(args[0])
@@ -237,7 +241,7 @@ class Theater():
               if len(args)<2:
                 args.append(QtWidgets.QFileDialog.getExistingDirectory(Theater.instance, "Select Cinema Database"))
 
-              Theater.instance.loadScript(script, args[1:])
+              Theater.instance.loadScript(script, args[0], args[1:])
             else:
               print("no script found for key: '" + args[0] + "'")
 

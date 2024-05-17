@@ -5,7 +5,7 @@ import argparse
 import pycinema
 import logging as log
 
-# create help text and handle some command line arguments 
+# create help text and handle some command line arguments
 helptext = "\n\
 \n\
 examples: \n\
@@ -59,4 +59,3 @@ else:
             exec(script)
         except Exception as err:
             traceback.print_exc()
-

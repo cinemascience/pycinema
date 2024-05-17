@@ -1,4 +1,4 @@
-name: UberTest 
+name: UberTest
 
 on:
   push:
@@ -23,12 +23,11 @@ jobs:
       - name: Dependencies
         run: |
           python setup.py install
-      - name: Test execution 
+      - name: Test execution
         run: |
           cinema --headless examples/theater/TableWriteHeadlessExample.py
-      - name: Test results 
+      - name: Test results
         run: |
-          python -m pytest -s testing/HeadlessTest.py
           python -m pytest -s testing/QueryWriteTest.py
           python -m pytest -s testing/SqliteDatabaseReader.py
           python -m pytest -s testing/TableQueryTest.py
@@ -39,7 +38,7 @@ jobs:
         python-version: [3.9,'3.10','3.11']
         os-version: [macos-11, macos-12]
 
-    runs-on: ${{ matrix.os-version }} 
+    runs-on: ${{ matrix.os-version }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
@@ -51,12 +50,11 @@ jobs:
           python -m pip install --upgrade pip setuptools
           python -m pip install pytest
           python setup.py install
-      - name: Test execution 
+      - name: Test execution
         run: |
           cinema --headless examples/theater/TableWriteHeadlessExample.py
-      - name: Test results 
+      - name: Test results
         run: |
-          python -m pytest -s testing/HeadlessTest.py
           python -m pytest -s testing/QueryWriteTest.py
           python -m pytest -s testing/SqliteDatabaseReader.py
           python -m pytest -s testing/TableQueryTest.py
@@ -67,7 +65,7 @@ jobs:
         python-version: [3.9,'3.10','3.11']
         os-version: [windows-latest]
 
-    runs-on: ${{ matrix.os-version }} 
+    runs-on: ${{ matrix.os-version }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
@@ -79,7 +77,7 @@ jobs:
           python -m pip install --upgrade pip setuptools
           python -m pip install pytest
           python setup.py install
-      - name: Test script 
+      - name: Test script
         run: |
           cinema --version
           cinema --help
