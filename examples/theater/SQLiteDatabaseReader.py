@@ -12,8 +12,8 @@ ImageReader_0 = pycinema.filters.ImageReader()
 ImageView_0 = pycinema.filters.ImageView()
 
 # properties
-SqliteDatabaseReader_0.inputs.path.set("data/wildfire/wildfire.sqlite3", False)
-SqliteDatabaseReader_0.inputs.table.set("vision", False)
+SqliteDatabaseReader_0.inputs.path.set("data/scalar-images.cdb/data.db", False)
+SqliteDatabaseReader_0.inputs.table.set("data", False)
 SqliteDatabaseReader_0.inputs.file_column.set("FILE", False)
 ImageReader_0.inputs.table.set(SqliteDatabaseReader_0.outputs.table, False)
 ImageReader_0.inputs.file_column.set("FILE", False)
