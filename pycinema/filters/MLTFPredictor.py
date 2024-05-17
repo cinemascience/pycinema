@@ -40,6 +40,8 @@ class MLTFPredictor(Filter):
           data = image.channels['rgba']
           if gray_req:
             data = np.dot(data[...,:3], [0.2989, 0.5870, 0.1140])
+          else:
+            data = [[item[:3] for item in inner_list] for inner_list in data]             
           data = np.array(data) / 255
           data = data.reshape((1, width, height, channels))
 

@@ -9,13 +9,13 @@ def test_writetable():
     TableWriter_0 = pycinema.filters.TableWriter()
 
     # properties
-    SqliteDatabaseReader_0.inputs.path.set("data/wildfire/wildfire.sqlite3", False)
-    SqliteDatabaseReader_0.inputs.table.set("vision", False)
+    SqliteDatabaseReader_0.inputs.path.set("data/scalar-images.cdb/data.db", False)
+    SqliteDatabaseReader_0.inputs.table.set("data", False)
     SqliteDatabaseReader_0.inputs.file_column.set("FILE", False)
     TableWriter_0.inputs.path.set("sqlite3.csv", False)
     TableWriter_0.inputs.table.set(SqliteDatabaseReader_0.outputs.table, False)
 
     # execute pipeline
-    SqliteDatabaseReader_0.update()
+    TableWriter_0.update()
 
-    assert filecmp.cmp('sqlite3.csv', 'testing/gold/SqliteDatabaseReader.csv')
+    assert filecmp.cmp('sqlite3.csv', 'data/scalar-images.cdb/data.csv')

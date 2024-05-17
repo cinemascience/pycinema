@@ -31,8 +31,10 @@ try:
     def paint(self, painter, option, widget=None):
       super().paint(painter, option, widget)
       if self.highlight:
-        pen = QtGui.QPen(QtGui.QColor("#FF0000"))
-        pen.setWidth(4)
+        pen = QtGui.QPen(QtGui.QColor("#00D6E0"))
+        pen.setWidth(30)
+        # pen = QtGui.QPen(QtGui.QColor("#FF0000"))
+        # pen.setWidth(4)
         painter.setPen(pen)
         painter.drawRect(self.boundingRect())
 
@@ -47,10 +49,7 @@ try:
         indices.append(self.idx)
       indices.sort()
 
-      if self.filter.inputs.selection.valueIsPort():
-        self.filter.inputs.selection._value.parent.inputs.value.set(indices)
-      else:
-        self.filter.inputs.selection.set(indices)
+      self.filter.inputs.selection.set(indices,True,True)
 
   class _ImageViewer(QtWidgets.QGraphicsView):
 
@@ -115,10 +114,7 @@ try:
         if indices==self.filter.inputs.selection.get():
           return
 
-        if self.filter.inputs.selection.valueIsPort():
-          self.filter.inputs.selection._value.parent.inputs.value.set(indices)
-        else:
-          self.filter.inputs.selection.set(indices)
+        self.filter.inputs.selection.set(indices,True,True)
 
       def mousePressEvent(self,event):
         if event.modifiers() == QtCore.Qt.ShiftModifier:

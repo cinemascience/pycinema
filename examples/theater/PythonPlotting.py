@@ -15,7 +15,7 @@ TableView_0 = pycinema.filters.TableView()
 ImageView_0 = pycinema.filters.ImageView()
 
 # properties
-CinemaDatabaseReader_0.inputs.path.set("data/ScalarImages.cdb", False)
+CinemaDatabaseReader_0.inputs.path.set("data/scalar-images.cdb", False)
 CinemaDatabaseReader_0.inputs.file_column.set("FILE", False)
 Calculator_0.inputs.table.set(TableQuery_0.outputs.table, False)
 Calculator_0.inputs.label.set("result", False)

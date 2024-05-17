@@ -83,7 +83,7 @@ def getPathForScript(name):
     if 'PYCINEMA_SCRIPT_DIR' in os.environ:
         scriptdirs.append(os.path.abspath(os.environ['PYCINEMA_SCRIPT_DIR']))
 
-    scriptpath = None 
+    scriptpath = None
     for scriptdir in scriptdirs:
         # iterate over the directories, overwriting the script if it exists
         if os.path.exists(scriptdir):
@@ -95,7 +95,7 @@ def getPathForScript(name):
             # if that doesn't exist, search for one with an extension
             else:
                 if os.path.isfile(possible_script + ".py"):
-                    scriptpath = possible_script + ".py" 
+                    scriptpath = possible_script + ".py"
     else:
         log.debug("script directory does not exist: \'" + scriptdir + "\'")
 
@@ -296,7 +296,7 @@ class Port():
             return self._value.time
         return self.time
 
-    def set(self, value, update = True):
+    def set(self, value, update=True, propagate_back=False):
         if Filter._debug:
             print(type(self.parent).__name__+"->"+self.name, str(value)[:40])
 
@@ -310,8 +310,14 @@ class Port():
 
         self.time = time.time()
 
-        # if old value is a port stop listing for push events
+        # if old value is a port
         if isinstance(self._value, Port):
+          if propagate_back and hasattr(self._value.parent.inputs,'value'):
+            # override ValueSource
+            self._value.parent.inputs.value.set(value,update,False)
+            return
+          else:
+            # stop listing for push events
             self._value.off('value_set', self.propagate_value)
             self._value.connections.remove(self)
             Filter.trigger('connection_removed', [self._value,self])

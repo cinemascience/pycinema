@@ -44,7 +44,7 @@ class DepthCompositing(Filter):
     def getKeys(self,image,compose):
         if compose[0]==None:
             return image.meta.keys()
-        ignore = [compose[0]] + ['id','file']
+        ignore = [compose[0]] + ['^id','^file']
         return [p for p in image.meta.keys() if not any([re.search(i, p, re.IGNORECASE) for i in ignore])]
 
     def getTupleKey(self,image,keys):

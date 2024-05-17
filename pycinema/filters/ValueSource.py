@@ -6,8 +6,7 @@ class ValueSource(Filter):
         Filter.__init__(
           self,
           inputs = {
-            'value': '',
-            'cast': True
+            'value': []
           },
           outputs = {
             'value': ''
@@ -16,7 +15,7 @@ class ValueSource(Filter):
 
     def _update(self):
         value = self.inputs.value.get()
-        if isinstance(value, str) and self.inputs.cast.get():
+        if isinstance(value, str):
           value = eval(value)
         self.outputs.value.set( value )
         return 1

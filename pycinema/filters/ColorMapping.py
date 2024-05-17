@@ -1,7 +1,7 @@
 from pycinema import Filter
 
 import numpy
-import matplotlib.cm as cm
+from matplotlib import colormaps
 import matplotlib.pyplot as pp
 
 try:
@@ -36,7 +36,7 @@ class ColorMapping(Filter):
       for widgets in self.widgets:
         widgets['c'].setEnabled(len(images)>0 and len(images[0].channels)>0)
 
-      if len(images)<1:
+      if len(images)<1 or self.channel_model==None:
         return
       else:
         iChannel = self.inputs.channel.get()
@@ -137,7 +137,7 @@ class ColorMapping(Filter):
           if 'rgba' in channels:
             self.inputs.channel.set('rgba')
           else:
-            self.inputs.channel.set(channels[0])
+            self.inputs.channel.set(next(iter(channels)))
           iChannel = self.inputs.channel.get()
 
         results = []
@@ -181,7 +181,8 @@ class ColorMapping(Filter):
 
                 results.append(result)
         else:
-            cmap = cm.get_cmap( map )
+            cmap = colormaps[map]
+            # cmap = cm.get_cmap( map )
             cmap.set_bad(color=nan )
             r = self.inputs.range.get()
             d = r[1]-r[0]

@@ -2,9 +2,9 @@ import sqlite3
 import re
 from copy import deepcopy
 
-from pycinema.filters.ParametersView import Emitter, computeValues
+from pycinema.filters.ParametersView import computeValues
 
-from pycinema import Filter, getTableExtent, isNumber
+from pycinema import Filter, getTableExtent, getColumnIndexFromTable, isNumber
 from pycinema.filters.TableQuery import executeSQL, createTable, insertData, queryData
 
 try:
@@ -20,11 +20,11 @@ try:
     _label.setFont(font)
 
     palette = QtCore.QCoreApplication.instance().palette()
-    color = 'color: '+palette.text().color().name()+';background:transparent;';
-    _label.setStyleSheet(color);
+    _label._style = 'color: '+palette.text().color().name()+';background:transparent;'
+    _label.setStyleSheet(_label._style);
     label = QtWidgets.QGraphicsProxyWidget(parent)
-    label._color = color;
     label.setWidget(_label)
+
     return label
 
   class Lines(QtWidgets.QGraphicsItem):
@@ -93,10 +93,9 @@ try:
 
       self.parameter = parameter
       self.filter = filter
-      state = filter.inputs.state.get()[parameter]
-      self.values = deepcopy(state['O'])
-      self.n_values = len(state['O'])
-      self.compose = state['C']
+      self.values = deepcopy(filter.model[parameter])
+      self.n_values = len(self.values)
+      self.compose = False
       self.selection_idx0 = 0
       self.selection_idx1 = 0
       self.mouse_state = -1
@@ -148,6 +147,7 @@ try:
       bar_pen.setWidth(3)
       self.bar.setPen(bar_pen)
       self.bar.setCursor(QtCore.Qt.PointingHandCursor)
+      self.bar.hide()
 
     def snapToValueIdx(self,y):
       l = (y - self.y0) / (self.y1 - self.y0)
@@ -163,6 +163,7 @@ try:
         idx = self.snapToValueIdx(y)
         self.selection_idx0 = idx
         self.selection_idx1 = idx
+        self.bar.show()
         self.updateBar()
 
     def mouseMoveEvent(self,event):
@@ -175,21 +176,29 @@ try:
     def mouseReleaseEvent(self,event):
       if self.mouse_state == 0:
         self.compose = not self.compose
-      self.mouse_state = -1
-      self.updateState()
-
-    def updateState(self):
-      new_state = deepcopy(self.filter.inputs.state.get())
-      if self.selection_idx0 < self.selection_idx1:
-        idx0, idx1 = self.selection_idx0, self.selection_idx1
+        if self.compose:
+          self.filter.inputs.compose.set(self.parameter)
+        else:
+          self.filter.inputs.compose.set(None)
       else:
-        idx1, idx0 = self.selection_idx0, self.selection_idx1
-      new_state[self.parameter]['V'] = [i for i in range(idx0,idx1+1)]
-      if self.compose:
-        for s in new_state:
-          new_state[s]['C'] = False
-      new_state[self.parameter]['C'] = self.compose
-      self.filter.inputs.state.set(new_state)
+        self.bar.hide()
+        self.updateSelection(event.modifiers() == QtCore.Qt.ShiftModifier)
+      self.mouse_state = -1
+
+    def updateSelection(self,grow=False):
+      if grow:
+        parameters = self.filter.computeParameterValues()
+      else:
+        parameters = {}
+      indices = sorted([self.selection_idx0, self.selection_idx1])
+      parameters[self.parameter] = {self.values[s] for s in range(indices[0],indices[1]+1)}
+      sql = 'SELECT `id` ' + self.filter.computeSQL(parameters)
+      table = queryData(self.filter.db, sql)
+      self.filter.inputs.selection.set(
+        [table[i][0]-1 for i in range(1,len(table))],
+        True,
+        True
+      )
 
     def addTick(self, l, text):
       tick_line = QtWidgets.QGraphicsLineItem(0,0,0,0,self)
@@ -214,7 +223,7 @@ try:
       hy1 = (1-l1)*self.y0 + l1*self.y1
       self.bar.setRect( -1, hy0, 2, hy1-hy0 )
 
-    def update(self, state, x, y, height, axis_width):
+    def _resize(self,  x, y, height, axis_width):
       self.prepareGeometryChange()
 
       self.br = QtCore.QRectF(-axis_width/2,y,axis_width,height)
@@ -233,29 +242,11 @@ try:
         lb = tick_label.boundingRect()
         tick_label.setPos(-10-lb.width(),y-lb.height()/2)
 
-      values = state['V']
-      self.selection_idx0 = values[0]
-      self.selection_idx1 = values[-1]
-      self.updateBar()
-
-      self.compose = state['C']
-      if self.compose:
-        self.label.widget().setStyleSheet('font-weight: bold;'+self.label._color)
-      else:
-        self.label.widget().setStyleSheet('font-weight: normal;'+self.label._color)
-
     def boundingRect(self):
       return self.br
 
     def paint(self, painter, option, widget):
       return
-
-  class SelectionEmitter(QtCore.QObject):
-    s_selection_changed = QtCore.Signal(name='s_selection_changed')
-    s_selection_changed_intermediate = QtCore.Signal(name='s_selection_changed_intermediate')
-
-    def __init__(self):
-      super().__init__()
 
   class _ParallelCoordinates(QtWidgets.QGraphicsView):
 
@@ -281,28 +272,110 @@ try:
         self.scene().removeItem(axis)
       self.axes = {}
 
-    def addAxes(self,state):
-      for s in state:
-        axis = Axis(s,self.filter)
-        self.axes[s] = axis
+    def addAxes(self):
+      model = self.filter.model
+      for p in model:
+        axis = Axis(p,self.filter)
+        self.axes[p] = axis
         self.scene().addItem(axis)
 
     def updatePlot(self):
-      state = self.filter.inputs.state.get()
+
+      self.removeAxes()
+      self.removeLines()
+
+      self.addAxes()
+      self.addBackgroundLines()
+      self._resize()
+
+    def addHighlightedLines(self):
+      selection = self.filter.inputs.selection.get()
       table = self.filter.inputs.table.get()
-      tableExtent = getTableExtent(table)
+      model = self.filter.model
+      parameters = [p for p in model]
+      n = len(parameters) - 1
+      if n<1: return
 
-      parameters = [s for s in state]
+      dx = 1/n
+      x = 0
 
-      requires_generation = any([a not in parameters for a in self.axes]) or any([s not in self.axes for s in state]) or any([self.axes[s].values!=state[s]['O'] for s in state])
-      if requires_generation:
-        self.removeAxes()
-        self.removeLines()
-        if tableExtent[0]<2 or tableExtent[1]<1:
-          return
-        self.addAxes(state)
-        self.addLines(state,table)
+      lines = []
+      edges = set()
+      for i in range(0,len(parameters)-1):
+        p0 = parameters[i]
+        p1 = parameters[i+1]
+        c0 = table[0].index(p0)
+        c1 = table[0].index(p1)
+        s0 = self.axes[p0].values
+        s1 = self.axes[p1].values
+        n0 = len(s0)-1
+        n1 = len(s1)-1
 
+        for r in selection:
+          edge = (str(table[r+1][c0]),str(table[r+1][c1]))
+          if not edge in edges:
+            lines.append([
+                  i*dx, s0.index(edge[0])/n0 if n0>0 else 0.5,
+              (i+1)*dx, s1.index(edge[1])/n1 if n1>0 else 0.5
+            ])
+            edges.add(edge)
+
+      self.lines.lines_highlight = lines
+      self._resize()
+
+    def removeLines(self):
+      self.lines.lines_highlight = []
+      self.lines.path_highlight = QtGui.QPainterPath()
+      self.lines.lines_normal = []
+      self.lines.path_normal = QtGui.QPainterPath()
+
+    def addBackgroundLines(self):
+
+      lines = self.lines.lines_normal
+      model = self.filter.model
+      table = self.filter.inputs.table.get()
+
+      parameters = [p for p in model]
+      n = len(parameters) - 1
+      if n<1: return
+
+      dx = 1/n
+      x = 0
+
+      n_rows = len(table)
+      for i in range(0,len(parameters)-1):
+        p0 = parameters[i]
+        p1 = parameters[i+1]
+        c0 = table[0].index(p0)
+        c1 = table[0].index(p1)
+        s0 = self.axes[p0].values
+        s1 = self.axes[p1].values
+        n0 = len(s0)-1
+        n1 = len(s1)-1
+
+        edges = set()
+        for r in range(1,n_rows):
+          edge = (str(table[r][c0]),str(table[r][c1]))
+          if not edge in edges:
+            lines.append([
+                  i*dx, s0.index(edge[0])/n0 if n0>0 else 0.5,
+              (i+1)*dx, s1.index(edge[1])/n1 if n1>0 else 0.5
+            ])
+            edges.add(edge)
+
+    def scrollContentsBy(self,a,b):
+      return
+    def wheelEvent(self, event):
+      return
+    def fitInView(self):
+      return
+    def keyPressEvent(self,event):
+      return
+
+    def _resize(self):
+
+      model = self.filter.model
+      parameters = [p for p in model]
       n = len(parameters)
       if n<1: return
 
@@ -319,11 +392,10 @@ try:
       y = view_rect.y()
       h = view_rect.height()
 
-      for s in state:
-        axis = self.axes[s]
-        axis.update(state[s],x,y,h,aw)
+      for p in parameters:
+        axis = self.axes[p]
+        axis._resize(x,y,h,aw)
         x+=aw
-
 
       a0 = self.axes[parameters[0]]
       a1 = self.axes[parameters[n-1]]
@@ -331,104 +403,62 @@ try:
       x1 = a1.pos().x()
       y0 = a0.y0
       y1 = a0.y1
-      self.addLines(state)
       self.lines.setBoundingRect(QtCore.QRectF(x0,y0,x1-x0,y1-y0))
-
-    def removeLines(self):
-      self.lines.lines_highlight = []
-      self.lines.path_highlight = QtGui.QPainterPath()
-      self.lines.lines_normal = []
-      self.lines.path_normal = QtGui.QPainterPath()
-
-    def addLines(self, state, table=None):
-
-      if table==None:
-        self.lines.lines_highlight = []
-        self.lines.path_highlight = QtGui.QPainterPath()
-        lines = self.lines.lines_highlight
-      else:
-        lines = self.lines.lines_normal
-
-      parameters = [s for s in state]
-      n = len(parameters) - 1
-      if n<1: return
-
-      dx = 1/n
-      x = 0
-      if table==None:
-        for s in range(0,len(parameters)-1):
-          p0 = parameters[s]
-          p1 = parameters[s+1]
-          n0 = len(state[p0]['O'])-1
-          n1 = len(state[p1]['O'])-1
-
-          for i0 in state[p0]['V']:
-            for i1 in state[p1]['V']:
-              lines.append([
-                x, i0/n0 if n0>0 else 0.5,
-                x+dx, i1/n1 if n1>0 else 0.5
-              ])
-          x += dx
-      else:
-        column_indices = [table[0].index(s) for s in parameters]
-        n_rows = len(table)
-        for i in range(0,len(column_indices)-1):
-          c0 = column_indices[i]
-          c1 = column_indices[i+1]
-          s0 = state[table[0][c0]]['O']
-          s1 = state[table[0][c1]]['O']
-          n0 = len(s0)-1
-          n1 = len(s1)-1
-
-          edges = set()
-          for r in range(1,n_rows):
-            edge = (str(table[r][c0]),str(table[r][c1]))
-            if not edge in edges:
-              lines.append([
-                    i*dx, s0.index(edge[0])/n0 if n0>0 else 0.5,
-                (i+1)*dx, s1.index(edge[1])/n1 if n1>0 else 0.5
-              ])
-              edges.add(edge)
-
-    def scrollContentsBy(self,a,b):
-      return
-    def wheelEvent(self, event):
-      return
-    def fitInView(self):
-      return
-    def keyPressEvent(self,event):
-      return
 
     def resizeEvent(self, event):
       super().resizeEvent(event)
-      self.updatePlot()
+      self._resize()
+
 except NameError:
   pass
 
 class ParallelCoordinates(Filter):
 
   def __init__(self):
-    self.emitter = Emitter()
+
+    self.model = {}
+    self.widgets = []
+
+    self.db = None
+
     self.inputTimes = [-1,-1]
     Filter.__init__(
       self,
       inputs={
         'table': [[]],
         'ignore': ['^file','^id'],
-        'state': {}
+        'selection': [],
+        'compose': ''
       },
       outputs={
         'table': [[]],
-        'sql': 'SELECT * FROM input',
+        'sql': '',
         'compose': (None,{})
       }
     )
 
+  def computeParameterValues(self):
+    selection = self.inputs.selection.get()
+    table = self.inputs.table.get()
+    parameters = {}
+    for p in self.model:
+      ci = table[0].index(p)
+      values = {table[s+1][ci] for s in selection}
+      if len(values)>0:
+        parameters[p] = values
+    return parameters
+
+  def computeSQL(self,parameters):
+    sql = 'FROM `input` WHERE '
+    for p in parameters:
+      sql += '`' + p + '` IN ("'+ '","'.join([str(v) for v in parameters[p]]) +'") AND  '
+    return sql[:-6]
+
   def generateWidgets(self):
-    view = _ParallelCoordinates(self)
-    self.emitter.s_update.connect(view.updatePlot)
-    view.updatePlot()
-    return view
+    widget = _ParallelCoordinates(self)
+    widget.updatePlot()
+    self.widgets.append(widget)
+    return widget
 
   def _update(self):
     table = self.inputs.table.get()
@@ -436,61 +466,60 @@ class ParallelCoordinates(Filter):
     if tableExtent[0]<1 or tableExtent[1]<1:
       self.outputs.table.set([[]])
       self.outputs.sql.set('')
-      self.outputs.compose.set((None,{}))
       return 0
 
-    state = self.inputs.state.get()
     inputTimes = [self.inputs.table.getTime(),self.inputs.ignore.get()]
     if self.inputTimes!=inputTimes:
       self.inputTimes = inputTimes
       ignore = self.inputs.ignore.get()
       parameterIndices = [idx for idx in range(0,tableExtent[1]) if not any([re.search(i, table[0][idx], re.IGNORECASE) for i in ignore])]
 
-      # repair state
-      new_state = {}
+      # repair model
+      new_model = {}
       for i in parameterIndices:
-        o = computeValues(table,i)
         parameter = table[0][i]
-        if parameter in state:
-          new_state[parameter] = state[parameter]
-          new_state[i]['O'] = o
-          if new_state[i]['V']>len(o):
-            new_state[i]['V'] = [0]
-        else:
-          new_state[parameter] = {
-            'C': False,
-            'O': o,
-            'V': [0],
-            'M': 'S'
-          }
+        new_model[parameter] = computeValues(table,i)
 
-      self.inputs.state.set(new_state)
-      state = new_state
+      self.model = new_model
+      for w in self.widgets:
+        w.updatePlot()
 
-    # sql output
-    sql = 'SELECT * FROM input WHERE '
-    for s in state:
-      sql += '"'+s+'" IN ("' +'","'.join([str(state[s]['O'][x]) for x in state[s]['V']])+ '") AND '
+      self.db = sqlite3.connect(":memory:")
+      createTable(self.db, table)
+      insertData(self.db, table)
 
-    sql += ' '
-    sql = sql[:-6]
+    for w in self.widgets:
+      w.addHighlightedLines()
+
+    parameters = self.computeParameterValues()
+    if len(parameters)<1:
+      sql = 'SELECT * FROM `input` LIMIT 0'
+    else:
+      sql = 'SELECT * ' + self.computeSQL(parameters)
     self.outputs.sql.set(sql)
 
-    # table output
-    db = sqlite3.connect(":memory:")
-    createTable(db, table)
-    insertData(db, table)
-    output_table = queryData(db, sql)
+    output_table = queryData(self.db, sql)
     self.outputs.table.set(output_table)
 
     # compositing output
-    compose = [(s, {v:i for i,v in enumerate(state[s]['O'])} ) for s in state if state[s]['C']]
-    if len(compose)<1:
-      compose = (None,{})
-    else:
-      compose = compose[0]
-    self.outputs.compose.set(compose)
+    compose = self.inputs.compose.get()
+    for w in self.widgets:
+      for a in w.axes:
+        w.axes[a].compose = a==compose
+        aw = w.axes[a].label.widget()
+        if w.axes[a].compose:
+          aw.setStyleSheet(aw._style+'font-weight:bold;')
+        else:
+          aw.setStyleSheet(aw._style+'font-weight:normal;')
 
-    self.emitter.s_update.emit()
+    if compose != '':
+      idx = getColumnIndexFromTable(output_table,compose)
+      values = set()
+      for i in range(1,len(output_table)):
+        values.add(output_table[i][idx])
+      compose = (compose, {v:i for i,v in enumerate(values)})
+    else:
+      compose = (None,{})
+    self.outputs.compose.set(compose)
 
     return 1
