@@ -59,7 +59,8 @@ class CinemaDatabaseReader(Filter):
             return 0
 
         for i in range(1,len(table)):
-            table[i][fileColumnIdx] = dbPath + '/' + table[i][fileColumnIdx]
+            if not table[i][fileColumnIdx].startswith('http:') and not table[i][fileColumnIdx].startswith('https:'):
+                table[i][fileColumnIdx] = dbPath + '/' + table[i][fileColumnIdx]
 
         self.outputs.table.set(table)
 
