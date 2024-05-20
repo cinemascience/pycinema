@@ -1,6 +1,6 @@
 # Release procedure
 
-- Update `pycinema/\_version.py` to current version
+- Update `pycinema/_version.py` to current version
 - make, upload and test `pycinema` python module at test.pypi.org, using the makefile directives:
     - `make module`
     - `make module-test-upload`
