@@ -1,4 +1,4 @@
-# Cinema Engine
+# Cinema python toolkit 
 ![RenderTest](https://github.com/cinemascience/pycinema/actions/workflows/RenderTest.yml/badge.svg)
 ![MLPredictionTest](https://github.com/cinemascience/pycinema/actions/workflows/MLPredictionTest.yml/badge.svg)
 ![UberTest](https://github.com/cinemascience/pycinema/actions/workflows/UberTest.yml/badge.svg)
