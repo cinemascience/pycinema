@@ -2,6 +2,7 @@ from PySide6 import QtCore, QtWidgets, QtGui
 
 import pycinema
 import pycinema.filters
+import logging as log
 
 from pycinema.theater.View import View
 from pycinema.theater.FilterBrowser import FilterBrowser
@@ -47,10 +48,10 @@ class QtNodeEditorView(QtWidgets.QGraphicsView):
         self.setSceneRect(-l,-l,2*l,2*l)
 
         if not QtNodeEditorView.scene:
-          QtNodeEditorView.init_gobal()
+          QtNodeEditorView.init_global()
         self.setScene(QtNodeEditorView.scene)
 
-    def init_gobal():
+    def init_global():
         node_connection_line = QtWidgets.QGraphicsLineItem()
         node_connection_line.setPen(QtGui.QPen(NES.COLOR_NORMAL, 2, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
         node_connection_line.setZValue(1000)
@@ -105,31 +106,28 @@ class QtNodeEditorView(QtWidgets.QGraphicsView):
         if not node_a or not node_b or (not force and not QtNodeEditorView.auto_connect):
             return
 
-        node_a_ports = node_a.filter.outputs.ports()
-        node_b_ports = node_b.filter.inputs.ports()
+        o_ports = [p for n,p in node_a.filter.outputs.ports()]
+        i_ports = [p for n,p in node_b.filter.inputs.ports()]
+        if len(o_ports)<1 or len(i_ports)<1:
+            return
 
-        if len(node_b_ports)==1:
-          for o_portName, o_port in node_a_ports:
-              for i_portName, i_port in node_b_ports:
-                  bridge_ports = list(o_port.connections)
-                  i_port.set(o_port)
-                  for bridge_port in bridge_ports:
-                      if bridge_port.parent==node_b.filter: continue
-                      for o_portName_, o_port_ in node_b.filter.outputs.ports():
-                          if bridge_port.name == o_portName_:
-                              bridge_port.set(o_port_)
-                  return
+        matches = [(o, i) for o in o_ports for i in i_ports if o.name == i.name]
 
-        for o_portName, o_port in node_a_ports:
-            for i_portName, i_port in node_b_ports:
-                if o_portName==i_portName:
-                    bridge_ports = list(o_port.connections)
-                    i_port.set(o_port)
-                    for bridge_port in bridge_ports:
-                        if bridge_port.parent==node_b.filter: continue
-                        for o_portName_, o_port_ in node_b.filter.outputs.ports():
-                            if bridge_port.name == o_portName_:
-                                bridge_port.set(o_port_)
+        if len(matches)<1:
+            free_i_ports = [i for i in i_ports if not isinstance(i._value, pycinema.Port)]
+            if len(free_i_ports)>0:
+                matches = [(o_ports[0],free_i_ports[0])]
+            else:
+                matches = [(o_ports[0],i_ports[0])]
+
+        for (o,i) in matches:
+            bridge_ports = list(o.connections)
+            i.set(o)
+            for b in bridge_ports:
+                if b.parent==node_b.filter: continue
+                for _, o2 in node_b.filter.outputs.ports():
+                    if b.name == o2.name:
+                        b.set(o2)
 
     def fitInView(self):
         rect = QtCore.QRectF(QtNodeEditorView.scene.itemsBoundingRect())
@@ -273,6 +271,7 @@ class QtNodeEditorView(QtWidgets.QGraphicsView):
                 node.target = QtCore.QPointF(pos[0],-pos[1])
         else:
             g = igraph.Graph(directed=True)
+
             vertices = [f for f in filters]
             g.add_vertices( [f.id for f in vertices] )
 
@@ -295,7 +294,7 @@ class QtNodeEditorView(QtWidgets.QGraphicsView):
             for i, f in enumerate(vertices):
                 node = QtNodeEditorView.node_map[f]
                 coords = layout[i]
-                QtNodeEditorView.node_map[f].target = QtCore.QPointF(coords[1]*scale,coords[0]*scale*0.7)
+                QtNodeEditorView.node_map[f].target = QtCore.QPointF(coords[1]*scale,-coords[0]*scale*0.7)
 
             for f in L:
                 if not f in edgesR:

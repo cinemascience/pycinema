@@ -1,10 +1,9 @@
 # Cinema Engine
 ![RenderTest](https://github.com/cinemascience/pycinema/actions/workflows/RenderTest.yml/badge.svg)
-![QUeryWriteTest](https://github.com/cinemascience/pycinema/actions/workflows/QueryWriteTest.yml/badge.svg)
-![TableQueryTest](https://github.com/cinemascience/pycinema/actions/workflows/TableQueryTest.yml/badge.svg)
-![cinema](https://github.com/cinemascience/pycinema/actions/workflows/cinema.yml/badge.svg)
+![MLPredictionTest](https://github.com/cinemascience/pycinema/actions/workflows/MLPredictionTest.yml/badge.svg)
+![UberTest](https://github.com/cinemascience/pycinema/actions/workflows/UberTest.yml/badge.svg)
 
-Cinema v2.0 is a toolkit of python-based components for creating, filtering, transforming and viewing Cinema databases. Cinema databases are a compact and interactive output format that can be created from scientific visualization tools and infrastructures (ParaView, Ascent, etc.) or created through other code by writing to the common output format. There is more information about the Cinema project [here](https://cinemascience.github.io).
+`pycinema` is a toolkit of python-based components for creating, filtering, transforming and viewing Cinema databases. Cinema databases are a compact and interactive output format that can be created from scientific visualization tools and infrastructures (ParaView, Ascent, etc.) or created through other code by writing to the common output format. There is more information about the Cinema project [here](https://cinemascience.github.io).
 
 Full documentation for this project can be found on [readthedocs.org](https://pycinema.readthedocs.org)
 
@@ -42,17 +41,6 @@ python3 -m venv pcenv
 source pcenv/bin/activate
 pip install --upgrade pip
 pip install pycinema 
-```
-
-- Installing and running with the test pycinema module
-
-```
-mkdir pyc-test
-cd pyc-test
-python3 -m venv pcenv
-source pcenv/bin/activate
-pip install --upgrade pip
-pip install -i https://test.pypi.org/simple/ --extra-index https://pypi.org/simple pycinema
 ```
 
 - Running examples

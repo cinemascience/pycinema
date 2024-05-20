@@ -50,6 +50,7 @@ class CinemaDatabaseWriter(Filter):
 
         images = self.inputs.images.get()
         path = self.inputs.path.get()
+        path = os.path.expanduser(path)
 
         if len(images)<1 or len(path)<1:
             return 1

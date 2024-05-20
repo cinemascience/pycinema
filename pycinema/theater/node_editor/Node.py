@@ -84,15 +84,31 @@ class Node(QtWidgets.QGraphicsObject):
     def paint(self, painter, options, widget):
 
         br = self.boundingRect()
-        br2 = QtCore.QRect(br.x(),br.y(),br.width(),NES.NODE_HEADER_HEIGHT)
+
+        corner_radius = 5
+        corner_radius2 = corner_radius*2
+
         path = QtGui.QPainterPath()
-        path.addRect(br2)
+        path.moveTo(br.x(),br.y()+NES.NODE_HEADER_HEIGHT);
+        path.lineTo(br.x()+br.width(),br.y()+NES.NODE_HEADER_HEIGHT);
+        path.lineTo(br.x()+br.width(),br.y()+corner_radius);
+        path.arcTo(br.x()+br.width()-corner_radius2,br.y(), corner_radius2, corner_radius2, 0.0, 90.0);
+        path.lineTo(br.x()+corner_radius,br.y());
+        path.arcTo(br.x(),br.y(), corner_radius2, corner_radius2, 90.0, 90.0);
+        path.lineTo(br.x(),br.y()+corner_radius);
+
         if self.isSelected():
             painter.fillPath(path,QtGui.QBrush(NES.COLOR_RED_T))
         else:
             painter.fillPath(path,QtGui.QBrush(NES.COLOR_BLUE_T))
 
-        br2 = QtCore.QRect(br.x(),br.y()+NES.NODE_HEADER_HEIGHT,br.width(),br.height()-NES.NODE_HEADER_HEIGHT)
         path = QtGui.QPainterPath()
-        path.addRect(br2)
+
+        path.moveTo(br.x(),br.y()+NES.NODE_HEADER_HEIGHT);
+        path.lineTo(br.x(),br.y()+br.height()-corner_radius);
+        path.arcTo(br.x(),br.y()+br.height()-corner_radius2,corner_radius2,corner_radius2,180,90);
+        path.lineTo(br.x()+br.width()-corner_radius,br.y()+br.height());
+        path.arcTo(br.x()+br.width()-corner_radius2,br.y()+br.height()-corner_radius2,corner_radius2,corner_radius2,270,90);
+        path.lineTo(br.x()+br.width(),br.y()+NES.NODE_HEADER_HEIGHT);
+
         painter.fillPath(path,QtGui.QBrush(NES.COLOR_BASE_T))
