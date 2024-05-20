@@ -18,4 +18,4 @@ def test_writetable():
     # execute pipeline
     TableWriter_0.update()
 
-    assert filecmp.cmp('sqlite3.csv', 'data/scalar-images.cdb/data.csv')
+    assert filecmp.cmp('sqlite3.csv', 'testing/gold/SqliteDatabaseReader.csv')
