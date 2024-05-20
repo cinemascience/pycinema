@@ -1,8 +1,9 @@
 from pycinema import Filter
 
 import csv
-from os.path import exists
+import os.path
 import re
+import logging as log
 
 class CinemaDatabaseReader(Filter):
 
@@ -21,12 +22,14 @@ class CinemaDatabaseReader(Filter):
 
         table = []
         dbPath = self.inputs.path.get()
+        dbPath = os.path.expanduser(dbPath)
+
         if not dbPath:
             self.outputs.table.set([[]])
             return 0
 
-        if not exists(dbPath):
-            print('[ERROR] CDB not found:', dbPath)
+        if not os.path.exists(dbPath):
+            log.error(" CDB not found '" + dbPath + "'")
             self.outputs.table.set([[]])
             return 0
 
@@ -37,7 +40,7 @@ class CinemaDatabaseReader(Filter):
                 for row in rows:
                     table.append(row)
         except:
-            print('[ERROR] Unable to open data.csv')
+            log.error(" Unable to open data.csv")
             self.outputs.table.set([[]])
             return 0
 
@@ -51,12 +54,13 @@ class CinemaDatabaseReader(Filter):
         try:
             fileColumnIdx = [i for i, item in enumerate(table[0]) if re.search(self.inputs.file_column.get(), item, re.IGNORECASE)].pop()
         except:
-            print('[ERROR] file column not found:',self.inputs.file_column.get())
+            log.error(" file column not found: '" + self.inputs.file_column.get() + "'")
             self.outputs.table.set([[]])
             return 0
 
         for i in range(1,len(table)):
-            table[i][fileColumnIdx] = dbPath + '/' + table[i][fileColumnIdx]
+            if not table[i][fileColumnIdx].startswith('http:') and not table[i][fileColumnIdx].startswith('https:'):
+                table[i][fileColumnIdx] = dbPath + '/' + table[i][fileColumnIdx]
 
         self.outputs.table.set(table)
 

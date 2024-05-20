@@ -2,7 +2,196 @@ import time
 import traceback
 import pprint
 import re
+import numpy as np
+from ast import literal_eval
+import PIL
+import io
+import logging as log
+import os
 
+CORE_NAN_VALUES = ['NaN', 'NAN', 'nan']
+
+################################################################################
+# general helper functions
+################################################################################
+def isURL(path):
+    s = path.strip()
+    if s.startswith("http") or s.startswith("HTTP"):
+        return True
+    else:
+        return False
+
+def isNumber(s):
+    t = type(s)
+    if t == int or t == float:
+        return True
+    else:
+        # assume it is a string
+        try:
+            sf = float(s)
+            return True
+        except ValueError:
+            return False
+    return False
+
+def imageFromMatplotlibFigure(figure,dpi):
+  # Create image stream
+  image_stream = io.BytesIO()
+  figure.savefig(image_stream, format='png', dpi=dpi)
+  image_stream.seek(0)
+
+  # Parse stream to pycinema image
+  rawImage = PIL.Image.open(image_stream)
+  if rawImage.mode == 'RGB':
+    rawImage = rawImage.convert('RGBA')
+  image = Image({ 'rgba': np.asarray(rawImage) })
+  return image
+
+#
+# get the path where this module has been installed
+#
+def getModulePath():
+    import pkg_resources
+
+    return os.path.dirname(pkg_resources.resource_filename(__name__, 'Core.py'))
+
+#
+# return a list of scripts installed with this module
+#
+def getPycinemaModuleScripts():
+    scriptdir = os.path.join(getModulePath(), 'scripts')
+
+    scripts = glob.glob(scriptdir + "/*.py")
+
+    names = []
+    for script in scripts:
+        curpath, curname = os.path.split(script)
+        if curname != "__init__.py":
+            names.append(curname.removesuffix('.py'))
+
+    return names
+
+#
+# given the base name of a script, search module and environment paths
+# to find and return the full path for that script
+#
+# the base name of the script is the filename, with no '.py' suffix
+#
+def getPathForScript(name):
+
+    scriptdirs = [os.path.join(getModulePath(), 'scripts')]
+    if 'PYCINEMA_SCRIPT_DIR' in os.environ:
+        scriptdirs.append(os.path.abspath(os.environ['PYCINEMA_SCRIPT_DIR']))
+
+    scriptpath = None
+    for scriptdir in scriptdirs:
+        # iterate over the directories, overwriting the script if it exists
+        if os.path.exists(scriptdir):
+            # first, assume the user supplied the correct filename
+            possible_script = os.path.join(scriptdir, name)
+            if os.path.isfile(possible_script):
+                scriptpath = possible_script
+
+            # if that doesn't exist, search for one with an extension
+            else:
+                if os.path.isfile(possible_script + ".py"):
+                    scriptpath = possible_script + ".py"
+    else:
+        log.debug("script directory does not exist: \'" + scriptdir + "\'")
+
+    return scriptpath
+
+################################################################################
+# table helper functions
+################################################################################
+
+# get the column index from a table, return -1 on failure
+def getColumnIndexFromTable(table, colname):
+    ID = -1
+
+    colnames = table[0]
+    if colname in colnames:
+        ID = colnames.index(colname)
+
+    return ID
+
+# get a column of values from a table
+def getColumnFromTable(table, colname, autocast=False, nan_remove=False, nan_replace=None, missing_remove=False, missing_replace=None):
+    colID = getColumnIndexFromTable(table, colname)
+
+    if colID == -1:
+        log.Error("ERROR: no column named \'" + colname + "\'")
+        return None
+
+    else:
+        # start with all values
+        # these will be strings
+        cleaned_column = [row[colID] for row in table[1:]]
+
+        # remove values
+        if nan_remove:
+            cleaned_column = [x for x in cleaned_column if x not in CORE_NAN_VALUES]
+        if missing_remove:
+            cleaned_column = [x for x in cleaned_column if x != '']
+
+        # replace values
+        if nan_replace:
+            i = 0
+            while i < len(cleaned_column):
+                if cleaned_column[i] in CORE_NAN_VALUES:
+                    print("replacing " + cleaned_column[i])
+                    cleaned_column[i] = nan_replace
+                i += 1
+
+        if missing_replace:
+            i = 0
+            while i < len(cleaned_column):
+                if cleaned_column[i] == '':
+                    cleaned_column[i] = missing_replace
+                i += 1
+
+        # TODO: create a separate function call to determine column type
+        if autocast:
+            t = str
+            for value in cleaned_column:
+                if value != '' and value not in CORE_NAN_VALUES:
+                    t = type(value)
+                    if t == str:
+                        try:
+                            si = int(value)
+                            t = int
+                        except ValueError:
+                            try:
+                                sf = float(value)
+                                t = float
+                            except ValueError:
+                                t = str
+                    break
+            try:
+                cleaned_column = np.asarray(cleaned_column, dtype=t)
+            except ValueError:
+                cleaned_column = []
+
+        return cleaned_column
+
+
+# get extent of the table (nRows,nCols)
+def getTableExtent(table):
+    try:
+        nRows = len(table)
+        if nRows < 1:
+            return (0,0)
+        nCols = len(table[1])
+        for i in range(2,nRows):
+            if len(table[i]) != nCols:
+                return (nRows,-1)
+        return (nRows,nCols)
+    except:
+        return (-1,-1)
+
+################################################################################
+# Image Class
+################################################################################
 class Image():
     def __init__(self, channels=None, meta=None):
         self.meta = meta or {}
@@ -44,31 +233,9 @@ class Image():
     def resolution(self):
         return self.shape[:2][::-1]
 
-def isNumber(s):
-    t = type(s)
-    if t == int or t == float:
-        return True
-    if t == str:
-        try:
-            sf = float(s)
-            return True
-        except ValueError:
-            return False
-    return False
-
-def getTableExtent(table):
-    try:
-        nRows = len(table)
-        if nRows < 1:
-            return (0,0)
-        nCols = len(table[1])
-        for i in range(2,nRows):
-            if len(table[i]) != nCols:
-                return (nRows,-1)
-        return (nRows,nCols)
-    except:
-        return (-1,-1)
-
+################################################################################
+# Port Class
+################################################################################
 class Port():
     def __init__(self, name, value, parent, is_input = False):
         self.parent = parent
@@ -76,8 +243,6 @@ class Port():
         self.is_input = is_input
         self.connections = []
         self.time = -1
-        # if is_input:
-        #     self.connections.append(self.parent)
         self._value = value
         self.default = value
         t = type(value)
@@ -110,30 +275,57 @@ class Port():
         for listener in self._listeners[eventName]:
             listener(data)
 
+    def valueIsPort(self):
+        return isinstance(self._value, Port)
+
+    def valueIsPortList(self):
+        return isinstance(self._value, list) and len(self._value)>0 and isinstance(self._value[0], Port)
+
     def get(self):
         if isinstance(self._value, Port):
             return self._value.get()
-        return self._value;
+        elif self.valueIsPortList():
+            result = []
+            for port in self._value:
+                result.append(port.get())
+            return result
+        return self._value
 
     def getTime(self):
         if isinstance(self._value, Port):
             return self._value.time
-        return self.time;
+        return self.time
 
-    def set(self, value, update = True):
+    def set(self, value, update=True, propagate_back=False):
         if Filter._debug:
             print(type(self.parent).__name__+"->"+self.name, str(value)[:40])
 
-        if self._value == value:
-            return
+        try:
+          np.testing.assert_equal(self._value,value)
+          return
+        except:
+          pass
+        # if self._value == value:
+        #     return
 
         self.time = time.time()
 
-        # if old value is a port stop listing for push events
+        # if old value is a port
         if isinstance(self._value, Port):
+          if propagate_back and hasattr(self._value.parent.inputs,'value'):
+            # override ValueSource
+            self._value.parent.inputs.value.set(value,update,False)
+            return
+          else:
+            # stop listing for push events
             self._value.off('value_set', self.propagate_value)
             self._value.connections.remove(self)
             Filter.trigger('connection_removed', [self._value,self])
+        elif self.valueIsPortList():
+            for port in self._value:
+                port.off('value_set', self.propagate_value)
+                port.connections.remove(self)
+                Filter.trigger('connection_removed', [port,self])
 
         # replace old value with new value
         self._value = value
@@ -144,6 +336,11 @@ class Port():
             self._value.on('value_set', self.propagate_value)
             self._value.connections.append(self)
             Filter.trigger('connection_added', [self._value,self])
+        elif self.valueIsPortList():
+            for port in self._value:
+                port.on('value_set', self.propagate_value)
+                port.connections.append(self)
+                Filter.trigger('connection_added', [port,self])
 
         # if value of a port was changed trigger update of listeners
         if self.is_input and update and not Filter._processing:
@@ -159,6 +356,9 @@ class PortList():
     def ports(self):
         return self.__ports.items()
 
+################################################################################
+# Filter Class
+################################################################################
 class Filter():
 
     _debug = False
@@ -175,9 +375,9 @@ class Filter():
 
     @staticmethod
     def off(eventName,listener):
-        if not eventName in Filter._listeners:
-            return
-        Filter._listeners[eventName].remove(listener)
+        if not eventName in Filter._listeners: return
+        id = listener.__repr__()
+        Filter._listeners[eventName] = [l for l in Filter._listeners[eventName] if l.__repr__()!=id]
 
     @staticmethod
     def trigger(eventName, data):
@@ -207,6 +407,9 @@ class Filter():
         for _, iPort in self.inputs.ports():
             if isinstance(iPort._value, Port):
                 filters.add(iPort._value.parent)
+            elif iPort.valueIsPortList():
+                for port in iPort._value:
+                    filters.add(port.parent)
         return filters
 
     def getOutputFilters(self):
@@ -296,7 +499,11 @@ class Filter():
             lt = f.time
             needsUpdate = False
             for _, iPort in f.inputs.ports():
-                if lt<iPort.getTime():
+                if iPort.valueIsPortList():
+                    for p in iPort._value:
+                        if lt<p.getTime():
+                            needsUpdate = True
+                elif lt<iPort.getTime():
                     needsUpdate = True
             if f==self or needsUpdate:
                 t0 = time.time()
@@ -315,7 +522,6 @@ class Filter():
                 print('SKIP',f)
 
         Filter._processing = False
-
         return 1
 
     def help(self):

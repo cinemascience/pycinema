@@ -2,6 +2,7 @@ from pycinema import Filter
 
 import numpy
 import re
+import logging as log
 
 class DepthCompositing(Filter):
 
@@ -43,7 +44,7 @@ class DepthCompositing(Filter):
     def getKeys(self,image,compose):
         if compose[0]==None:
             return image.meta.keys()
-        ignore = [compose[0]] + ['id','file']
+        ignore = [compose[0]] + ['^id','^file']
         return [p for p in image.meta.keys() if not any([re.search(i, p, re.IGNORECASE) for i in ignore])]
 
     def getTupleKey(self,image,keys):
@@ -115,7 +116,7 @@ class DepthCompositing(Filter):
 
         nImages = len(imagesA)
         if len(imagesB)>0 and nImages!=len(imagesB):
-          print('ERROR', 'Input image lists must be of equal size.' )
+          log.error("Input image lists must be of equal size.")
           self.outputs.images.set(results)
           return 0
 

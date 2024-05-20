@@ -3,8 +3,9 @@
 import sys
 import argparse
 import pycinema
+import logging as log
 
-# create help text and handle some command line arguments 
+# create help text and handle some command line arguments
 helptext = "\n\
 \n\
 examples: \n\
@@ -23,14 +24,38 @@ parser = argparse.ArgumentParser( description="a command to access cinema viewer
                                   formatter_class=argparse.RawDescriptionHelpFormatter )
 
 parser.add_argument( "--version", action="version", version=pycinema.__version__)
+parser.add_argument( "-v", "--verbose", action="store_true" )
+parser.add_argument( "-H", "--headless", action="store_true" )
 
 # positional argument
 parser.add_argument( "filenames", nargs='*' )
 
-args = parser.parse_args()
+args, remaining = parser.parse_known_args()
 
-# keep going if the command line args allow it
-import pycinema.theater
+# set up logging
+  # turn off external logging
+log.getLogger("tensorflow").setLevel(log.WARNING)
+log.getLogger("PIL").setLevel(log.WARNING)
+log.getLogger("urllib3").setLevel(log.WARNING)
+log.getLogger("matplotlib").setLevel(log.WARNING)
+log.getLogger().setLevel(log.INFO)
+if args.verbose:
+    log.getLogger().setLevel(log.DEBUG)
 
-pycinema.theater.Theater(args.filenames)
 
+if not args.headless:
+    # keep going if the command line args allow it
+    import pycinema.theater
+
+    pycinema.theater.Theater(args.filenames)
+
+else:
+    import traceback
+
+    with open(args.filenames[0], 'r') as sfile:
+        script = sfile.read()
+        try:
+            sys.argv = remaining
+            exec(script)
+        except Exception as err:
+            traceback.print_exc()

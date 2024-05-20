@@ -3,6 +3,7 @@ from pycinema import Filter
 import numpy
 import moderngl
 import re
+import logging as log
 
 class Shader(Filter):
 
@@ -110,4 +111,4 @@ try:
                 ]).astype('f4').tobytes()
             )
 except:
-    print("WARNING: Unable to setup OpenGL context.")
+    log.warn("Unable to setup OpenGL context.")
