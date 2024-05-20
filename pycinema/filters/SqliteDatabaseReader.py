@@ -2,7 +2,7 @@ from pycinema import Filter
 
 import sqlite3
 
-from os.path import exists
+from os import path
 import re
 import logging as log
 
@@ -28,7 +28,7 @@ class SqliteDatabaseReader(Filter):
             self.outputs.table.set([[]])
             return 0
 
-        if not exists(dbPath):
+        if not path.exists(dbPath):
             log.error(" sqlite db not found: '" + dbPath + "'")
             self.outputs.table.set([[]])
             return 0
@@ -63,9 +63,7 @@ class SqliteDatabaseReader(Filter):
         # remove empty lines
         table = list(filter(lambda row: len(row)>0, table))
 
-        # # force lower case header
-        # table[0] = list(map(str.lower,table[0]))
-
+        # add dbPath prefix to file column
         try:
             fileColumnIdx = [i for i, item in enumerate(table[0]) if re.search(self.inputs.file_column.get(), item, re.IGNORECASE)].pop()
         except:
@@ -73,8 +71,10 @@ class SqliteDatabaseReader(Filter):
             self.outputs.table.set([[]])
             return 0
 
+        dbPathPrefix = path.dirname(dbPath)
         for i in range(1,len(table)):
-            table[i][fileColumnIdx] = table[i][fileColumnIdx]
+            if not table[i][fileColumnIdx].startswith('http:') and not table[i][fileColumnIdx].startswith('https'):
+                table[i][fileColumnIdx] = dbPathPrefix + '/' + table[i][fileColumnIdx]
 
         self.outputs.table.set(table)
 
