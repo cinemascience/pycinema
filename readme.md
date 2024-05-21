@@ -11,13 +11,13 @@ Full documentation for this project can be found on [readthedocs.org](https://py
 | ---- |
 |*Screen capture of two pycinema Workflows, cinema:explorer and cinema:view, which mimic the functionality of existing viewers in Cinema (and add a few added features). Both of these are available in the pycinema toolkit.*|
 
-## New concepts to Cinema: 'filter graphs' and 'workspaces'
+## New concepts to Cinema: 'filter graphs' and 'applications'
 
-This toolkit introduces the concept of *filter graphs* and *workspaces* to Cinema. Data operations (loading, querying, manipulating and viewing) are performed by *filters* that take input data, transform it, and pass it on in the form of tables, data, or data products. A collection of these *filters* is connected in a *filter graph*, and a *filter graph* can be saved in a reusable way known as a *workspace*. This makes the cinema toolkit a flexible platform for creating, modifying and saving data workflows.
+This toolkit introduces the concept of *filter graphs* and *applications* to Cinema. Data operations (loading, querying, manipulating and viewing) are performed by *filters* that take input data, transform it, and pass it on in the form of tables, data, or data products. A collection of these *filters* is connected in a *filter graph*, and a *filter graph* can be saved in a reusable way known as an *application*. This makes the cinema toolkit a flexible platform for creating, modifying and saving data workflows.
 
 |![workflow](doc/img/explorer-with-filtergraph.png)|
 | ---- |
-|*Screen capture of Cinema:Explorer workspace, showing the normal view (left) and also revealing the 'filter graph' view (lower right) of the workspace. pycinema introduces both of these concepts to cinema data workflows.*|
+|*Screen capture of Cinema:Explorer application, showing the normal view (left) and also revealing the 'filter graph' view (lower right) of the application. pycinema introduces both of these concepts to cinema data workflows.*|
 
 # Working with the code and the `pycinema` module
 
