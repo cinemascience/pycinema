@@ -6,6 +6,12 @@ import pycinema.theater.views
 # pycinema settings
 PYCINEMA = { 'VERSION' : '2.1.0'}
 
+# this application settings
+EXPLORE = { 'VERSION' : '1.0'}
+
+# reporting
+print("explorer v" + EXPLORE["VERSION"])
+
 # filters
 CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
 ParallelCoordinates_0 = pycinema.filters.ParallelCoordinates()

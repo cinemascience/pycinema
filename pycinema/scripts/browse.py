@@ -6,6 +6,12 @@ import pycinema.theater.views
 # pycinema settings
 PYCINEMA = { 'VERSION' : '2.1.0'}
 
+# this application settings
+BROWSE = { 'VERSION' : '1.0'}
+
+# reporting
+print("browse v" + BROWSE["VERSION"])
+
 # filters
 CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
 TableQuery_0 = pycinema.filters.TableQuery()
