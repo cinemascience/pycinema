@@ -7,15 +7,15 @@ import pycinema.theater.views
 PYCINEMA = { 'VERSION' : '3.0.1'}
 
 # this application settings
-FIREVIS = { 'VERSION' : '1.0'}
+DISCOVER = { 'VERSION' : '1.0'}
 
 # args
 database    = PYCINEMA_ARG_0
 read_filter = PYCINEMA_ARG_1
 selected    = PYCINEMA_ARG_2 
 
-# feedback
-print("FireView v" + FIREVIS["VERSION"])
+# reporting
+print("discover v" + DISCOVER["VERSION"])
 
 # filters
 CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
