@@ -32,7 +32,7 @@ setuptools.setup(
         "ipycanvas==0.13.1",
         "ipywidgets==8.0.6",
         "PySide6<=6.4.3",
-        "python-igraph>=0.10.5",
+        "igraph>=0.10.5",
         "requests>=2.31.0",
         "pyqtgraph>=0.13.3",
         "tensorflow==2.14.0"
