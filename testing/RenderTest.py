@@ -1,4 +1,4 @@
-testing = True
+testing = False
 if testing:
     import pytest
     from sys import platform
@@ -14,7 +14,7 @@ import pycinema.filters
 
 def test_render():
 
-    resolution = (512,256)
+    resolution = (1024,512)
     phi_samples = (20,360,60)
     theta_samples = (20,20,45)
     time_samples = 0.1
@@ -66,24 +66,30 @@ def test_render():
     mask_compositing.inputs.masks.set(image_canny.outputs.images, False )
     mask_compositing.inputs.mask_channel.set('canny')
 
+    fxaa = pycinema.filters.ShaderFXAA()
+    fxaa.inputs.images.set( mask_compositing.outputs.images )
+
     annotation = pycinema.filters.ImageAnnotation()
     annotation.inputs.color.set( (200,200,200), False )
     annotation.inputs.size.set( 14, False )
     annotation.inputs.xy.set( (10,10), False )
     annotation.inputs.spacing.set( 10, False )
-    annotation.inputs.images.set( mask_compositing.outputs.images )
+    annotation.inputs.images.set( fxaa.outputs.images )
 
     border = pycinema.filters.ImageBorder()
     border.inputs.color.set( (0,140,140,255) )
     border.inputs.width.set( 5 )
     border.inputs.images.set( annotation.outputs.images )
 
+    ex = pycinema.filters.CinemaDatabaseWriter()
+    ex.inputs.images.set( border.outputs.images )
+    ex.inputs.path.set( '/tmp/test.cdb' )
+    ex.inputs.hdf5.set( False )
+    ex.update()
+
     # Test Output
-    if testing:
-        GT = [[139.40163230895996, 0, 255, 0.18886437, 0.4082454], [139.6744270324707, 0, 255, 0.18886437, 0.4082454], [139.56921768188477, 0, 255, 0.18886437, 0.4082454], [139.52686882019043, 0, 255, 0.18886437, 0.4082454], [139.79484176635742, 0, 255, 0.18886437, 0.4082454], [139.57610511779785, 0, 255, 0.18886438, 0.4082454]]
-    else:
-        import PIL
-        GT = []
+    GT = [[139.96767854690552, 0, 255, 0.29285693, 0.18864931, 0.4084605], [140.1584644317627, 0, 255, 0.29285663, 0.18864931, 0.4084605], [140.02539920806885, 0, 255, 0.29285663, 0.18864931, 0.4084605], [140.07795763015747, 0, 255, 0.29292512, 0.18864931, 0.4084605], [140.27221822738647, 0, 255, 0.29292488, 0.18864931, 0.4084605], [140.02957010269165, 0, 255, 0.2928567, 0.18864931, 0.4084605]]
+    samples = []
 
     def compare(a,b,tolerance):
         for i in range(0,len(a)):
@@ -92,27 +98,24 @@ def test_render():
         return True
 
     images = border.outputs.images.get()
-    s = []
     for i in range(len(images)):
         image = images[i]
         data = [
             image.channels['rgba'].mean(),
             image.channels['rgba'].min(),
             image.channels['rgba'].max(),
+            image.channels['depth'].mean(),
             image.channels['depth'].min(),
-            image.channels['depth'].max()
+            image.channels['depth'].max(),
         ]
-        s.append(data)
-        if not testing:
-            display(PIL.Image.fromarray(image.channels['rgba']))
-        elif not compare(s[i],GT[i],[0.2,0.2,0.2,0.05,0.05]):
-            print(str(data))
-            print(GT[i])
-            raise ValueError('Generated Data does not correspond to Ground Truth')
+        samples.append(data)
 
-    if not testing:
-        print(s)
+        if not compare(samples[i],GT[i],[0.2,0.2,0.2,0.025,0.025,0.025]):
+          print(str(data))
+          print(GT[i])
+          raise ValueError('Generated Data does not correspond to Ground Truth')
 
+    print(samples)
     print("Test Complete")
 
 test_render()
