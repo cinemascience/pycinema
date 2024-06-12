@@ -47,9 +47,6 @@ class CinemaDatabaseReader(Filter):
         # remove empty lines
         table = list(filter(lambda row: len(row)>0, table))
 
-        # # force lower case header
-        # table[0] = list(map(str.lower,table[0]))
-
         # add dbPath prefix to file column
         try:
             fileColumnIdx = [i for i, item in enumerate(table[0]) if re.search(self.inputs.file_column.get(), item, re.IGNORECASE)].pop()
@@ -57,10 +54,15 @@ class CinemaDatabaseReader(Filter):
             log.error(" file column not found: '" + self.inputs.file_column.get() + "'")
             self.outputs.table.set([[]])
             return 0
-
         for i in range(1,len(table)):
             if not table[i][fileColumnIdx].startswith('http:') and not table[i][fileColumnIdx].startswith('https:'):
                 table[i][fileColumnIdx] = dbPath + '/' + table[i][fileColumnIdx]
+
+        # add id column
+        if 'id' not in table[0]:
+          table[0].append('id')
+          for i in range(1,len(table)):
+            table[i].append(i*1000-1)
 
         self.outputs.table.set(table)
 

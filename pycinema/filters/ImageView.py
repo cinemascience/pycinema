@@ -8,6 +8,9 @@ try:
 except ImportError:
   pass
 
+def getSelectedImages(images, ids):
+  return [i for i in images if images.meta['id'] in ids]
+
 try:
   class _QGraphicsPixmapItem(QtWidgets.QGraphicsPixmapItem):
     def __init__(self,rgba,idx,filter):
@@ -32,24 +35,22 @@ try:
       super().paint(painter, option, widget)
       if self.highlight:
         pen = QtGui.QPen(QtGui.QColor("#00D6E0"))
-        pen.setWidth(30)
-        # pen = QtGui.QPen(QtGui.QColor("#FF0000"))
-        # pen.setWidth(4)
+        pen.setWidth(14)
         painter.setPen(pen)
         painter.drawRect(self.boundingRect())
 
     def mouseDoubleClickEvent(self,event):
-      indices = []
+      selection = []
       if event.modifiers() == QtCore.Qt.ControlModifier:
-        indices = list(self.filter.inputs.selection.get())
+        selection = list(self.filter.inputs.selection.get())
 
-      if self.idx in indices:
-        indices.remove(self.idx)
+      if self.id in selection:
+        selection.remove(self.id)
       else:
-        indices.append(self.idx)
-      indices.sort()
+        selection.append(self.id)
+      selection.sort()
 
-      self.filter.inputs.selection.set(indices,True,True)
+      self.filter.inputs.selection.set(selection,True,True)
 
   class _ImageViewer(QtWidgets.QGraphicsView):
 
@@ -99,22 +100,25 @@ try:
           self.fitInView()
 
       def update_selection_rect(self):
-        w = self.mouse_data[1].x()-self.mouse_data[0].x()
-        h = self.mouse_data[1].y()-self.mouse_data[0].y()
+        x = (self.mouse_data[0].x(),self.mouse_data[1].x()) if self.mouse_data[0].x()<self.mouse_data[1].x() else (self.mouse_data[1].x(),self.mouse_data[0].x())
+        y = (self.mouse_data[0].y(),self.mouse_data[1].y()) if self.mouse_data[0].y()<self.mouse_data[1].y() else (self.mouse_data[1].y(),self.mouse_data[0].y())
+        w = x[1]-x[0]
+        h = y[1]-y[0]
+
         self.selection_rect.setRect(
-          self.mouse_data[0].x(),
-          self.mouse_data[0].y(),
+          x[0],
+          y[0],
           1 if w==0 else w,
-          1 if h==0 else h,
+          1 if h==0 else h
         )
 
-        indices = [i.idx for i in self.scene().items(self.selection_rect.rect()) if isinstance(i,QtWidgets.QGraphicsPixmapItem)]
-        indices.sort()
+        selection = [i.id for i in self.scene().items(self.selection_rect.rect()) if isinstance(i,QtWidgets.QGraphicsPixmapItem)]
+        selection.sort()
 
-        if indices==self.filter.inputs.selection.get():
+        if selection==self.filter.inputs.selection.get():
           return
 
-        self.filter.inputs.selection.set(indices,True,True)
+        self.filter.inputs.selection.set(selection,True,True)
 
       def mousePressEvent(self,event):
         if event.modifiers() == QtCore.Qt.ShiftModifier:
@@ -201,6 +205,7 @@ class ImageView(Filter):
           c = i-r*nCols
           rgba = image.getChannel('rgba')
           qimage = _QGraphicsPixmapItem(rgba,i,self)
+          qimage.id = image.meta['id']
           qimage.setPos(c*max_w,r*max_h)
           self.scene.addItem(qimage)
           self.image_items.append(qimage)
@@ -227,13 +232,11 @@ class ImageView(Filter):
             log.warning(" no images to lay out.")
 
         # update selection
-        for i in self.image_items:
-          i.highlight = False
         selection = self.inputs.selection.get()
-        for i in selection:
-          if i>=0 and i<nImages:
-            self.image_items[i].highlight = True
-        self.outputs.images.set([ images[i] for i in selection if i>=0 and i<nImages ])
+        for i in self.image_items:
+          i.highlight = i.id in selection
+
+        self.outputs.images.set([ i for i in images if i.meta['id'] in selection ])
 
         self.scene.update()
 
