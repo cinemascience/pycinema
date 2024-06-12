@@ -6,6 +6,7 @@ import os
 import csv
 import hashlib
 import re
+import PIL
 
 class CinemaDatabaseWriter(Filter):
 
@@ -15,6 +16,7 @@ class CinemaDatabaseWriter(Filter):
             'images': [],
             'path': '',
             'ignore': ['^id','^camera'],
+            'hdf5': True,
           }
         );
 
@@ -46,6 +48,11 @@ class CinemaDatabaseWriter(Filter):
 
         file.close()
 
+    def writePNG(self,path,image):
+        rgba_array = image.channels['rgba']
+        image = PIL.Image.fromarray(rgba_array, 'RGBA')
+        image.save(path, 'PNG')
+
     def _update(self):
 
         images = self.inputs.images.get()
@@ -63,6 +70,8 @@ class CinemaDatabaseWriter(Filter):
         if not os.path.exists(path):
             os.makedirs(path)
 
+        use_hdf5 = self.inputs.hdf5.get()
+
         if extension == 'cdb':
             # cdb folder
             csvPath = path+'/data.csv'
@@ -76,10 +85,10 @@ class CinemaDatabaseWriter(Filter):
             header.sort()
             csvData.append(header + ['FILE'])
 
-            # write image
+            # write images
             for i,image in enumerate(images):
                 imageHash = self.getImageHash(i,header,image)
-                fileName = str(imageHash)+'.h5'
+                fileName = str(imageHash)+('.h5' if use_hdf5 else '.png')
                 row = [str(image.meta[p]) for p in header]
                 row.append(fileName)
                 csvData.append(row)
@@ -90,7 +99,10 @@ class CinemaDatabaseWriter(Filter):
                     del out_image.meta[m]
 
                 # write image
-                self.writeH5(path+'/'+fileName,out_image)
+                if use_hdf5:
+                  self.writeH5(path+'/'+fileName,out_image)
+                else:
+                  self.writePNG(path+'/'+fileName,out_image)
 
             # write csv
             with open(csvPath, 'w', newline='') as csvfile:
@@ -99,8 +111,11 @@ class CinemaDatabaseWriter(Filter):
                     writer.writerow(row)
 
         elif extension == '':
-            # normal folder
-            for i,image in enumerate(images):
-                self.writeH5(path+str(i)+'.h5',image)
+            # write image
+            for i,out_image in enumerate(images):
+              if use_hdf5:
+                self.writeH5(path+str(i)+'.h5',out_image)
+              else:
+                self.writePNG(path+str(i)+'.png',out_image)
 
         return 1
