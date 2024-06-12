@@ -195,7 +195,7 @@ try:
       sql = 'SELECT `id` ' + self.filter.computeSQL(parameters)
       table = queryData(self.filter.db, sql)
       self.filter.inputs.selection.set(
-        [table[i][0]-1 for i in range(1,len(table))],
+        [table[i][0] for i in range(1,len(table))],
         True,
         True
       )
@@ -289,7 +289,6 @@ try:
       self._resize()
 
     def addHighlightedLines(self):
-      selection = self.filter.inputs.selection.get()
       table = self.filter.inputs.table.get()
       model = self.filter.model
       parameters = [p for p in model]
@@ -301,6 +300,11 @@ try:
 
       lines = []
       edges = set()
+
+      id_column_idx = table[0].index('id')
+      selection = self.filter.inputs.selection.get()
+      selected_rows = [i for i in range(1,len(table)) if table[i][id_column_idx] in selection]
+
       for i in range(0,len(parameters)-1):
         p0 = parameters[i]
         p1 = parameters[i+1]
@@ -311,8 +315,8 @@ try:
         n0 = len(s0)-1
         n1 = len(s1)-1
 
-        for r in selection:
-          edge = (str(table[r+1][c0]),str(table[r+1][c1]))
+        for r in selected_rows:
+          edge = (str(table[r][c0]),str(table[r][c1]))
           if not edge in edges:
             lines.append([
                   i*dx, s0.index(edge[0])/n0 if n0>0 else 0.5,
@@ -438,12 +442,16 @@ class ParallelCoordinates(Filter):
     )
 
   def computeParameterValues(self):
-    selection = self.inputs.selection.get()
     table = self.inputs.table.get()
+
+    id_column_idx = table[0].index('id')
+    selection = self.inputs.selection.get()
+    selected_rows = [i for i in range(1,len(table)) if table[i][id_column_idx] in selection]
+
     parameters = {}
     for p in self.model:
       ci = table[0].index(p)
-      values = {table[s+1][ci] for s in selection}
+      values = {table[s][ci] for s in selected_rows}
       if len(values)>0:
         parameters[p] = values
     return parameters

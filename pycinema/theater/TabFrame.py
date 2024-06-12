@@ -41,6 +41,8 @@ class TabFrame(QtWidgets.QTabWidget):
         self.parent().s_close(self)
       else:
         self.insertTab(0)
+    elif self.currentIndex()==self.count()-1:
+      self.setCurrentIndex(0)
 
     return super().tabRemoved(idx)
 
