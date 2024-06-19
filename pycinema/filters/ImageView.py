@@ -199,7 +199,6 @@ class ImageView(Filter):
         if self.requiresFit:
           self.scene.setSceneRect(rect)
 
-        self.image_items = []
         for i, image in enumerate(images):
           r = numpy.floor(i/nCols)
           c = i-r*nCols
@@ -225,6 +224,7 @@ class ImageView(Filter):
 
           for i in self.image_items:
             self.scene.removeItem(i)
+          self.image_items = []
 
           if nImages > 0:
             self.addImages( images )

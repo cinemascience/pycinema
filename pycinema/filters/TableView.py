@@ -35,20 +35,20 @@ try:
           else:
               return super().headerData(section,orientation,role)
 
+  class NumericSortProxyModel(QtCore.QSortFilterProxyModel):
+      def lessThan(self, left, right):
+          leftData = self.sourceModel().data(left, QtCore.Qt.DisplayRole)
+          rightData = self.sourceModel().data(right, QtCore.Qt.DisplayRole)
+
+          try:
+              leftValue = float(leftData)
+              rightValue = float(rightData)
+              return leftValue > rightValue
+          except ValueError:
+              return leftData > rightData
+
 except NameError:
   pass
-
-class NumericSortProxyModel(QtCore.QSortFilterProxyModel):
-    def lessThan(self, left, right):
-        leftData = self.sourceModel().data(left, QtCore.Qt.DisplayRole)
-        rightData = self.sourceModel().data(right, QtCore.Qt.DisplayRole)
-
-        try:
-            leftValue = float(leftData)
-            rightValue = float(rightData)
-            return leftValue > rightValue
-        except ValueError:
-            return leftData > rightData
 
 class TableView(Filter):
 
