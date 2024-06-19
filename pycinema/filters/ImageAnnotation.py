@@ -1,4 +1,4 @@
-from pycinema import Filter
+from pycinema import Filter, getModulePath
 
 import numpy
 import sys
@@ -32,13 +32,7 @@ class ImageAnnotation(Filter):
         We don't make much of an effort, but it's what we can reasonably do without
         incorporating additional dependencies for this task.
         """
-        font_names = ['../fonts/NotoSansMono-VariableFont_wdth,wght.ttf']
-        # if sys.platform == 'win32':
-        #     font_names.extend( ['Arial'] )
-        # elif sys.platform in ['linux', 'linux2']:
-        #     font_names.extend( ['DejaVuSans-Bold', 'DroidSans-Bold'] )
-        # elif sys.platform == 'darwin':
-        #     font_names.extend( ['Menlo', 'Helvetica'] )
+        font_names = [getModulePath()+'/../../../../fonts/NotoSansMono-VariableFont_wdth,wght.ttf']
 
         font = None
         for font_name in font_names:
@@ -47,6 +41,9 @@ class ImageAnnotation(Filter):
                 break
             except IOError:
                 continue
+
+        if font==None:
+          print('unable to detect font')
 
         return font
 

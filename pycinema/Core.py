@@ -8,6 +8,7 @@ import PIL
 import io
 import logging as log
 import os
+import pkg_resources
 
 CORE_NAN_VALUES = ['NaN', 'NAN', 'nan']
 
@@ -51,8 +52,6 @@ def imageFromMatplotlibFigure(figure,dpi):
 # get the path where this module has been installed
 #
 def getModulePath():
-    import pkg_resources
-
     return os.path.dirname(pkg_resources.resource_filename(__name__, 'Core.py'))
 
 #
