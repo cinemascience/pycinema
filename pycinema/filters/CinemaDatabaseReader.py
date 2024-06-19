@@ -62,7 +62,7 @@ class CinemaDatabaseReader(Filter):
         if 'id' not in table[0]:
           table[0].append('id')
           for i in range(1,len(table)):
-            table[i].append(i*1000-1)
+            table[i].append(i-1)
 
         self.outputs.table.set(table)
 
