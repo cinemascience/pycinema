@@ -38,17 +38,17 @@ try:
 except NameError:
   pass
 
-# class NumericSortProxyModel(QtCore.QSortFilterProxyModel):
-#     def lessThan(self, left, right):
-#         leftData = self.sourceModel().data(left, QtCore.Qt.DisplayRole)
-#         rightData = self.sourceModel().data(right, QtCore.Qt.DisplayRole)
+class NumericSortProxyModel(QtCore.QSortFilterProxyModel):
+    def lessThan(self, left, right):
+        leftData = self.sourceModel().data(left, QtCore.Qt.DisplayRole)
+        rightData = self.sourceModel().data(right, QtCore.Qt.DisplayRole)
 
-#         try:
-#             leftValue = float(leftData)
-#             rightValue = float(rightData)
-#             return leftValue > rightValue
-#         except ValueError:
-#             return leftData > rightData
+        try:
+            leftValue = float(leftData)
+            rightValue = float(rightData)
+            return leftValue > rightValue
+        except ValueError:
+            return leftData > rightData
 
 class TableView(Filter):
 
@@ -56,10 +56,11 @@ class TableView(Filter):
 
         self.model = TableModel()
 
-        # self.proxyModel = NumericSortProxyModel() #QtCore.QSortFilterProxyModel()
-        # self.proxyModel.setSourceModel(self.model)
-        self.selection_model = QtCore.QItemSelectionModel() #self.proxyModel
-        self.selection_model.setModel(self.model)
+        self.proxyModel = NumericSortProxyModel()
+        self.proxyModel.setSourceModel(self.model)
+
+        self.selection_model = QtCore.QItemSelectionModel()
+        self.selection_model.setModel(self.proxyModel)
         self.selection_model.selectionChanged.connect(self._onSelectionChanged)
 
         self.update_from_selection = False
@@ -80,10 +81,8 @@ class TableView(Filter):
 
     def generateWidgets(self):
         widget = QtWidgets.QTableView()
-        widget.setModel(self.model)
-        #widget.setModel(self.proxyModel)
-        #widget.setSortingEnabled(True)
-        #widget.horizontalHeader().sectionClicked.connect(self._onHeaderClicked)
+        widget.setModel(self.proxyModel)
+        widget.setSortingEnabled(True)
         widget.setSelectionModel(self.selection_model)
         widget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         return widget
@@ -92,7 +91,7 @@ class TableView(Filter):
         if self.suppress_selection_update:
             return
         self.update_from_selection = True
-        indices = set(index.row() for index in self.selection_model.selectedIndexes())
+        indices = set(self.proxyModel.mapToSource(index).row() for index in self.selection_model.selectedIndexes())
 
         table = self.inputs.table.get()
         input_is_image_list = len(table)>0 and isinstance(table[0],Image)
@@ -104,28 +103,6 @@ class TableView(Filter):
           selection = [table[i+1][id_column_idx] for i in indices]
 
         self.inputs.selection.set(selection,True,True)
-
-    # def _onHeaderClicked(self, logicalIndex):
-    #     # reorder the output table
-    #     self.outputTable = list()
-    #     rowCount = self.proxyModel.rowCount()
-    #     columnCount = self.proxyModel.columnCount()
-
-    #     # add header info
-    #     self.outputTable.append(self.inputs.table.get()[0])
-    #     for row in range(rowCount):
-    #         rowData = []
-    #         for column in range(columnCount):
-    #             index = self.proxyModel.index(row, column)
-    #             data = self.proxyModel.data(index, QtCore.Qt.DisplayRole)
-    #             rowData.append(data)
-    #         self.outputTable.append(tuple(rowData))
-
-    #     # update indices of selected rows
-    #     self._onSelectionChanged(None, None)
-    #     # push to update
-    #     self.update()
-
 
     def _update(self):
         table = self.inputs.table.get()
@@ -156,14 +133,7 @@ class TableView(Filter):
         self.suppress_selection_update = True
         indices_ = [self.model.index(r-1, 0) for r in selection_indices]
         mode = QtCore.QItemSelectionModel.Select | QtCore.QItemSelectionModel.Rows
-        [self.selection_model.select(i, mode) for i in indices_]
+        [self.selection_model.select(self.proxyModel.mapFromSource(i), mode) for i in indices_]
         self.suppress_selection_update = False
-
-        # # list empty, ie. no header clicked, then use input as output
-        # if len(self.outputTable) == 0:
-        #     self.outputs.table.set(list(self.inputs.table.get()))
-        # # else, pull order of rows from internal variable
-        # else:
-        #     self.outputs.table.set(self.outputTable)
 
         return 1
