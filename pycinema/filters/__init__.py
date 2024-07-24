@@ -33,6 +33,7 @@ from .ShaderSSAO import *
 from .ShaderLineAO import *
 from .ShaderPointAO import *
 from .SqliteDatabaseReader import *
+from .SynemaViewSynthesis import *
 from .TableWriter import *
 from .TableView import *
 from .TextEditor import *
