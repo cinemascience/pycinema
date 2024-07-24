@@ -192,9 +192,14 @@ def getTableExtent(table):
 # Image Class
 ################################################################################
 class Image():
+    image_id_counter = -1
+
     def __init__(self, channels=None, meta=None):
         self.meta = meta or {}
         self.channels = channels or {}
+        if 'id' not in self.meta:
+          self.meta['id'] = Image.image_id_counter
+          Image.image_id_counter += -1
 
     def __str__(self):
         result =  '{ PyCinemaImage:\n'

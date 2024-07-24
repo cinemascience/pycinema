@@ -37,7 +37,7 @@ class Shader(Filter):
         if Shader.fbo==None or Shader.fbo.size!=res:
             if Shader.fbo!=None:
                 Shader.fbo.release()
-            if len(components)==1:
+            if len(components)==1 and dtypes[0]=='f1':
                 Shader.fbo = Shader.ctx.simple_framebuffer(res)
             else:
                 attachments = []

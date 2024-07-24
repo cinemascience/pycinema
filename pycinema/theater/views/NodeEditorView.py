@@ -223,6 +223,7 @@ class QtNodeEditorView(QtWidgets.QGraphicsView):
             return
 
         filters = pycinema.Filter._filters
+        if len(filters)<1: return
 
         if use_pgv:
             node_string = ''

@@ -70,7 +70,7 @@ try:
           self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
           self.setScene(filter.scene)
 
-          self.selection_rect = QtWidgets.QGraphicsRectItem(-100, -100, 200, 200)
+          self.selection_rect = QtWidgets.QGraphicsRectItem(0, 0, 1, 1)
           self.selection_rect.setZValue(1000)
           self.selection_rect.setBrush(QtGui.QColor(0, 0, 0, 128))
           self.selection_rect.hide()
