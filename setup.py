@@ -21,21 +21,21 @@ setuptools.setup(
     zip_safe=False,
     packages=[  "pycinema", "pycinema.filters", "pycinema.scripts", "pycinema.theater", "pycinema.theater.node_editor", "pycinema.theater.views", "pycinema.ipy" ],
     install_requires=[
-        "numpy==1.24.2",
-        "scipy==1.10.0",
-        "h5py==3.8.0",
-        "matplotlib==3.6.0",
+        "numpy==1.26.4",
+        "scipy==1.14.0",
+        "h5py==3.11.0",
+        "matplotlib==3.8.4",
         "py==1.11.0",
         "Pillow==9.4.0",
         "moderngl<6",
-        "opencv-python==4.7.0.68",
+        "opencv-python==4.10.0.84",
         "ipycanvas==0.13.1",
         "ipywidgets==8.0.6",
-        "PySide6<=6.4.3",
+        "PySide6<=6.7.2",
         "igraph>=0.10.5",
         "requests>=2.31.0",
         "pyqtgraph>=0.13.3",
-        "tensorflow==2.14.0"
+        "tensorflow==2.17.0"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
