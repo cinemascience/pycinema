@@ -98,13 +98,15 @@ import pycinema.theater.views
         for _,filter in pycinema.Filter._filters.items():
           script += filter.id + ' = pycinema.filters.' + filter.__class__.__name__+'()\n'
 
+        getPortType = lambda p: 'inputs' if p.is_input else 'outputs'
+
         script += '\n# properties\n'
         for _,filter in pycinema.Filter._filters.items():
             for iPortName, iPort in filter.inputs.ports():
                 if iPort.valueIsPort():
-                    script += filter.id + '.inputs.'+iPortName+ '.set(' + iPort._value.parent.id +'.outputs.'+ iPort._value.name +', False)\n'
+                    script += filter.id + '.inputs.'+iPortName+ '.set(' + iPort._value.parent.id +'.'+getPortType(iPort._value)+'.'+ iPort._value.name +', False)\n'
                 elif iPort.valueIsPortList():
-                    script += filter.id + '.inputs.'+iPortName+ '.set([' + ','.join([p.parent.id +'.outputs.'+p.name for p in iPort._value]) +'], False)\n'
+                    script += filter.id + '.inputs.'+iPortName+ '.set([' + ','.join([p.parent.id +'.'+getPortType(p._value)+'.'+p.name for p in iPort._value]) +'], False)\n'
                 else:
                     v = iPort.get()
                     if iPort.type == int or iPort.type == float:
@@ -225,7 +227,7 @@ class Theater():
         Theater.instance.resize(1024, 900)
         Theater.instance.show()
 
-        scriptkey = None 
+        scriptkey = None
         if len(args)>0 and isinstance(args[0], str):
           if args[0].endswith('.py'):
             Theater.instance.loadScript(args[0], scriptkey, args[1:])
@@ -234,7 +236,7 @@ class Theater():
             script = pycinema.getPathForScript('browse')
             Theater.instance.loadScript(script, scriptkey, [args[0]])
 
-          else: 
+          else:
             script = pycinema.getPathForScript(args[0])
             if script:
               print("loading script: " + script)
