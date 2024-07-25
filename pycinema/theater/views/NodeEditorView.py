@@ -52,7 +52,7 @@ class QtNodeEditorView(QtWidgets.QGraphicsView):
         self.setScene(QtNodeEditorView.scene)
 
     def init_global():
-        node_connection_line = QtWidgets.QGraphicsLineItem()
+        node_connection_line = QtWidgets.QGraphicsPathItem()
         node_connection_line.setPen(QtGui.QPen(NES.COLOR_NORMAL, 2, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
         node_connection_line.setZValue(1000)
         node_connection_line.hide()
