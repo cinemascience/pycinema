@@ -1,6 +1,7 @@
 from PySide6 import QtCore, QtWidgets, QtGui
 
 from pycinema.theater.node_editor.NodeEditorStyle import NodeEditorStyle as NES
+from pycinema.theater.Icons import Icons
 from pycinema import Port
 
 class InputText(QtWidgets.QWidget):
@@ -37,10 +38,19 @@ class InputText(QtWidgets.QWidget):
             self.edit.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
             self.edit.setStyleSheet('border:0;background:transparent;color:'+NES.COLOR_NORMAL_)
             self.edit.setReadOnly(False)
+
             self.edit.editingFinished.connect(lambda: self.setValue(self.edit.text()))
             self.layout().addWidget(self.edit,1)
             port.on('value_set', self.update_callback)
             self.updateWidget()
+
+            if port.name in ['file','path']:
+              def get_path():
+                path = QtWidgets.QFileDialog.getExistingDirectory(None,"Select Cinema Database")
+                if path: port.set(path)
+              select_folder_btn = self.edit.addAction(Icons.toQIcon(Icons.icon_directory), QtWidgets.QLineEdit.TrailingPosition);
+              select_folder_btn.triggered.connect(get_path)
+              self.edit.children()[-1].setCursor(QtCore.Qt.PointingHandCursor)
         else:
             self.edit = QtWidgets.QLineEdit()
             self.edit.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
