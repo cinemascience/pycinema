@@ -63,10 +63,12 @@ class TableView(Filter):
         self.selection_model.setModel(self.proxyModel)
         self.selection_model.selectionChanged.connect(self._onSelectionChanged)
 
-        self.update_from_selection = False
         self.suppress_selection_update = False
 
         self.outputTable = list()
+
+        self.widgets = []
+        self.table_input_time = -1
 
         Filter.__init__(
           self,
@@ -85,12 +87,12 @@ class TableView(Filter):
         widget.setSortingEnabled(True)
         widget.setSelectionModel(self.selection_model)
         widget.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.widgets.append(widget)
         return widget
 
     def _onSelectionChanged(self, selected, deselected):
         if self.suppress_selection_update:
             return
-        self.update_from_selection = True
         indices = set(self.proxyModel.mapToSource(index).row() for index in self.selection_model.selectedIndexes())
 
         table = self.inputs.table.get()
@@ -108,32 +110,45 @@ class TableView(Filter):
         table = self.inputs.table.get()
         input_is_image_list = len(table)>0 and isinstance(table[0],Image)
 
-        if not self.update_from_selection:
-            table_data = table
-            if input_is_image_list:
-                table_data = ImagesToTable.imagesToTable(table)
-            self.model.setData(table_data)
-        self.update_from_selection = False
+        if self.table_input_time != self.inputs.table.getTime():
+          self.table_input_time = self.inputs.table.getTime()
+          table_data = table
+          if input_is_image_list:
+            table_data = ImagesToTable.imagesToTable(table)
+          self.model.setData(table_data)
 
         selection = self.inputs.selection.get()
-        selection_indices = None
-        output_table = None
+        selection_indices = []
+        output_table = [[]]
         if input_is_image_list:
           selection_indices = [i for i in range(0,len(table)) if table[0].meta['id'] in selection]
           output_table = [table[i] for i in selection_indices]
         else:
-          id_column_idx = table[0].index('id')
-          selection_indices = [i for i in range(0,len(table)) if table[i][id_column_idx] in selection]
-          output_table = [table[0]]
-          for i in selection_indices:
-            output_table.append(table[i])
+          try: id_column_idx = table[0].index('id')
+          except ValueError: id_column_idx = -1
+
+          selection_mode = QtWidgets.QAbstractItemView.ExtendedSelection
+          if id_column_idx<0:
+            selection_mode = QtWidgets.QAbstractItemView.NoSelection
+
+          else:
+            selection_indices = [i for i in range(0,len(table)) if table[i][id_column_idx] in selection]
+            output_table = [table[0]]
+            for i in selection_indices:
+              output_table.append(table[i])
+          for w in self.widgets:
+              w.setSelectionMode(selection_mode)
 
         self.outputs.table.set( output_table )
 
         self.suppress_selection_update = True
-        indices_ = [self.model.index(r-1, 0) for r in selection_indices]
-        mode = QtCore.QItemSelectionModel.Select | QtCore.QItemSelectionModel.Rows
-        [self.selection_model.select(self.proxyModel.mapFromSource(i), mode) for i in indices_]
+        if id_column_idx<0:
+          self.selection_model.clear()
+          self.inputs.selection.set([])
+        else:
+          indices_ = [self.model.index(r-1, 0) for r in selection_indices]
+          mode = QtCore.QItemSelectionModel.Select | QtCore.QItemSelectionModel.Rows
+          [self.selection_model.select(self.proxyModel.mapFromSource(i), mode) for i in indices_]
         self.suppress_selection_update = False
 
         return 1

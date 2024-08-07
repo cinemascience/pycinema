@@ -21,9 +21,6 @@ from pycinema.theater.node_editor.Node import Node
 
 class QtNodeEditorView(QtWidgets.QGraphicsView):
 
-    mouse_pos0 = None
-    mouse_pos1 = None
-
     scene = None
     node_map = {}
     edge_map = {}
@@ -52,7 +49,9 @@ class QtNodeEditorView(QtWidgets.QGraphicsView):
         self.setScene(QtNodeEditorView.scene)
 
     def init_global():
-        node_connection_line = QtWidgets.QGraphicsLineItem()
+        node_connection_line = QtWidgets.QGraphicsPathItem()
+        node_connection_line.p0 = None
+        node_connection_line.p1 = None
         node_connection_line.setPen(QtGui.QPen(NES.COLOR_NORMAL, 2, QtCore.Qt.SolidLine, QtCore.Qt.RoundCap, QtCore.Qt.RoundJoin))
         node_connection_line.setZValue(1000)
         node_connection_line.hide()
@@ -157,35 +156,38 @@ class QtNodeEditorView(QtWidgets.QGraphicsView):
 
     def mousePressEvent(self,event):
         if event.modifiers() == QtCore.Qt.ControlModifier:
-            QtNodeEditorView.mouse_pos0 = self.mapToScene(event.pos())
+            # QtNodeEditorView.mouse_pos0 =
             ncl = QtNodeEditorView.scene.node_connection_line
+            ncl.p0 = self.mapToScene(event.pos())
+            ncl.p1 = ncl.p0
             ncl.show()
-            line = ncl.line()
-            line.setP1(QtNodeEditorView.mouse_pos0)
-            line.setP2(QtNodeEditorView.mouse_pos0)
-            ncl.setLine(line)
+            path = QtGui.QPainterPath()
+            path.moveTo(ncl.p0)
+            path.lineTo(ncl.p1)
+            ncl.setPath(path)
         else:
             super().mousePressEvent(event)
 
     def mouseMoveEvent(self,event):
-        if QtNodeEditorView.mouse_pos0:
-            ncl = QtNodeEditorView.scene.node_connection_line
-            line = ncl.line()
-            line.setP2(self.mapToScene(event.pos()))
-            ncl.setLine(line)
+        ncl = QtNodeEditorView.scene.node_connection_line
+        if ncl.p0:
+            ncl.p1 = self.mapToScene(event.pos())
+            path = QtGui.QPainterPath()
+            path.moveTo(ncl.p0)
+            path.lineTo(ncl.p1)
+            ncl.setPath(path)
         else:
             super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self,event):
-        if QtNodeEditorView.mouse_pos0:
+        ncl=QtNodeEditorView.scene.node_connection_line
+        if ncl.p0:
+            items0 = [x for x in QtNodeEditorView.scene.items(ncl.p0) if isinstance(x,Node)]
+            items1 = [x for x in QtNodeEditorView.scene.items(ncl.p1) if isinstance(x,Node)]
 
-            ncl = QtNodeEditorView.scene.node_connection_line
+            ncl.p0 = None
+            ncl.p1 = None
             ncl.hide()
-            QtNodeEditorView.mouse_pos0 = None
-
-            line = ncl.line()
-            items0 = [x for x in QtNodeEditorView.scene.items(line.p1()) if isinstance(x,Node)]
-            items1 = [x for x in QtNodeEditorView.scene.items(line.p2()) if isinstance(x,Node)]
 
             if len(items0)>0 and len(items1)>0 and items0[0]!=items1[0]:
                 QtNodeEditorView.autoConnect(items0[0],items1[0])
@@ -223,6 +225,7 @@ class QtNodeEditorView(QtWidgets.QGraphicsView):
             return
 
         filters = pycinema.Filter._filters
+        if len(filters)<1: return
 
         if use_pgv:
             node_string = ''
