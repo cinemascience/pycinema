@@ -26,18 +26,36 @@ class PortDisc(QtWidgets.QGraphicsEllipseItem):
     def hoverLeaveEvent(self,event):
         self.representation.setBrush(NES.COLOR_NORMAL)
 
+    def update_node_connection_line(self,ncl,p1):
+        x0 = ncl.p0.x()
+        y0 = ncl.p0.y()
+        x1 = p1.x()
+        y1 = p1.y()
+        path = QtGui.QPainterPath()
+        path.moveTo(ncl.p0)
+        dx = abs(x0 - x1)
+        if x0<x1: dx *= 0.5
+        if self.parentItem().port.is_input:
+          path.lineTo(
+            x1,y1
+          )
+        else:
+          path.cubicTo(
+            x0+dx, y0,
+            x1-dx, y1,
+            x1,y1
+          )
+        ncl.setPath(path)
+
     def mousePressEvent(self,event):
         pos = self.mapToScene(self.boundingRect().center())
         ncl = self.scene().node_connection_line
-        line = ncl.line()
-        line.setP1(pos)
-        line.setP2(pos)
-        ncl.setLine(line)
+        ncl.p0 = pos
+        self.update_node_connection_line(ncl,pos)
         ncl.show()
 
     def mouseMoveEvent(self,event):
         ncl = self.scene().node_connection_line
-        line = ncl.line()
 
         s = self.parentItem().port
         t = None
@@ -46,12 +64,10 @@ class PortDisc(QtWidgets.QGraphicsEllipseItem):
             if isinstance(i,Port):
                 t = i
                 break
-        if not t or s.is_input == t.port.is_input or s.parent==t.port.parent:
-          line.setP2( self.mapToScene(event.pos()) )
-          ncl.setLine(line)
+        if not t or (not s.is_input and not t.port.is_input) or s.parent==t.port.parent:
+          self.update_node_connection_line(ncl,self.mapToScene(event.pos()))
         else:
-          line.setP2( t.disc.mapToScene(t.disc.boundingRect().center()) )
-          ncl.setLine(line)
+          self.update_node_connection_line(ncl,t.disc.mapToScene(t.disc.boundingRect().center()))
 
     def mouseReleaseEvent(self,event):
         ncl = self.scene().node_connection_line
@@ -62,10 +78,11 @@ class PortDisc(QtWidgets.QGraphicsEllipseItem):
         items = self.scene().items(event.scenePos());
         for i in items:
             if isinstance(i,Port):
-                t = i.port
+                t = i
                 break
-        if not t or s.is_input == t.is_input or s.parent==t.parent:
+        if not t or (not s.is_input and not t.port.is_input) or s.parent==t.port.parent:
             return
+        t = t.port
         if t.is_input:
             s,t = t,s
         if event.modifiers() == QtCore.Qt.ShiftModifier:

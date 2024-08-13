@@ -102,13 +102,13 @@ void main(){
 try:
     Shader.ctx = moderngl.create_standalone_context(require=330)
     Shader.quad = Shader.ctx.buffer(
-                numpy.array([
-                     1.0,  1.0,
-                    -1.0,  1.0,
-                    -1.0, -1.0,
-                     1.0, -1.0,
-                     1.0,  1.0
-                ]).astype('f4').tobytes()
-            )
+        numpy.array([
+             1.0,  1.0,
+            -1.0,  1.0,
+            -1.0, -1.0,
+             1.0, -1.0,
+             1.0,  1.0
+        ]).astype('f4').tobytes()
+    )
 except:
-    log.warn("Unable to setup OpenGL context.")
+    log.warning("Unable to setup OpenGL context.")
