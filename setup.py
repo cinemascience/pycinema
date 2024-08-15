@@ -27,7 +27,7 @@ setuptools.setup(
         "matplotlib==3.6.0",
         "py==1.11.0",
         "Pillow==9.4.0",
-        "moderngl==5.8.2",
+        "moderngl==5.10.0",
         "opencv-python==4.7.0.68",
         "ipycanvas==0.13.1",
         "ipywidgets==8.0.6",
