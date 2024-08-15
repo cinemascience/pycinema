@@ -120,33 +120,36 @@ class TableView(Filter):
         selection = self.inputs.selection.get()
         selection_indices = []
         output_table = [[]]
+        id_column_idx = 0
+
+        selection_mode = QtWidgets.QAbstractItemView.ExtendedSelection
+
         if input_is_image_list:
-          selection_indices = [i for i in range(0,len(table)) if table[0].meta['id'] in selection]
+          selection_indices = [i for i in range(0,len(table)) if table[i].meta['id'] in selection]
           output_table = [table[i] for i in selection_indices]
         else:
           try: id_column_idx = table[0].index('id')
           except ValueError: id_column_idx = -1
 
-          selection_mode = QtWidgets.QAbstractItemView.ExtendedSelection
           if id_column_idx<0:
             selection_mode = QtWidgets.QAbstractItemView.NoSelection
-
           else:
             selection_indices = [i for i in range(0,len(table)) if table[i][id_column_idx] in selection]
-            output_table = [table[0]]
-            for i in selection_indices:
-              output_table.append(table[i])
-          for w in self.widgets:
-              w.setSelectionMode(selection_mode)
+            output_table = [table[i] for i in [0]+selection_indices]
+            selection_indices = [i-1 for i in selection_indices]
+
+        # disable selection if no id column present
+        for w in self.widgets:
+            w.setSelectionMode(selection_mode)
 
         self.outputs.table.set( output_table )
 
         self.suppress_selection_update = True
+        self.selection_model.clear()
         if id_column_idx<0:
-          self.selection_model.clear()
           self.inputs.selection.set([])
         else:
-          indices_ = [self.model.index(r-1, 0) for r in selection_indices]
+          indices_ = [self.model.index(r, 0) for r in selection_indices]
           mode = QtCore.QItemSelectionModel.Select | QtCore.QItemSelectionModel.Rows
           [self.selection_model.select(self.proxyModel.mapFromSource(i), mode) for i in indices_]
         self.suppress_selection_update = False

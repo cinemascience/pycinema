@@ -316,9 +316,8 @@ class Port():
 
         # if old value is a port
         if isinstance(self._value, Port):
-          if propagate_back and hasattr(self._value.parent.inputs,'value'):
-            # override ValueSource
-            self._value.parent.inputs.value.set(value,update,False)
+          if propagate_back:
+            self._value.set(value,update,True)
             return
           else:
             # stop listing for push events
