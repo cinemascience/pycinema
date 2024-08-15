@@ -27,12 +27,12 @@ class PortDisc(QtWidgets.QGraphicsEllipseItem):
         self.representation.setBrush(NES.COLOR_NORMAL)
 
     def update_node_connection_line(self,ncl,p1):
-        x0 = ncl.p0.x()
-        y0 = ncl.p0.y()
+        x0 = ncl.p0_.x()
+        y0 = ncl.p0_.y()
         x1 = p1.x()
         y1 = p1.y()
         path = QtGui.QPainterPath()
-        path.moveTo(ncl.p0)
+        path.moveTo(ncl.p0_)
         dx = abs(x0 - x1)
         if x0<x1: dx *= 0.5
         if self.parentItem().port.is_input:
@@ -50,7 +50,7 @@ class PortDisc(QtWidgets.QGraphicsEllipseItem):
     def mousePressEvent(self,event):
         pos = self.mapToScene(self.boundingRect().center())
         ncl = self.scene().node_connection_line
-        ncl.p0 = pos
+        ncl.p0_ = pos
         self.update_node_connection_line(ncl,pos)
         ncl.show()
 
@@ -95,6 +95,14 @@ class PortDisc(QtWidgets.QGraphicsEllipseItem):
             else:
                 s.set( t )
         else:
+            # check if connection introduces cycle
+            temp = t
+            while temp.valueIsPort():
+              if temp._value == s:
+                return
+              temp = temp._value
+
+            # set port
             s.set( t )
 
     def mouseDoubleClickEvent(self,event):
