@@ -9,3 +9,4 @@ testing/scratch
 icsenv
 csenv
 examples/.ipynb_checkpoints
+.python-version
