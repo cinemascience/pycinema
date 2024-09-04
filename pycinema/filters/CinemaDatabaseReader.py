@@ -47,16 +47,12 @@ class CinemaDatabaseReader(Filter):
         # remove empty lines
         table = list(filter(lambda row: len(row)>0, table))
 
-        # add dbPath prefix to file column
-        try:
-            fileColumnIdx = [i for i, item in enumerate(table[0]) if re.search(self.inputs.file_column.get(), item, re.IGNORECASE)].pop()
-        except:
-            log.error(" file column not found: '" + self.inputs.file_column.get() + "'")
-            self.outputs.table.set([[]])
-            return 0
+        # add dbPath prefix to file columns
+        fileColumnIndices = [i for i, item in enumerate(table[0]) if re.search(self.inputs.file_column.get(), item, re.IGNORECASE)]
         for i in range(1,len(table)):
-            if not table[i][fileColumnIdx].startswith('http:') and not table[i][fileColumnIdx].startswith('https:'):
-                table[i][fileColumnIdx] = dbPath + '/' + table[i][fileColumnIdx]
+          for j in fileColumnIndices:
+            if not table[i][j].startswith('http:') and not table[i][j].startswith('https:'):
+                table[i][j] = dbPath + '/' + table[i][j]
 
         # add id column
         if 'id' not in table[0]:
