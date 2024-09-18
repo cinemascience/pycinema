@@ -11,10 +11,12 @@ DISCOVER = { 'VERSION' : '1.1'}
 
 # args
 database    = PYCINEMA_ARG_0
-read_filter = PYCINEMA_ARG_1
+read_filter = "SELECT * FROM input LIMIT 100" 
 
 # reporting
 print("discover v" + DISCOVER["VERSION"])
+print("    limiting input using query:\'" + read_filter + "\'")
+print("    change this by editing input of TableQuery filter")
 
 # filters
 CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
