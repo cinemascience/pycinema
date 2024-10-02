@@ -20,7 +20,7 @@ TableView_0 = pycinema.filters.TableView()
 ImageView_1 = pycinema.filters.ImageView()
 
 # properties
-CinemaDatabaseReader_0.inputs.path.set("data/sphere.cdb", False)
+CinemaDatabaseReader_0.inputs.path.set(PYCINEMA_ARG_0, False)
 CinemaDatabaseReader_0.inputs.file_column.set("FILE", False)
 TableQuery_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
 TableQuery_0.inputs.sql.set("SELECT * FROM input LIMIT 100", False)
