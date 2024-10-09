@@ -26,9 +26,9 @@ class MLTFPredictor(Filter):
         modelList = self.inputs.trainedModel.get()
         # get required input properties from first model
         model = modelList[0]
-        width = model.layers[0].input_shape[1]
-        height = model.layers[0].input_shape[2]
-        channels = model.layers[0].input_shape[3]
+        width = model.input_shape[1]
+        height = model.input_shape[2]
+        channels = model.input_shape[3]
         if channels == 1:
           gray_req = True
         else: #channels == 3 or 4
