@@ -1,9 +1,5 @@
 import setuptools
 
-def parse_requirements(filename):
-    with open(filename) as f:
-        return f.read().splitlines()
-
 # read the description file
 from os import path
 this_directory = path.abspath(path.dirname(__file__))
@@ -26,7 +22,23 @@ setuptools.setup(
     include_package_data=True,
     zip_safe=False,
     packages=[  "pycinema", "pycinema.filters", "pycinema.scripts", "pycinema.theater", "pycinema.theater.node_editor", "pycinema.theater.views", "pycinema.ipy" ],
-    install_requires=parse_requirements('requirements.txt'),
+    install_requires=[
+        "numpy<2.0.0",
+        "scipy==1.13.1",
+        "h5py",
+        "matplotlib",
+        "py",
+        "Pillow",
+        "moderngl",
+        "opencv-python-headless",
+        "ipycanvas",
+        "ipywidgets",
+        "PySide6",
+        "igraph",
+        "requests",
+        "pyqtgraph",
+        "tensorflow",
+    ],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: BSD License",
