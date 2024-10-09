@@ -39,7 +39,7 @@ class MLTFReader(Filter):
             models = []
             # if the path directly points to a TF model
             if modelPath.endswith(".h5") or modelPath.endswith(".keras"):
-                model = tf.keras.models.load_model(modelPath)
+                model = tf.keras.models.load_model(modelPath, compile=False)
                 models.append(model)
 
             else:
@@ -59,7 +59,7 @@ class MLTFReader(Filter):
                 for row in table:
                     parent = os.path.dirname(modelPath) + "/"
                     filePath = os.path.join(parent, row[1])
-                    model = tf.keras.models.load_model(filePath)      
+                    model = tf.keras.models.load_model(filePath, compile=False)      
                     models[int(row[0])] = model
             
             #check if training configuration exists, if not give error
