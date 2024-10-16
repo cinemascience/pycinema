@@ -102,7 +102,7 @@ def function_recolor(args):
     CinemaDatabaseReader_0.update()
 
 # set up parsers
-parser = argparse.ArgumentParser(description="My command-line tool")
+parser = argparse.ArgumentParser(description="Cinema utility command line tool")
 subparsers = parser.add_subparsers(dest='command', help='Sub-commands')
 
 # Subparser for command 'recolor'
