@@ -24,7 +24,7 @@ ImageReader_0.inputs.cache.set(True, False)
 TableView_0.inputs.table.set(TableQuery_0.outputs.table, False)
 TableView_0.inputs.selection.set(ImageView_0.inputs.selection, False)
 ImageView_0.inputs.images.set(ImageReader_0.outputs.images, False)
-ImageView_0.inputs.selection.set([11], False)
+ImageView_0.inputs.selection.set([], False)
 
 # layout
 tabFrame1 = pycinema.theater.TabFrame()
