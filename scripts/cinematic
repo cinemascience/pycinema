@@ -8,6 +8,9 @@ import sys
 # pycinema settings
 PYCINEMA = { 'VERSION' : '3.1.0'}
 
+def is_channel(images, channel):
+    return channel in images[0].channels
+
 def function_meta(args):
     if args.debug:
         # enable debug output (e.g., timings)
@@ -48,10 +51,11 @@ def function_recolor(args):
         pycinema.Filter._debug = True
 
     if args.verbose:
-        print("converting: \'" + args.source   + "\' to \'" + args.output + "\'")
-        print("colormap  : \'" + args.colormap + "\'")
-        print("channel   : \'" + args.channel  + "\'")
-        print()
+        print(args)
+        #print("converting: \'" + args.source   + "\' to \'" + args.output + "\'")
+        #print("colormap  : \'" + args.colormap + "\'")
+        #print("channel   : \'" + args.channel  + "\'")
+        #print()
 
     # read scalar image cdb manifest
     CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
@@ -63,6 +67,12 @@ def function_recolor(args):
     ImageReader_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
     ImageReader_0.inputs.file_column.set(args.filecolumn, False)
     ImageReader_0.inputs.cache.set(True, False)
+
+    ImageReader_0.update()
+    images = ImageReader_0.outputs.images.get()
+    if not is_channel(images, args.channel):
+        print("ERROR: invalid channel \'" + args.channel + "\'")
+        return
 
     # depth compositing
     DepthCompositing_0 = pycinema.filters.DepthCompositing()
@@ -93,27 +103,29 @@ def function_recolor(args):
 
 # set up parsers
 parser = argparse.ArgumentParser(description="My command-line tool")
-parser.add_argument('-v', '--verbose', action='store_true', help='enable verbose output')
-parser.add_argument('--debug', action='store_true', help='set debug mode')
 subparsers = parser.add_subparsers(dest='command', help='Sub-commands')
 
 # Subparser for command 'recolor'
 parser_recolor = subparsers.add_parser('recolor', help='convert Cinema float (hdf5) images to .png')
 parser_recolor.add_argument('--channel', required=True, help='define channel in source images to be colormapped')
 parser_recolor.add_argument('--channelrange', nargs="*", type=float, default=[-1.0,1.0], help='define channel range')
+parser_recolor.add_argument('--debug', action='store_true', help='set debug mode')
 parser_recolor.add_argument('--colormap', default="coolwarm", help='colormap name, from matplotlib color list')
-parser_recolor.add_argument('--depthchannel', default="depth", help='define DEPTH channel name') 
+parser_recolor.add_argument('--depthchannel', default="Depth", help='define DEPTH channel name') 
 parser_recolor.add_argument('--filecolumn', default="FILE", help='define FILE column name')
 parser_recolor.add_argument('--nancolor', nargs="*", type=int, default=[0, 0, 0, 0]) 
 parser_recolor.add_argument('--output', default="recolored.cdb", help='output cinema database')
 parser_recolor.add_argument('--source', required=True, help='source cinema database')
 parser_recolor.add_argument('--thumbnail', action='store_true', help='write out a thumbnail of converted image')
+parser_recolor.add_argument('-v', '--verbose', action='store_true', help='enable verbose output')
 parser_recolor.set_defaults(func=function_recolor)
 
 # Subparser for command 'meta'
 parser_meta = subparsers.add_parser('meta', help='dump descriptive metadata about a cinema database')
+parser_meta.add_argument('--debug', action='store_true', help='set debug mode')
 parser_meta.add_argument('--filecolumn', default="FILE", help='define FILE column name')
-parser_meta.add_argument('--source', required=True, help='source cinema database')
+parser_meta.add_argument('-v', '--verbose', action='store_true', help='enable verbose output')
+parser_meta.add_argument('source', help='source cinema database')
 parser_meta.set_defaults(func=function_meta)
 
 # parse and call subcommand arguments
