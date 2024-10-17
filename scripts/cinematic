@@ -52,13 +52,10 @@ def function_recolor(args):
     if args.debug:
         # enable debug output (e.g., timings)
         pycinema.Filter._debug = True
-
-    if args.verbose:
         print(args)
-        #print("converting: \'" + args.source   + "\' to \'" + args.output + "\'")
-        #print("colormap  : \'" + args.colormap + "\'")
-        #print("channel   : \'" + args.channel  + "\'")
-        #print()
+
+    # if args.verbose:
+        # print(args)
 
     # read scalar image cdb manifest
     CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()

@@ -18971,7 +18971,7 @@
         <Domain name="input_type" id="15166.Input.input_type"/>
       </Property>
       <Property name="OutputDirectory" id="15166.OutputDirectory" number_of_elements="1">
-        <Element index="0" value="/Users/dhr/LANL/data/newcinema.cdb"/>
+        <Element index="0" value="newcinema.cdb"/>
         <Domain name="files" id="15166.OutputDirectory.files"/>
       </Property>
     </Proxy>
