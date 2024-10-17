@@ -9,7 +9,10 @@ import sys
 PYCINEMA = { 'VERSION' : '3.1.0'}
 
 def is_channel(images, channel):
-    return channel in images[0].channels
+    if images and channel:
+        return channel in images[0].channels
+    else:
+        return False
 
 def function_meta(args):
     if args.debug:
@@ -72,6 +75,10 @@ def function_recolor(args):
     images = ImageReader_0.outputs.images.get()
     if not is_channel(images, args.channel):
         print("ERROR: invalid channel \'" + args.channel + "\'")
+        return
+
+    if not is_channel(images, args.depthchannel):
+        print("ERROR: invalid channel \'" + args.depthchannel + "\'")
         return
 
     # depth compositing
