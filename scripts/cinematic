@@ -14,6 +14,84 @@ def is_channel(images, channel):
     else:
         return False
 
+#
+#
+#
+class Composite:
+
+    def __init__(self, args):
+        self.reader = pycinema.filters.CinemaDatabaseReader()
+        self.reader.inputs.path.set(args.source, False)
+        self.reader.inputs.file_column.set(args.filecolumn, False)
+        # self.reader.update()
+
+        self.elements = []
+        for element in args.elements:
+            self.elements.append(Element(self, element, args))
+
+        # write the resulting images to a new cdb
+        self.writer = pycinema.filters.CinemaDatabaseWriter()
+        self.writer.inputs.images.set(self.elements[0].output.images, False)
+        self.writer.inputs.path.set(args.output, False)
+        self.writer.inputs.ignore.set(['^id', '^camera', '^FILE'], False)
+        self.writer.inputs.hdf5.set(False, False)
+
+    def update(self):
+        self.reader.update()
+#
+# create a pipeline that filters, reads and recolors a subset of images
+#
+class Element:
+
+    def __init__(self, composite, element, args):
+        # query
+        self.query  = pycinema.filters.TableQuery()
+        self.query.inputs.table.set(composite.reader.outputs.table, False)
+            # find the elements in the table with a query
+        self.query.inputs.sql.set("SELECT * from input WHERE " + args.elementlabel + " = \'" + element + "\'", False)
+
+        # image reader
+        self.imReader = pycinema.filters.ImageReader()
+        self.imReader.inputs.table.set(self.query.outputs.table, False)
+        self.imReader.inputs.file_column.set(args.filecolumn, False)
+        self.imReader.inputs.cache.set(True, False)
+
+        composite.reader.update()
+        images = self.imReader.outputs.images.get()
+        if not is_channel(images, args.channel):
+            print("ERROR: invalid channel \'" + args.channel + "\'")
+            return
+
+        if not is_channel(images, args.depthchannel):
+            print("ERROR: invalid channel \'" + args.depthchannel + "\'")
+            return
+
+        # colormap
+        self.colormap = pycinema.filters.ColorMapping()
+        self.colormap.inputs.map.set(args.colormap, False)
+        self.colormap.inputs.nan.set(args.nancolor, False)
+        self.colormap.inputs.range.set(args.channelrange, False) # data range of the scalar values
+        self.colormap.inputs.channel.set(args.channel, False) # name of the channel that needs to be rendered
+        self.colormap.inputs.images.set(self.imReader.outputs.images, False)
+        self.colormap.inputs.composition_id.set(-1, False)
+
+        self.output = self.colormap.outputs
+
+
+
+def function_recolor(args):
+    if args.debug:
+        # enable debug output (e.g., timings)
+        pycinema.Filter._debug = True
+        print(args)
+
+    # if args.verbose:
+        # print(args)
+
+    # read scalar image cdb manifest
+    composite = Composite(args)
+    composite.update()
+
 def function_meta(args):
     if args.debug:
         # enable debug output (e.g., timings)
@@ -48,63 +126,6 @@ def function_meta(args):
     
     print("  names : " + ", ".join(names))
 
-def function_recolor(args):
-    if args.debug:
-        # enable debug output (e.g., timings)
-        pycinema.Filter._debug = True
-        print(args)
-
-    # if args.verbose:
-        # print(args)
-
-    # read scalar image cdb manifest
-    CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
-    CinemaDatabaseReader_0.inputs.path.set(args.source, False)
-    CinemaDatabaseReader_0.inputs.file_column.set(args.filecolumn, False)
-
-    # read actual images
-    ImageReader_0 = pycinema.filters.ImageReader()
-    ImageReader_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
-    ImageReader_0.inputs.file_column.set(args.filecolumn, False)
-    ImageReader_0.inputs.cache.set(True, False)
-
-    ImageReader_0.update()
-    images = ImageReader_0.outputs.images.get()
-    if not is_channel(images, args.channel):
-        print("ERROR: invalid channel \'" + args.channel + "\'")
-        return
-
-    if not is_channel(images, args.depthchannel):
-        print("ERROR: invalid channel \'" + args.depthchannel + "\'")
-        return
-
-    # depth compositing
-    DepthCompositing_0 = pycinema.filters.DepthCompositing()
-    DepthCompositing_0.inputs.images_a.set(ImageReader_0.outputs.images, False)
-    DepthCompositing_0.inputs.images_b.set([], False)
-    DepthCompositing_0.inputs.depth_channel.set(args.depthchannel, False)
-    DepthCompositing_0.inputs.compose.set((None, {}), False)
-
-    # Apply color mapping on some channel (here depth)
-    # name of the matplotlib color map: https://matplotlib.org/stable/users/explain/colors/colormaps.html
-    ColorMapping_0 = pycinema.filters.ColorMapping()
-    ColorMapping_0.inputs.map.set(args.colormap, False)
-    ColorMapping_0.inputs.nan.set(args.nancolor, False)
-    ColorMapping_0.inputs.range.set(args.channelrange, False) # data range of the scalar values
-    ColorMapping_0.inputs.channel.set(args.channel, False) # name of the channel that needs to be rendered
-    ColorMapping_0.inputs.images.set(DepthCompositing_0.outputs.images, False)
-    ColorMapping_0.inputs.composition_id.set(-1, False)
-
-    # write the resulting images to a new cdb
-    CinemaDatabaseWriter_0 = pycinema.filters.CinemaDatabaseWriter()
-    CinemaDatabaseWriter_0.inputs.images.set(ColorMapping_0.outputs.images, False)
-    CinemaDatabaseWriter_0.inputs.path.set(args.output, False)
-    CinemaDatabaseWriter_0.inputs.ignore.set(['^id', '^camera', '^FILE'], False)
-    CinemaDatabaseWriter_0.inputs.hdf5.set(False, False)
-
-    # execute pipeline
-    CinemaDatabaseReader_0.update()
-
 # set up parsers
 parser = argparse.ArgumentParser(description="Cinema utility command line tool")
 subparsers = parser.add_subparsers(dest='command', help='Sub-commands')
@@ -114,6 +135,8 @@ parser_recolor = subparsers.add_parser('recolor', help='convert Cinema float (hd
 parser_recolor.add_argument('--channel', required=True, help='define channel in source images to be colormapped')
 parser_recolor.add_argument('--channelrange', nargs="*", type=float, default=[-1.0,1.0], help='define channel range')
 parser_recolor.add_argument('--debug', action='store_true', help='set debug mode')
+parser_recolor.add_argument('--elements', nargs="*", type=str, default=[""]) 
+parser_recolor.add_argument('--elementlabel', default="element", help='element label, used to find elements in database')
 parser_recolor.add_argument('--colormap', default="coolwarm", help='colormap name, from matplotlib color list')
 parser_recolor.add_argument('--depthchannel', default="Depth", help='define DEPTH channel name') 
 parser_recolor.add_argument('--filecolumn', default="FILE", help='define FILE column name')
