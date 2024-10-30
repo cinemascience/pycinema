@@ -1,5 +1,6 @@
 config:
   debug: False
+  verbose: True
   depthchannel: Depth
   output: sphere_export_composite.cdb
 
