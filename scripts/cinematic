@@ -37,6 +37,17 @@ class Composite:
         self.writer.inputs.ignore.set(['^id', '^camera', '^FILE'], False)
         self.writer.inputs.hdf5.set(False, False)
 
+        # settings
+        if not 'verbose' in config['config']:
+            self.verbose = False
+        else:
+            self.verbose = config['config']['verbose']
+
+        if self.verbose:
+            print("printing verbose output")
+            print("  Reading: " + config['database']['path'])
+            print("  Writing: " + config['config']['output'])
+
     def update(self):
         self.reader.update()
 #
