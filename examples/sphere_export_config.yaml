@@ -1,0 +1,14 @@
+config:
+  debug: False
+  depthchannel: Depth
+  output: sphere_export_composite.cdb
+
+database:
+  path: data/sphere_export.cdb
+  filecolumn: FILE
+
+elements:
+  - channel: Result
+    channelrange: [-1.0, 1.0]
+    colormap: rainbow
+    nancolor: [0, 0, 0, 0]

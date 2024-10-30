@@ -1,0 +1,26 @@
+config:
+  debug: False
+  depthchannel: depth
+  output: scalar-images_composite.cdb
+
+database:
+  path: data/scalar-images.cdb
+  filecolumn: FILE
+  elementlabel: object_id
+
+elements:
+  - name: p
+    channel: depth
+    channelrange: [-1.0, 1.0]
+    colormap: rainbow
+    nancolor: [0, 0, 0, 0]
+  - name: s1
+    channel: depth
+    channelrange: [-1.0, 1.0]
+    colormap: rainbow
+    nancolor: [0, 0, 0, 0]
+  - name: s0
+    channel: depth
+    channelrange: [-1.0, 1.0]
+    colormap: gray
+    nancolor: [0, 0, 0, 0]
