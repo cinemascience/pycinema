@@ -13,7 +13,7 @@ elements:
   - name: p
     channel: depth
     channelrange: [-1.0, 1.0]
-    colormap: gray
+    colormap: rainbow
     nancolor: [0, 0, 0, 0]
   - name: s0
     channel: depth
@@ -23,5 +23,5 @@ elements:
   - name: s1
     channel: depth
     channelrange: [-1.0, 1.0]
-    colormap: rainbow
+    colormap: gray
     nancolor: [0, 0, 0, 0]
