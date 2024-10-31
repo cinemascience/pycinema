@@ -30,21 +30,18 @@ class Composite:
         for element in config['elements']: 
             self.elements.append(Element(self, element, config))
 
-        # composite
+        # composite each element together
         curDepthCompositing = None 
         aImages = self.elements[0].outputs.images
-        if True:
-            for element in self.elements[1:]:
-                curDepthCompositing = pycinema.filters.DepthCompositing()
-                curDepthCompositing.inputs.images_a.set(aImages)
-                curDepthCompositing.inputs.images_b.set(element.outputs.images)
-                # remember output of compositor
-                aImages = curDepthCompositing.outputs.images
+        for element in self.elements[1:]:
+            curDepthCompositing = pycinema.filters.DepthCompositing()
+            curDepthCompositing.inputs.images_a.set(aImages)
+            curDepthCompositing.inputs.images_b.set(element.outputs.images)
+            # remember output of compositor
+            aImages = curDepthCompositing.outputs.images
     
         # write the resulting images to a new cdb
         self.writer = pycinema.filters.CinemaDatabaseWriter()
-        # self.writer.inputs.images.set(self.elements[0].output.images, False)
-        curDepthCompositing.update()
         self.writer.inputs.images.set(curDepthCompositing.outputs.images, False)
         self.writer.inputs.path.set(config['config']['output'], False)
         self.writer.inputs.ignore.set(['^id', '^camera', '^FILE'], False)
