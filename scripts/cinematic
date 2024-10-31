@@ -33,13 +33,17 @@ class Composite:
         # composite each element together
         curDepthCompositing = None 
         aImages = self.elements[0].outputs.images
-        for element in self.elements[1:]:
+        if len(self.elements) > 1:
+            for element in self.elements[1:]:
+                curDepthCompositing = pycinema.filters.DepthCompositing()
+                curDepthCompositing.inputs.images_a.set(aImages)
+                curDepthCompositing.inputs.images_b.set(element.outputs.images)
+                # remember output of compositor
+                aImages = curDepthCompositing.outputs.images
+        else:
             curDepthCompositing = pycinema.filters.DepthCompositing()
             curDepthCompositing.inputs.images_a.set(aImages)
-            curDepthCompositing.inputs.images_b.set(element.outputs.images)
-            # remember output of compositor
-            aImages = curDepthCompositing.outputs.images
-    
+
         # write the resulting images to a new cdb
         self.writer = pycinema.filters.CinemaDatabaseWriter()
         self.writer.inputs.images.set(curDepthCompositing.outputs.images, False)
@@ -66,14 +70,16 @@ class Composite:
 class Element:
 
     def __init__(self, composite, element, config):
-        self.name = element['name']
+        self.name = ""
+        if 'name' in element:
+            self.name = element['name']
 
         # query
         self.query  = pycinema.filters.TableQuery()
         self.query.inputs.table.set(composite.reader.outputs.table, False)
             # find the elements in the table with a query
         if 'elementlabel' in config['database']:
-            self.query.inputs.sql.set("SELECT * from input WHERE " + config['database']['elementlabel'] + " = \'" + element['name'] + "\'", False)
+            self.query.inputs.sql.set("SELECT * from input WHERE " + config['database']['elementlabel'] + " = \'" + str(element['name']) + "\'", False)
         else:
             self.query.inputs.sql.set("SELECT * from input", False)
 
