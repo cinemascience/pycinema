@@ -30,9 +30,22 @@ class Composite:
         for element in config['elements']: 
             self.elements.append(Element(self, element, config))
 
+        # composite
+        curDepthCompositing = None 
+        aImages = self.elements[0].outputs.images
+        if True:
+            for element in self.elements[1:]:
+                curDepthCompositing = pycinema.filters.DepthCompositing()
+                curDepthCompositing.inputs.images_a.set(aImages)
+                curDepthCompositing.inputs.images_b.set(element.outputs.images)
+                # remember output of compositor
+                aImages = curDepthCompositing.outputs.images
+    
         # write the resulting images to a new cdb
         self.writer = pycinema.filters.CinemaDatabaseWriter()
-        self.writer.inputs.images.set(self.elements[0].output.images, False)
+        # self.writer.inputs.images.set(self.elements[0].output.images, False)
+        curDepthCompositing.update()
+        self.writer.inputs.images.set(curDepthCompositing.outputs.images, False)
         self.writer.inputs.path.set(config['config']['output'], False)
         self.writer.inputs.ignore.set(['^id', '^camera', '^FILE'], False)
         self.writer.inputs.hdf5.set(False, False)
@@ -56,6 +69,8 @@ class Composite:
 class Element:
 
     def __init__(self, composite, element, config):
+        self.name = element['name']
+
         # query
         self.query  = pycinema.filters.TableQuery()
         self.query.inputs.table.set(composite.reader.outputs.table, False)
@@ -90,7 +105,7 @@ class Element:
         self.colormap.inputs.images.set(self.imReader.outputs.images, False)
         self.colormap.inputs.composition_id.set(-1, False)
 
-        self.output = self.colormap.outputs
+        self.outputs = self.colormap.outputs
 
 
 

@@ -1,5 +1,6 @@
 config:
   debug: False
+  verbose: True
   depthchannel: depth
   output: scalar-images_composite.cdb
 
@@ -12,15 +13,15 @@ elements:
   - name: p
     channel: depth
     channelrange: [-1.0, 1.0]
-    colormap: rainbow
+    colormap: gray
+    nancolor: [0, 0, 0, 0]
+  - name: s0
+    channel: depth
+    channelrange: [-1.0, 1.0]
+    colormap: plasma
     nancolor: [0, 0, 0, 0]
   - name: s1
     channel: depth
     channelrange: [-1.0, 1.0]
     colormap: rainbow
-    nancolor: [0, 0, 0, 0]
-  - name: s0
-    channel: depth
-    channelrange: [-1.0, 1.0]
-    colormap: gray
     nancolor: [0, 0, 0, 0]
