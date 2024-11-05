@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.9','3.10','3.11']
+        python-version: ['3.10','3.11']
 
     steps:
       - uses: actions/checkout@v4
@@ -36,7 +36,7 @@ jobs:
   macos:
     strategy:
       matrix:
-        python-version: ['3.9','3.10','3.11']
+        python-version: ['3.10','3.11']
         os-version: [macos-13, macos-14]
 
     runs-on: ${{ matrix.os-version }}
@@ -59,26 +59,3 @@ jobs:
           python -m pytest -s testing/QueryWriteTest.py
           python -m pytest -s testing/SqliteDatabaseReader.py
           python -m pytest -s testing/TableQueryTest.py
-
-  # windows:
-  #   strategy:
-  #     matrix:
-  #       python-version: [3.9,'3.10','3.11']
-  #       os-version: [windows-latest]
-
-  #   runs-on: ${{ matrix.os-version }}
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Set up Python ${{ matrix.python-version }}
-  #       uses: actions/setup-python@v5
-  #       with:
-  #         python-version: ${{ matrix.python-version }}
-  #     - name: Dependencies
-  #       run: |
-  #         python -m pip install --upgrade pip setuptools
-  #         python -m pip install pytest
-  #         python setup.py install
-  #     - name: Test script
-  #       run: |
-  #         cinema --version
-  #         cinema --help
