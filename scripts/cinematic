@@ -110,11 +110,35 @@ class Element:
         self.colormap.inputs.channel.set(element['channel'], False) # name of the channel that needs to be rendered
         self.colormap.inputs.images.set(self.imReader.outputs.images, False)
         self.colormap.inputs.composition_id.set(-1, False)
+        # set output
         self.colormap.update()
-
         self.outputs = self.colormap.outputs
 
-def function_composite(args):
+        # shadow
+        if 'shadow' in config:
+            if not 'state' in config['shadow'] or config['shadow']['state']:
+                if not 'shadow' in config or config['shadow']['type'] == 'SSAO':
+                    shadow = config['shadow']
+                    self.shadow = pycinema.filters.ShaderSSAO()
+                    self.shadow.inputs.images.set(self.colormap.outputs.images, False)
+                    # other settings
+                    if 'radius' in shadow:
+                        self.shadow.inputs.radius.set(shadow['radius'])
+                    else:
+                        self.shadow.inputs.radius.set(0.03)
+                    if 'samples' in shadow:
+                        self.shadow.inputs.samples.set(shadow['samples'])
+                    else:
+                        self.shadow.inputs.samples.set(32)
+                    if 'diff' in shadow:
+                        self.shadow.inputs.diff.set(shadow['diff'])
+                    else:
+                        self.shadow.inputs.diff.set(0.5)
+                    # set output
+                    self.shadow.update()
+                    self.outputs = self.shadow.outputs
+
+def function_compose(args):
     if args.debug:
         # enable debug output (e.g., timings)
         pycinema.Filter._debug = True
@@ -167,10 +191,10 @@ parser = argparse.ArgumentParser(description="Cinema utility command line tool")
 subparsers = parser.add_subparsers(dest='command', help='Sub-commands')
 
 # Subparser
-parser_composite = subparsers.add_parser('composite', help='convert Cinema float (hdf5) images to .png')
-parser_composite.add_argument('--debug', action='store_true', help='set debug mode')
-parser_composite.add_argument('config', help='define the configuration file')
-parser_composite.set_defaults(func=function_composite)
+parser_compose = subparsers.add_parser('compose', help='convert Cinema float (hdf5) images to .png')
+parser_compose.add_argument('--debug', action='store_true', help='set debug mode')
+parser_compose.add_argument('config', help='define the configuration file')
+parser_compose.set_defaults(func=function_compose)
 
 # Subparser for command 'meta'
 parser_meta = subparsers.add_parser('meta', help='dump descriptive metadata about a cinema database')
