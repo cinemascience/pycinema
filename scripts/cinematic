@@ -24,21 +24,23 @@ class Composite:
         self.reader = pycinema.filters.CinemaDatabaseReader()
         self.reader.inputs.path.set(config['database']['path'], False)
         self.reader.inputs.file_column.set(config['database']['filecolumn'], False)
-        # self.reader.update()
+        self.reader.update()
 
         self.elements = []
-        for element in config['elements']: 
-            self.elements.append(Element(self, element, config))
+        for element in config['elements']:
+            self.elements.append( Element(self.reader.outputs.table.get(), element, config) )
 
         # composite each element together
-        curDepthCompositing = None 
-        aImages = self.elements[0].outputs.images
+        curDepthCompositing = None
+        aImages = self.elements[0].outputs.images.get()
+
         if len(self.elements) > 1:
             for element in self.elements[1:]:
                 curDepthCompositing = pycinema.filters.DepthCompositing()
-                curDepthCompositing.inputs.images_a.set(aImages)
-                curDepthCompositing.inputs.images_b.set(element.outputs.images)
+                curDepthCompositing.inputs.images_a.set(aImages, False)
+                curDepthCompositing.inputs.images_b.set(element.outputs.images.get(), False)
                 # remember output of compositor
+                curDepthCompositing.update()
                 aImages = curDepthCompositing.outputs.images
         else:
             curDepthCompositing = pycinema.filters.DepthCompositing()
@@ -69,15 +71,15 @@ class Composite:
 #
 class Element:
 
-    def __init__(self, composite, element, config):
+    def __init__(self, table, element, config):
         self.name = ""
         if 'name' in element:
             self.name = element['name']
 
         # query
         self.query  = pycinema.filters.TableQuery()
-        self.query.inputs.table.set(composite.reader.outputs.table, False)
-            # find the elements in the table with a query
+        self.query.inputs.table.set(table, False)
+        # find the elements in the table with a query
         if 'elementlabel' in config['database']:
             self.query.inputs.sql.set("SELECT * from input WHERE " + config['database']['elementlabel'] + " = \'" + str(element['name']) + "\'", False)
         else:
@@ -89,7 +91,8 @@ class Element:
         self.imReader.inputs.file_column.set(config['database']['filecolumn'], False)
         self.imReader.inputs.cache.set(True, False)
 
-        composite.reader.update()
+        self.imReader.update()
+
         images = self.imReader.outputs.images.get()
         if not is_channel(images, element['channel']):
             print("ERROR: invalid channel \'" + element['channel'] + "\'")
@@ -107,10 +110,9 @@ class Element:
         self.colormap.inputs.channel.set(element['channel'], False) # name of the channel that needs to be rendered
         self.colormap.inputs.images.set(self.imReader.outputs.images, False)
         self.colormap.inputs.composition_id.set(-1, False)
+        self.colormap.update()
 
         self.outputs = self.colormap.outputs
-
-
 
 def function_composite(args):
     if args.debug:
@@ -122,7 +124,7 @@ def function_composite(args):
         with open(args.config, 'r') as file:
             configdata = yaml.safe_load(file)
 
-        # create and execute a composite object 
+        # create and execute a composite object
         composite = Composite(configdata)
         composite.update()
 
@@ -157,7 +159,7 @@ def function_meta(args):
     names = []
     for channel in images[0].channels:
         names.append(channel)
-    
+
     print("  names : " + ", ".join(names))
 
 # set up parsers
