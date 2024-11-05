@@ -1,0 +1,214 @@
+#!/usr/bin/env python
+
+import argparse
+import pycinema
+import pycinema.filters
+import sys
+import yaml
+
+# pycinema settings
+PYCINEMA = { 'VERSION' : '3.1.0'}
+
+def is_channel(images, channel):
+    if images and channel:
+        return channel in images[0].channels
+    else:
+        return False
+
+#
+#
+#
+class Composite:
+
+    def __init__(self, config):
+        self.reader = pycinema.filters.CinemaDatabaseReader()
+        self.reader.inputs.path.set(config['database']['path'], False)
+        self.reader.inputs.file_column.set(config['database']['filecolumn'], False)
+        self.reader.update()
+
+        self.elements = []
+        for element in config['elements']:
+            self.elements.append( Element(self.reader.outputs.table.get(), element, config) )
+
+        # composite each element together
+        curDepthCompositing = None
+        aImages = self.elements[0].outputs.images.get()
+
+        if len(self.elements) > 1:
+            for element in self.elements[1:]:
+                curDepthCompositing = pycinema.filters.DepthCompositing()
+                curDepthCompositing.inputs.images_a.set(aImages, False)
+                curDepthCompositing.inputs.images_b.set(element.outputs.images.get(), False)
+                # remember output of compositor
+                curDepthCompositing.update()
+                aImages = curDepthCompositing.outputs.images
+        else:
+            curDepthCompositing = pycinema.filters.DepthCompositing()
+            curDepthCompositing.inputs.images_a.set(aImages)
+
+        # write the resulting images to a new cdb
+        self.writer = pycinema.filters.CinemaDatabaseWriter()
+        self.writer.inputs.images.set(curDepthCompositing.outputs.images, False)
+        self.writer.inputs.path.set(config['config']['output'], False)
+        self.writer.inputs.ignore.set(['^id', '^camera', '^FILE'], False)
+        self.writer.inputs.hdf5.set(False, False)
+
+        # settings
+        if not 'verbose' in config['config']:
+            self.verbose = False
+        else:
+            self.verbose = config['config']['verbose']
+
+        if self.verbose:
+            print("printing verbose output")
+            print("  Reading: " + config['database']['path'])
+            print("  Writing: " + config['config']['output'])
+
+    def update(self):
+        self.reader.update()
+#
+# create a pipeline that filters, reads and recolors a subset of images
+#
+class Element:
+
+    def __init__(self, table, element, config):
+        self.name = ""
+        if 'name' in element:
+            self.name = element['name']
+
+        # query
+        self.query  = pycinema.filters.TableQuery()
+        self.query.inputs.table.set(table, False)
+        # find the elements in the table with a query
+        if 'elementlabel' in config['database']:
+            self.query.inputs.sql.set("SELECT * from input WHERE " + config['database']['elementlabel'] + " = \'" + str(element['name']) + "\'", False)
+        else:
+            self.query.inputs.sql.set("SELECT * from input", False)
+
+        # image reader
+        self.imReader = pycinema.filters.ImageReader()
+        self.imReader.inputs.table.set(self.query.outputs.table, False)
+        self.imReader.inputs.file_column.set(config['database']['filecolumn'], False)
+        self.imReader.inputs.cache.set(True, False)
+
+        self.imReader.update()
+
+        images = self.imReader.outputs.images.get()
+        if not is_channel(images, element['channel']):
+            print("ERROR: invalid channel \'" + element['channel'] + "\'")
+            return
+
+        if not is_channel(images, config['config']['depthchannel']):
+            print("ERROR: invalid channel \'" + config['config']['depthchannel'] + "\'")
+            return
+
+        # colormap
+        self.colormap = pycinema.filters.ColorMapping()
+        self.colormap.inputs.map.set(element['colormap'], False)
+        self.colormap.inputs.nan.set(element['nancolor'], False)
+        self.colormap.inputs.range.set(element['channelrange'], False) # data range of the scalar values
+        self.colormap.inputs.channel.set(element['channel'], False) # name of the channel that needs to be rendered
+        self.colormap.inputs.images.set(self.imReader.outputs.images, False)
+        self.colormap.inputs.composition_id.set(-1, False)
+        # set output
+        self.colormap.update()
+        self.outputs = self.colormap.outputs
+
+        # shadow
+        if 'shadow' in config:
+            if not 'state' in config['shadow'] or config['shadow']['state']:
+                if not 'shadow' in config or config['shadow']['type'] == 'SSAO':
+                    shadow = config['shadow']
+                    self.shadow = pycinema.filters.ShaderSSAO()
+                    self.shadow.inputs.images.set(self.colormap.outputs.images, False)
+                    # other settings
+                    if 'radius' in shadow:
+                        self.shadow.inputs.radius.set(shadow['radius'])
+                    else:
+                        self.shadow.inputs.radius.set(0.03)
+                    if 'samples' in shadow:
+                        self.shadow.inputs.samples.set(shadow['samples'])
+                    else:
+                        self.shadow.inputs.samples.set(32)
+                    if 'diff' in shadow:
+                        self.shadow.inputs.diff.set(shadow['diff'])
+                    else:
+                        self.shadow.inputs.diff.set(0.5)
+                    # set output
+                    self.shadow.update()
+                    self.outputs = self.shadow.outputs
+
+def function_compose(args):
+    if args.debug:
+        # enable debug output (e.g., timings)
+        pycinema.Filter._debug = True
+
+    if args.config:
+        # load the config
+        with open(args.config, 'r') as file:
+            configdata = yaml.safe_load(file)
+
+        # create and execute a composite object
+        composite = Composite(configdata)
+        composite.update()
+
+def function_meta(args):
+    if args.debug:
+        # enable debug output (e.g., timings)
+        pycinema.Filter._debug = True
+
+    # read scalar image cdb manifest
+    CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
+    CinemaDatabaseReader_0.inputs.path.set(args.source, False)
+    CinemaDatabaseReader_0.inputs.file_column.set(args.filecolumn, False)
+
+    # read actual images
+    ImageReader_0 = pycinema.filters.ImageReader()
+    ImageReader_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
+    ImageReader_0.inputs.file_column.set(args.filecolumn, False)
+    ImageReader_0.inputs.cache.set(True, False)
+
+    # execute pipeline
+    CinemaDatabaseReader_0.update()
+
+    # do the work
+    images = ImageReader_0.outputs.images.get()
+    meta = images[0].meta
+    # resolution = [int(meta['resolution'][0]), int(meta['resolution'][1])]
+    print("image metadata")
+    print("  format: hdf5")
+    # print("  res   : " + ", ".join(map(str, resolution)))
+    print("channels: ")
+    print("  number: " + str(len(images[0].channels)))
+    names = []
+    for channel in images[0].channels:
+        names.append(channel)
+
+    print("  names : " + ", ".join(names))
+
+# set up parsers
+parser = argparse.ArgumentParser(description="Cinema utility command line tool")
+subparsers = parser.add_subparsers(dest='command', help='Sub-commands')
+
+# Subparser
+parser_compose = subparsers.add_parser('compose', help='convert Cinema float (hdf5) images to .png')
+parser_compose.add_argument('--debug', action='store_true', help='set debug mode')
+parser_compose.add_argument('config', help='define the configuration file')
+parser_compose.set_defaults(func=function_compose)
+
+# Subparser for command 'meta'
+parser_meta = subparsers.add_parser('meta', help='dump descriptive metadata about a cinema database')
+parser_meta.add_argument('--debug', action='store_true', help='set debug mode')
+parser_meta.add_argument('--filecolumn', default="FILE", help='define FILE column name')
+parser_meta.add_argument('-v', '--verbose', action='store_true', help='enable verbose output')
+parser_meta.add_argument('source', help='source cinema database')
+parser_meta.set_defaults(func=function_meta)
+
+# parse and call subcommand arguments
+args = parser.parse_args()
+
+# Call the appropriate function based on the subcommand
+if args.command:
+    args.func(args)
+else:
+    parser.print_help()

@@ -53,6 +53,13 @@ class CinemaDatabaseWriter(Filter):
         image = PIL.Image.fromarray(rgba_array, 'RGBA')
         image.save(path, 'PNG')
 
+        # to be included
+        thumb = False
+        if thumb:
+            thumbnail = image.resize((100,100), PIL.Image.Resampling.LANCZOS)
+            pathparts = os.path.splitext(path)
+            thumbnail.save(pathparts[0] + "_thumb.png", 'PNG')
+
     def _update(self):
 
         images = self.inputs.images.get()

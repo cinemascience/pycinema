@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.9, '3.10', '3.11']
+        python-version: ['3.10', '3.11']
 
     steps:
       - uses: actions/checkout@v4
@@ -31,10 +31,10 @@ jobs:
   macos:
     strategy:
       matrix:
-        python-version: [3.9, '3.10', '3.11']
-        os-version: [macos-12, macos-13]
+        python-version: ['3.10', '3.11']
+        os-version: [macos-13, macos-14]
 
-    runs-on: ${{ matrix.os-version }} 
+    runs-on: ${{ matrix.os-version }}
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
@@ -49,30 +49,3 @@ jobs:
       - name: Test using ModernGL
         run: |
           python -m pytest -s testing/RenderTest.py
-
-  # windows:
-  #   runs-on: windows-latest
-  #   strategy:
-  #     matrix:
-  #       python-version: [3.9]
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Set up Python ${{ matrix.python-version }}
-  #       uses: actions/setup-python@v4
-  #       with:
-  #         python-version: ${{ matrix.python-version }}
-  #     - uses: msys2/setup-msys2@v2
-  #       with:
-  #         msystem: MINGW64
-  #         release: false
-  #         install: mingw-w64-x86_64-mesa
-  #     - name: Test Environment
-  #       shell: pwsh
-  #       run: |
-  #         $env:GLCONTEXT_WIN_LIBGL = "C:\msys64\mingw64\bin\opengl32.dll"
-  #     - name: Dependencies
-  #       run: |
-  #         python setup.py install
-  #     - name: Test using ModernGL
-  #       run: |
-  #         python -m pytest -s testing/RenderTest.py

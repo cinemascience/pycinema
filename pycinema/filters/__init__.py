@@ -26,6 +26,7 @@ from .Plot import *
 from .PlotLineItem import *
 from .Python import *
 from .GetColumn import *
+from .RenderView import *
 from .ShaderDemoScene import *
 from .ShaderFXAA import *
 from .ShaderIBS import *
@@ -40,6 +41,7 @@ from .SynemaViewSynthesis import *
 from .TableWriter import *
 from .TableView import *
 from .TextEditor import *
+from .TextFileReader import *
 from .ParametersView import *
 from .ParallelCoordinates import *
 from .InspectorView import *

@@ -23,16 +23,17 @@ class MLTFPredictor(Filter):
 
     def _update(self):
         images = self.inputs.images.get()
-        model = self.inputs.trainedModel.get()
-        # get required input properties from model 
-        width = model.layers[0].input_shape[1]
-        height = model.layers[0].input_shape[2]
-        channels = model.layers[0].input_shape[3]
+        modelList = self.inputs.trainedModel.get()
+        # get required input properties from first model
+        model = modelList[0]
+        width = model.input_shape[1]
+        height = model.input_shape[2]
+        channels = model.input_shape[3]
         if channels == 1:
           gray_req = True
         else: #channels == 3 or 4
           gray_req = False
-        
+
         result = []
         # iterate over all the images in the input images
         for image in self.inputs.images.get():
@@ -45,11 +46,15 @@ class MLTFPredictor(Filter):
           data = np.array(data) / 255
           data = data.reshape((1, width, height, channels))
 
-          # at the moment, assuming only one predicted output
-          # from the network
-          one_hot = model.predict(data, verbose = 0)
-          predictedValue = np.argmax(one_hot)
-          img.meta['PredictedValue'] = float(predictedValue)
+          pv_iter = 0
+          for model in modelList:
+            # at the moment, assuming only one predicted output
+            # from the network
+            one_hot = model.predict(data, verbose = 0)
+            predictedValue = np.argmax(one_hot)
+            img.meta['PredictedValue_' + str(pv_iter)] = float(predictedValue)
+            pv_iter += 1
+          
           result.append(img)
 
         self.outputs.images.set(result)

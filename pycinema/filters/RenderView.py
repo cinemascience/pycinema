@@ -8,9 +8,6 @@ try:
 except ImportError:
   pass
 
-def getSelectedImages(images, ids):
-  return [i for i in images if images.meta['id'] in ids]
-
 try:
   class _QGraphicsPixmapItem(QtWidgets.QGraphicsPixmapItem):
     def __init__(self):
@@ -122,7 +119,10 @@ class RenderView(Filter):
 
     def _update(self):
         images = self.inputs.images.get()
-        nImages = len(images)
+        if len(images)<1 or 'rgba' not in images[0].channels:
+          print('[WARNING:RenderView] No input image or missing rgba channel')
+          self.canvas.update(numpy.zeros((1,1,4)))
+          return 1
 
         self.canvas.update(images[0].channels['rgba'])
 

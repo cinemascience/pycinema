@@ -33,6 +33,7 @@ ColorMapping_0.inputs.images.set(DepthCompositing_0.outputs.images, False)
 ShaderSSAO_0.inputs.images.set(ColorMapping_0.outputs.images, False)
 ImageAnnotation_0.inputs.images.set(ShaderSSAO_0.outputs.images, False)
 TableView_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
+TableView_0.inputs.selection.set(ParallelCoordinates_0.inputs.selection, False)
 ImageView_0.inputs.images.set(ImageAnnotation_0.outputs.images, False)
 
 # layout

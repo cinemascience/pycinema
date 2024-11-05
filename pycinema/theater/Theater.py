@@ -17,6 +17,8 @@ class _Theater(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.setIconSize(QtCore.QSize(512,512))
+
         # init theme
         Icons.update_theme();
         NodeEditorStyle.update_theme();
@@ -201,18 +203,21 @@ import pycinema.theater.views
         if not script_file_name:
             script_file_name = QtWidgets.QFileDialog.getOpenFileName(self, "Load Script")[0]
         if script_file_name and len(script_file_name)>0:
-            try:
-                script_file = open(script_file_name, "r")
-                script = script_file.read()
-                script_file.close()
-                self.reset(True)
-                if not scriptkey:
-                    self.setWindowTitle("Cinema:Theater (" + script_file_name + ")")
-                else:
-                    self.setWindowTitle("Cinema:" + scriptkey)
-                self.executeScript(script,args)
-            except:
-                return
+            if os.path.isfile(script_file_name):
+                try:
+                    script_file = open(script_file_name, "r")
+                    script = script_file.read()
+                    script_file.close()
+                    self.reset(True)
+                    if not scriptkey:
+                        self.setWindowTitle("Cinema:Theater (" + script_file_name + ")")
+                    else:
+                        self.setWindowTitle("Cinema:" + scriptkey)
+                    self.executeScript(script,args)
+                except:
+                    return
+            else:
+                print("CINEMA ERROR: script file \'" + script_file_name + "\' does not exist")
 
 class Theater():
 
