@@ -24,6 +24,9 @@ jobs:
       - name: Dependencies
         run: |
           python setup.py install
+      - name: Test composite script 
+        run: |
+          cinema compose examples/scalar-images_config.yaml
       - name: Test using ModernGL
         run: |
           python -m pytest -s testing/RenderTest.py
@@ -46,6 +49,9 @@ jobs:
           python -m pip install --upgrade pip setuptools
           python -m pip install pytest
           python setup.py install
+      - name: Test composite script 
+        run: |
+          cinema compose examples/scalar-images_config.yaml
       - name: Test using ModernGL
         run: |
           python -m pytest -s testing/RenderTest.py

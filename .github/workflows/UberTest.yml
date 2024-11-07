@@ -27,7 +27,6 @@ jobs:
       - name: Test execution
         run: |
           python examples/theater/TableWriteHeadlessExample.py
-          cinema compose examples/scalar-images_config.yaml
       - name: Test results
         run: |
           python -m pytest -s testing/QueryWriteTest.py
@@ -55,7 +54,6 @@ jobs:
       - name: Test execution
         run: |
           python examples/theater/TableWriteHeadlessExample.py
-          cinema compose examples/scalar-images_config.yaml
       - name: Test results
         run: |
           python -m pytest -s testing/QueryWriteTest.py
