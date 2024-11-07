@@ -21,6 +21,9 @@ def set_up_logging(args):
     if args.verbose:
         log.getLogger().setLevel(log.DEBUG)
 
+#
+# execution of a script saved in theater application
+#
 def function_theater(args):
     set_up_logging(args)
 
@@ -28,27 +31,46 @@ def function_theater(args):
 
     pycinema.theater.Theater(args.filenames)
 
+#
+# script included with pycinema
+#
 def function_browse(args):
     import pycinema.theater
 
     args.filenames.insert(0, "browse")
     pycinema.theater.Theater(args.filenames)
 
+#
+# script included with pycinema
+#
 def function_discover(args):
     args.filenames.insert(0, "discover")
     pycinema.theater.Theater(args.filenames)
 
+#
+# script included with pycinema
+#
 def function_explore(args):
     args.filenames.insert(0, "explore")
     pycinema.theater.Theater(args.filenames)
+
+#
+# script included with pycinema
+#
 def function_imagegrid(args):
     args.filenames.insert(0, "imagegrid")
     pycinema.theater.Theater(args.filenames)
 
+#
+# script included with pycinema
+#
 def function_view(args):
     args.filenames.insert(0, "view")
     pycinema.theater.Theater(args.filenames)
 
+#
+# composite a database of HDF5 images into a database of png files
+#
 def function_compose(args):
     if args.debug:
         # enable debug output (e.g., timings)
@@ -63,6 +85,9 @@ def function_compose(args):
         composite = pycinema.scripts.compose.Composite(configdata)
         composite.update()
 
+#
+# query metadata from a database of HDF5 images 
+#
 def function_meta(args):
     if args.debug:
         # enable debug output (e.g., timings)
