@@ -48,8 +48,7 @@ setuptools.setup(
     scripts=[
         'doc/pycinema-description.md',
         'scripts/cinema',
-        'scripts/cinematic',
-        'scripts/frame'
+        'scripts/cinematic'
     ],
     data_files=[('fonts',['fonts/NotoSansMono-VariableFont_wdth,wght.ttf'])]
 )
