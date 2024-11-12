@@ -5,6 +5,7 @@ import pycinema
 import pycinema.filters
 import yaml
 import logging as log
+import sys
 
 # pycinema settings
 PYCINEMA = { 'VERSION' : '3.1.0'}
@@ -25,9 +26,8 @@ def set_up_logging(args):
 # execution of a script saved in theater application
 #
 def function_theater(args):
-    set_up_logging(args)
-
     import pycinema.theater
+    set_up_logging(args)
 
     pycinema.theater.Theater(args.filenames)
 
@@ -36,6 +36,7 @@ def function_theater(args):
 #
 def function_browse(args):
     import pycinema.theater
+    set_up_logging(args)
 
     args.filenames.insert(0, "browse")
     pycinema.theater.Theater(args.filenames)
@@ -44,13 +45,18 @@ def function_browse(args):
 # script included with pycinema
 #
 def function_discover(args):
+    import pycinema.theater
+    set_up_logging(args)
+
     args.filenames.insert(0, "discover")
     pycinema.theater.Theater(args.filenames)
 
 #
 # script included with pycinema
-#
 def function_explore(args):
+    import pycinema.theater
+    set_up_logging(args)
+
     args.filenames.insert(0, "explore")
     pycinema.theater.Theater(args.filenames)
 
@@ -58,6 +64,9 @@ def function_explore(args):
 # script included with pycinema
 #
 def function_imagegrid(args):
+    import pycinema.theater
+    set_up_logging(args)
+
     args.filenames.insert(0, "imagegrid")
     pycinema.theater.Theater(args.filenames)
 
@@ -65,6 +74,9 @@ def function_imagegrid(args):
 # script included with pycinema
 #
 def function_view(args):
+    import pycinema.theater
+    set_up_logging(args)
+
     args.filenames.insert(0, "view")
     pycinema.theater.Theater(args.filenames)
 
@@ -144,18 +156,23 @@ parser_meta.set_defaults(func=function_meta)
 
 # Subparser for viewers
 parser_browse = subparsers.add_parser('browse', help='browse a cinema database')
+parser_browse.add_argument( "-v", "--verbose", action="store_true" )
 parser_browse.add_argument( "filenames", nargs='*' )
 parser_browse.set_defaults(func=function_browse)
 parser_discover = subparsers.add_parser('discover', help='discover a cinema database')
+parser_discover.add_argument( "-v", "--verbose", action="store_true" )
 parser_discover.add_argument( "filenames", nargs='*' )
 parser_discover.set_defaults(func=function_discover)
 parser_explore = subparsers.add_parser('explore', help='explore a cinema database')
+parser_explore.add_argument( "-v", "--verbose", action="store_true" )
 parser_explore.add_argument( "filenames", nargs='*' )
 parser_explore.set_defaults(func=function_explore)
 parser_imagegrid = subparsers.add_parser('imagegrid', help='imagegrid a cinema database')
+parser_imagegrid.add_argument( "-v", "--verbose", action="store_true" )
 parser_imagegrid.add_argument( "filenames", nargs='*' )
 parser_imagegrid.set_defaults(func=function_imagegrid)
 parser_view = subparsers.add_parser('view', help='view a cinema database')
+parser_view.add_argument( "-v", "--verbose", action="store_true" )
 parser_view.add_argument( "filenames", nargs='*' )
 parser_view.set_defaults(func=function_view)
 
@@ -165,6 +182,12 @@ parser_theater.add_argument( "-v", "--verbose", action="store_true" )
 parser_theater.add_argument( "filenames", nargs='*' )
 parser_theater.set_defaults(func=function_theater)
 
+# special cases
+if len(sys.argv) == 1:
+    sys.argv.append("theater")
+elif len(sys.argv) == 2:
+    if sys.argv[1].endswith(".py"):
+        sys.argv.insert(1, "theater")
 # parse and call subcommand arguments
 args = parser.parse_args()
 
