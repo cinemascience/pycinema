@@ -68,6 +68,20 @@ class Element:
         if 'name' in element:
             self.name = element['name']
 
+        # Error checking
+        if not 'name' in element:
+            print('ERROR: name \'name\' not present in element')
+        if not 'channel' in element:
+            print('ERROR: name \'channel\' not present in element')
+
+        # set defaults
+        if not 'channelrange' in element:
+            element['channelrange'] = [-1.0, 1.0] 
+        if not 'colormap' in element:
+            element['colormap'] = 'rainbow' 
+        if not 'nancolor' in element:
+            element['nancolor'] = [0,0,0,0]
+
         # query
         self.query  = pycinema.filters.TableQuery()
         self.query.inputs.table.set(table, False)
