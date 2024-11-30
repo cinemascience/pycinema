@@ -1,13 +1,4 @@
-#!/usr/bin/env python
-
-import argparse
 import pycinema
-import pycinema.filters
-import sys
-import yaml
-
-# pycinema settings
-PYCINEMA = { 'VERSION' : '3.1.0'}
 
 def is_channel(images, channel):
     if images and channel:
@@ -16,7 +7,7 @@ def is_channel(images, channel):
         return False
 
 #
-#
+# A class that performs a composite
 #
 class Composite:
 
@@ -66,6 +57,7 @@ class Composite:
 
     def update(self):
         self.reader.update()
+
 #
 # create a pipeline that filters, reads and recolors a subset of images
 #
@@ -75,6 +67,20 @@ class Element:
         self.name = ""
         if 'name' in element:
             self.name = element['name']
+
+        # Error checking
+        if not 'name' in element:
+            print('ERROR: name \'name\' not present in element')
+        if not 'channel' in element:
+            print('ERROR: name \'channel\' not present in element')
+
+        # set defaults
+        if not 'channelrange' in element:
+            element['channelrange'] = [-1.0, 1.0] 
+        if not 'colormap' in element:
+            element['colormap'] = 'rainbow' 
+        if not 'nancolor' in element:
+            element['nancolor'] = [0,0,0,0]
 
         # query
         self.query  = pycinema.filters.TableQuery()
@@ -137,78 +143,3 @@ class Element:
                     # set output
                     self.shadow.update()
                     self.outputs = self.shadow.outputs
-
-def function_compose(args):
-    if args.debug:
-        # enable debug output (e.g., timings)
-        pycinema.Filter._debug = True
-
-    if args.config:
-        # load the config
-        with open(args.config, 'r') as file:
-            configdata = yaml.safe_load(file)
-
-        # create and execute a composite object
-        composite = Composite(configdata)
-        composite.update()
-
-def function_meta(args):
-    if args.debug:
-        # enable debug output (e.g., timings)
-        pycinema.Filter._debug = True
-
-    # read scalar image cdb manifest
-    CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
-    CinemaDatabaseReader_0.inputs.path.set(args.source, False)
-    CinemaDatabaseReader_0.inputs.file_column.set(args.filecolumn, False)
-
-    # read actual images
-    ImageReader_0 = pycinema.filters.ImageReader()
-    ImageReader_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
-    ImageReader_0.inputs.file_column.set(args.filecolumn, False)
-    ImageReader_0.inputs.cache.set(True, False)
-
-    # execute pipeline
-    CinemaDatabaseReader_0.update()
-
-    # do the work
-    images = ImageReader_0.outputs.images.get()
-    meta = images[0].meta
-    # resolution = [int(meta['resolution'][0]), int(meta['resolution'][1])]
-    print("image metadata")
-    print("  format: hdf5")
-    # print("  res   : " + ", ".join(map(str, resolution)))
-    print("channels: ")
-    print("  number: " + str(len(images[0].channels)))
-    names = []
-    for channel in images[0].channels:
-        names.append(channel)
-
-    print("  names : " + ", ".join(names))
-
-# set up parsers
-parser = argparse.ArgumentParser(description="Cinema utility command line tool")
-subparsers = parser.add_subparsers(dest='command', help='Sub-commands')
-
-# Subparser
-parser_compose = subparsers.add_parser('compose', help='convert Cinema float (hdf5) images to .png')
-parser_compose.add_argument('--debug', action='store_true', help='set debug mode')
-parser_compose.add_argument('config', help='define the configuration file')
-parser_compose.set_defaults(func=function_compose)
-
-# Subparser for command 'meta'
-parser_meta = subparsers.add_parser('meta', help='dump descriptive metadata about a cinema database')
-parser_meta.add_argument('--debug', action='store_true', help='set debug mode')
-parser_meta.add_argument('--filecolumn', default="FILE", help='define FILE column name')
-parser_meta.add_argument('-v', '--verbose', action='store_true', help='enable verbose output')
-parser_meta.add_argument('source', help='source cinema database')
-parser_meta.set_defaults(func=function_meta)
-
-# parse and call subcommand arguments
-args = parser.parse_args()
-
-# Call the appropriate function based on the subcommand
-if args.command:
-    args.func(args)
-else:
-    parser.print_help()
