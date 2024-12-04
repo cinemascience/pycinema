@@ -1,3 +1,5 @@
+from functools import partial
+
 import jax
 import numpy as np
 from synema.renderers.ray_gen import Parallel
@@ -20,21 +22,30 @@ class SynemaViewSynthesis(Filter):
                 'images': []
             }
         )
+        self.key = jax.random.PRNGKey(1997)
         self.width = 100
         self.height = 100
         self.pixel_coordinates = Dense(width=self.width, height=self.height)()
         self.ray_generator = Parallel(width=self.width, height=self.height, viewport_height=1.)
+        self.renderer = Hierarchical()
 
-    # @jax.jit
-    def generate_images(self):
-        azimuthal, polar  = self.inputs.camera.get()
+    @partial(jax.jit, static_argnums=0)
+    def generate_images(self, pose, key):
+        ray_bundle = self.ray_generator(self.pixel_coordinates,
+                                        pose,
+                                        t_near=0.,
+                                        t_far=1.)
+
+        _, scalar_recon, _, depth_recon = self.renderer(self.model.bind(self.state.params),
+                                                        self.model.bind(self.state.params),
+                                                        ray_bundle,
+                                                        key).values()
+        return scalar_recon, depth_recon
+
+    def _update(self):
+        azimuthal, polar = self.inputs.camera.get()
         polar = np.radians(polar)
         azimuthal = np.radians(azimuthal)
-
-        key = jax.random.PRNGKey(1997)
-        renderer = Hierarchical()
-
-        images = []
 
         camera_up = np.array([0., 0., 1.])
         camera_w = np.array([np.sin(polar) * np.cos(azimuthal),
@@ -54,29 +65,17 @@ class SynemaViewSynthesis(Filter):
         pose[:3, 3] = camera_pos_normalized
         pose[3, 3] = 1
 
-        ray_bundle = self.ray_generator(self.pixel_coordinates,
-                                        pose,
-                                        t_near=0.,
-                                        t_far=1.)
-
-        key, subkey = jax.random.split(key)
-        _, scalar_recon, _, depth_recon = renderer(self.model.bind(self.state.params),
-                                                   self.model.bind(self.state.params),
-                                                   ray_bundle,
-                                                   subkey).values()
-        channels = {'scalar_recon': scalar_recon.reshape((self.width, self.height)),
-                    'depth_recon': depth_recon.reshape((self.width, self.height, 1))}
-        meta = {'resolution': np.array([self.width, self.height]),
-                'polar': polar, 'azimuthal': azimuthal,
-                'id': id}
-        images.append(Image(channels=channels, meta=meta))
-
-        self.outputs.images.set(images)
-        return 1
-
-    def _update(self):
         self.model = self.inputs.model_state.get()['model']
         self.state = self.inputs.model_state.get()['state']
-        self.generate_images()
+        with jax.transfer_guard("log"), jax.log_compiles():
+            scalar_recon, depth_recon = self.generate_images(pose, jax.random.fold_in(key=self.key, data=self.time))
+
+            channels = {'scalar_recon': scalar_recon.reshape((self.width, self.height)),
+                        'depth_recon': depth_recon.reshape((self.width, self.height, 1))}
+            meta = {'resolution': np.array([self.width, self.height]),
+                    'polar': polar, 'azimuthal': azimuthal,
+                    'id': id}
+            images = [Image(channels=channels, meta=meta)]
+            self.outputs.images.set(images)
 
         return 1
