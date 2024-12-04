@@ -105,7 +105,7 @@ class RenderView(Filter):
           self,
           inputs={
             'images': [],
-            'camera': [0,0]
+            'camera': [30,30] #FIXME: cause gimbal lock at 0, 0
           },
           outputs={
             'images': []
