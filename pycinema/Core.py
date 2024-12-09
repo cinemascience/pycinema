@@ -189,6 +189,36 @@ def getTableExtent(table):
         return (-1,-1)
 
 ################################################################################
+# Database Class 
+################################################################################
+class CinemaDatabase():
+
+    def __init__(self, path):
+        self.path = ''
+        self.tablefile = ''
+
+        self.updatePath(path)
+
+    def updatePath(self, path):
+        if path.endswith('.cdb'):
+            # it's a CinemaDatabase
+            self.path = path
+            self.tablefile = os.path.join(self.path, 'data.csv')
+            self.valid = True
+
+        elif path.endswith('.csv'):
+            # it's a csv file only
+            self.path = ''
+            self.tablefile = path 
+            self.valid = True
+
+        else:
+            # default 
+            self.path = ''
+            self.tablefile = '' 
+            self.valid = False
+
+################################################################################
 # Image Class
 ################################################################################
 class Image():

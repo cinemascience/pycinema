@@ -1,4 +1,4 @@
-from pycinema import Filter
+from pycinema import Filter, CinemaDatabase
 
 import csv
 import os.path
@@ -18,29 +18,30 @@ class CinemaDatabaseReader(Filter):
           }
         )
 
+        self.database = CinemaDatabase('')
+
     def _update(self):
 
         table = []
         dbPath = self.inputs.path.get()
-        dbPath = os.path.expanduser(dbPath)
+        self.database.updatePath(os.path.expanduser(dbPath))
 
-        if not dbPath:
+        if not self.database.valid:
             self.outputs.table.set([[]])
             return 0
 
-        if not os.path.exists(dbPath):
-            log.error(" CDB not found '" + dbPath + "'")
-            self.outputs.table.set([[]])
-            return 0
+        # if not os.path.exists(self.database.path):
+            # log.error(" CDB not found '" + self.database.path + "'")
+            # self.outputs.table.set([[]])
+            # return 0
 
         try:
-            dataCsvPath = dbPath + '/data.csv'
-            with open(dataCsvPath, 'r+') as csvfile:
+            with open(self.database.tablefile, 'r+') as csvfile:
                 rows = csv.reader(csvfile, delimiter=',')
                 for row in rows:
                     table.append(row)
         except:
-            log.error(" Unable to open data.csv")
+            log.error(" Unable to open tablefile")
             self.outputs.table.set([[]])
             return 0
 

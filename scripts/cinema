@@ -7,8 +7,7 @@ import yaml
 import logging as log
 import sys
 
-# pycinema settings
-PYCINEMA = { 'VERSION' : '3.1.0'}
+# pycinema settings PYCINEMA = { 'VERSION' : '3.1.0'}
 
 
 def set_up_logging(args):
@@ -78,6 +77,16 @@ def function_view(args):
     set_up_logging(args)
 
     args.filenames.insert(0, "view")
+    pycinema.theater.Theater(args.filenames)
+
+#
+# script included with pycinema
+#
+def function_tableview(args):
+    import pycinema.theater
+    set_up_logging(args)
+
+    args.filenames.insert(0, "tableview")
     pycinema.theater.Theater(args.filenames)
 
 #
@@ -155,26 +164,36 @@ parser_meta.add_argument('source', help='source cinema database')
 parser_meta.set_defaults(func=function_meta)
 
 # Subparser for viewers
+    # browse
 parser_browse = subparsers.add_parser('browse', help='browse a cinema database')
 parser_browse.add_argument( "-v", "--verbose", action="store_true" )
 parser_browse.add_argument( "filenames", nargs='*' )
 parser_browse.set_defaults(func=function_browse)
+    # discover 
 parser_discover = subparsers.add_parser('discover', help='discover a cinema database')
 parser_discover.add_argument( "-v", "--verbose", action="store_true" )
 parser_discover.add_argument( "filenames", nargs='*' )
 parser_discover.set_defaults(func=function_discover)
+    # explore 
 parser_explore = subparsers.add_parser('explore', help='explore a cinema database')
 parser_explore.add_argument( "-v", "--verbose", action="store_true" )
 parser_explore.add_argument( "filenames", nargs='*' )
 parser_explore.set_defaults(func=function_explore)
+    # imagegrid 
 parser_imagegrid = subparsers.add_parser('imagegrid', help='imagegrid a cinema database')
 parser_imagegrid.add_argument( "-v", "--verbose", action="store_true" )
 parser_imagegrid.add_argument( "filenames", nargs='*' )
 parser_imagegrid.set_defaults(func=function_imagegrid)
+    # view 
 parser_view = subparsers.add_parser('view', help='view a cinema database')
 parser_view.add_argument( "-v", "--verbose", action="store_true" )
 parser_view.add_argument( "filenames", nargs='*' )
 parser_view.set_defaults(func=function_view)
+    # tableview 
+parser_tableview = subparsers.add_parser('tableview', help='view a database tablefile as a table')
+parser_tableview.add_argument( "-v", "--verbose", action="store_true" )
+parser_tableview.add_argument( "filenames", nargs='*' )
+parser_tableview.set_defaults(func=function_tableview)
 
 # run a script
 parser_theater = subparsers.add_parser('theater', help='run a cinema script in theater')
