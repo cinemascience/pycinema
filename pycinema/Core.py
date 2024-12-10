@@ -216,6 +216,7 @@ class IntrospectPath:
             if self.path.endswith(".cdb"):
                 self.type = "dir"
                 self.datatype = "cdb"
+                # for now, no check for data.csv file 
 
             else:
                 self.scan()
@@ -237,7 +238,6 @@ class IntrospectPath:
     # scan the files in a directory and try to determine what kind of dir it is
     #
     def scan(self):
-        print("scanning: " + self.path)
         imiter = glob.iglob(self.path + "/*")
         for i in imiter:
             if i.endswith("h5"):
@@ -247,6 +247,7 @@ class IntrospectPath:
                 break
 
 ################################################################################
+#
 # HDF5ImageDirToCDB
 #
 ################################################################################
@@ -260,13 +261,12 @@ class HDF5ImageDirToCDB:
         
         # table header
         if not keys is None:
-            keys.insert(0, "CINAMA_id")
+            # TODO: determine if this should be a reserved keyword
+            keys.insert(0, "id")
         else:
             return None 
 
-        print(self.table)
         self.table.append(keys)
-        print(self.table)
         curid = 0
         extracted = {}
         # table data 
@@ -310,8 +310,6 @@ class CinemaDatabase():
             self.tablefile = os.path.join(self.expandedpath, 'data.csv')
             self.table = []
             self.valid = True
-            # print("introspect: CDB")
-            # print("   \'" + self.tablefile + "\'")
             self.readTableFile()
 
         elif self.introspector.datatype == "csv": 
@@ -319,16 +317,12 @@ class CinemaDatabase():
             self.tablefile = self.expandedpath 
             self.valid = True
             self.table = []
-            # print("introspect: csv")
-            # print("   \'" + self.tablefile + "\'")
             self.readTableFile()
 
         elif self.introspector.datatype == "h5": 
             self.tablefile = '' 
             self.valid = True
             self.table = []
-            # print("introspect: h5")
-            # print("   \'" + self.tablefile + "\'")
             h5db = HDF5ImageDirToCDB(self.expandedpath, ["Phi", "Theta", "FILE"])
             self.table = h5db.table
 

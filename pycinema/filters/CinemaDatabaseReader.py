@@ -29,7 +29,6 @@ class CinemaDatabaseReader(Filter):
             self.outputs.table.set([[]])
             return 0
 
-        print(self.database.table)
         self.outputs.table.set(self.database.table)
 
         return 1
