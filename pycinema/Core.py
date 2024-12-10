@@ -1,3 +1,4 @@
+import csv
 import time
 import traceback
 import pprint
@@ -9,6 +10,8 @@ import io
 import logging as log
 import os
 import pkg_resources
+import glob
+import h5py
 
 CORE_NAN_VALUES = ['NaN', 'NAN', 'nan']
 
@@ -190,33 +193,178 @@ def getTableExtent(table):
 
 ################################################################################
 # Database Class 
+#
+# given a path, the database class tries to read a 'normal' Cinema database,
+# or construct the data necessary from the path it is given
+#
+################################################################################
+class IntrospectPath:
+
+    def __init__(self, path):
+        self.path = path
+        self.type = "unknown"
+        self.datatype = "none" 
+
+        self.update()
+
+    #
+    # record the path and update data
+    #
+    def update(self):
+
+        if os.path.isdir(self.path):
+            if self.path.endswith(".cdb"):
+                self.type = "dir"
+                self.datatype = "cdb"
+
+            else:
+                self.scan()
+
+        elif os.path.isfile(self.path):
+            if self.path.endswith("csv"):
+                self.type = "file"
+                self.datatype = "csv"
+
+    #
+    # print a report 
+    #
+    def report(self):
+        print("self.path    : " + self.path)
+        print("self.type    : " + self.type)
+        print("self.datatype: " + self.datatype)
+
+    #
+    # scan the files in a directory and try to determine what kind of dir it is
+    #
+    def scan(self):
+        print("scanning: " + self.path)
+        imiter = glob.iglob(self.path + "/*")
+        for i in imiter:
+            if i.endswith("h5"):
+                self.datatype = "h5"
+            else:
+                self.datatype = "unknown"
+                break
+
+################################################################################
+# HDF5ImageDirToCDB
+#
+################################################################################
+class HDF5ImageDirToCDB:
+
+    def __init__(self, path, keys=None):
+        self.path = path
+        self.table = []
+
+        imiter = glob.iglob(self.path + "/*.h5")
+        
+        # table header
+        if not keys is None:
+            keys.insert(0, "CINAMA_id")
+        else:
+            return None 
+
+        print(self.table)
+        self.table.append(keys)
+        print(self.table)
+        curid = 0
+        extracted = {}
+        # table data 
+        for i in imiter: 
+            file = h5py.File(i, 'r')
+            meta = file.get('meta')
+            for k in meta.keys():
+                data = np.array(meta.get(k))
+                if data.dtype == '|S10' and len(data)==1:
+                    data = data[0].decode('UTF-8')
+                extracted[k] = data
+
+            # add metadata to the table
+            self.table.append([curid, extracted["Phi"][0], extracted["Theta"][0], i])
+            curid += 1
+
+################################################################################
+# Database Class 
+#
+# given a path, the database class tries to read a 'normal' Cinema database,
+# or construct the data necessary from the path it is given
+#
 ################################################################################
 class CinemaDatabase():
 
-    def __init__(self, path):
+    def __init__(self):
+        self.expandedpath = ''
         self.path = ''
         self.tablefile = ''
-
-        self.updatePath(path)
+        self.table = []
+        self.introspector = None
+        self.filecolumn = "FILE"
 
     def updatePath(self, path):
-        if path.endswith('.cdb'):
-            # it's a CinemaDatabase
-            self.path = path
-            self.tablefile = os.path.join(self.path, 'data.csv')
-            self.valid = True
+        self.path = path
+        self.expandedpath = os.path.expanduser(self.path)
+        self.introspector = IntrospectPath(self.expandedpath)
+        self.introspector.update()
 
-        elif path.endswith('.csv'):
-            # it's a csv file only
-            self.path = ''
-            self.tablefile = path 
+        if self.introspector.datatype == "cdb": 
+            self.tablefile = os.path.join(self.expandedpath, 'data.csv')
+            self.table = []
             self.valid = True
+            # print("introspect: CDB")
+            # print("   \'" + self.tablefile + "\'")
+            self.readTableFile()
+
+        elif self.introspector.datatype == "csv": 
+            # it's a csv file only
+            self.tablefile = self.expandedpath 
+            self.valid = True
+            self.table = []
+            # print("introspect: csv")
+            # print("   \'" + self.tablefile + "\'")
+            self.readTableFile()
+
+        elif self.introspector.datatype == "h5": 
+            self.tablefile = '' 
+            self.valid = True
+            self.table = []
+            # print("introspect: h5")
+            # print("   \'" + self.tablefile + "\'")
+            h5db = HDF5ImageDirToCDB(self.expandedpath, ["Phi", "Theta", "FILE"])
+            self.table = h5db.table
 
         else:
             # default 
             self.path = ''
             self.tablefile = '' 
             self.valid = False
+
+    def readTableFile(self):
+        try:
+            with open(self.tablefile, 'r') as csvfile:
+                rows = csv.reader(csvfile, delimiter=',')
+                for row in rows:
+                    self.table.append(row)
+        except:
+            log.error(" Unable to open tablefile: " + self.tablefile)
+            self.table = []
+            return 0
+
+        # remove empty lines
+        self.table = list(filter(lambda row: len(row)>0, self.table))
+
+        # add path prefix to file columns
+        fileColumnIndices = [i for i, item in enumerate(self.table[0]) if re.search(self.filecolumn, item, re.IGNORECASE)]
+        for i in range(1,len(self.table)):
+          for j in fileColumnIndices:
+            if not self.table[i][j].startswith('http:') and not self.table[i][j].startswith('https:'):
+                self.table[i][j] = self.expandedpath + '/' + self.table[i][j]
+
+        # add id column
+        if 'id' not in self.table[0]:
+          self.table[0].append('id')
+          for i in range(1,len(self.table)):
+            self.table[i].append(i-1)
+
 
 ################################################################################
 # Image Class
