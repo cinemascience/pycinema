@@ -47,6 +47,7 @@ class SynemaViewSynthesis(Filter):
         polar = np.radians(polar)
         azimuthal = np.radians(azimuthal)
 
+        # construct camera orientation matrix
         camera_up = np.array([0., 0., 1.])
         camera_w = np.array([np.sin(polar) * np.cos(azimuthal),
                              np.sin(polar) * np.sin(azimuthal),
@@ -56,6 +57,7 @@ class SynemaViewSynthesis(Filter):
         camera_v = np.cross(camera_w, camera_u)
         camera_v = camera_v / np.linalg.norm(camera_v)
 
+        # normalize the bbox to [-0.5, 0.5]^3 to prevent vanishing gradient.
         camera_pos_normalized = 0.5 * camera_w
 
         pose = np.zeros((4, 4))
@@ -75,7 +77,6 @@ class SynemaViewSynthesis(Filter):
             meta = {'resolution': np.array([self.width, self.height]),
                     'polar': polar, 'azimuthal': azimuthal,
                     'id': id}
-            images = [Image(channels=channels, meta=meta)]
-            self.outputs.images.set(images)
+            self.outputs.images.set([Image(channels=channels, meta=meta)])
 
         return 1

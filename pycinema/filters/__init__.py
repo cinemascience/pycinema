@@ -37,6 +37,7 @@ from .ShaderSSAO import *
 from .ShaderLineAO import *
 from .ShaderPointAO import *
 from .SqliteDatabaseReader import *
+from .SynemaModelFactory import *
 from .SynemaModelReader import *
 from .SynemaModelWriter import *
 from .SynemaViewSynthesis import *
