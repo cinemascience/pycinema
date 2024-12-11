@@ -82,6 +82,8 @@ class SynemaModelTrainer(Filter):
 
     def _update(self):
         input_images = self.inputs.images.get()
+        if not input_images:
+            return 0
 
         poses = []
         depths = []
@@ -129,4 +131,7 @@ class SynemaModelTrainer(Filter):
 
         self.training_loop(poses, depths, scalars)
 
+        # TODO: this does not necessary update/trigger the pipeline
         self.outputs.model_state.set({'model': self.model, 'state': self.state})
+
+        return 1
