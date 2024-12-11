@@ -1,6 +1,6 @@
 from pycinema import Filter, TableReaderObject
 
-class CinemaDatabaseReader(Filter):
+class TableReader(Filter):
 
     def __init__(self):
         super().__init__(
@@ -9,7 +9,8 @@ class CinemaDatabaseReader(Filter):
             'file_column': 'FILE'
           },
           outputs={
-            'table': [[]]
+            'table': [[]],
+            'type' : ''
           }
         )
 
@@ -25,6 +26,7 @@ class CinemaDatabaseReader(Filter):
             return 0
 
         self.outputs.table.set(self.tablereader.table)
+        self.outputs.type.set(self.tablereader.type)
 
         return 1
 

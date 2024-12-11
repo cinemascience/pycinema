@@ -284,13 +284,12 @@ class HDF5ImageDirToCDB:
             curid += 1
 
 ################################################################################
-# Database Class 
+# TableReaderObject
 #
-# given a path, the database class tries to read a 'normal' Cinema database,
-# or construct the data necessary from the path it is given
+# given a path, this class tries to read or construct a table from that path
 #
 ################################################################################
-class CinemaDatabase():
+class TableReaderObject():
 
     def __init__(self):
         self.expandedpath = ''
@@ -299,6 +298,7 @@ class CinemaDatabase():
         self.table = []
         self.introspector = None
         self.filecolumn = "FILE"
+        self.type = 'invalid'
 
     def updatePath(self, path):
         self.path = path
@@ -310,6 +310,7 @@ class CinemaDatabase():
             self.tablefile = os.path.join(self.expandedpath, 'data.csv')
             self.table = []
             self.valid = True
+            self.type = "cdb"
             self.readTableFile()
 
         elif self.introspector.datatype == "csv": 
@@ -317,6 +318,7 @@ class CinemaDatabase():
             self.tablefile = self.expandedpath 
             self.valid = True
             self.table = []
+            self.type = "csv"
             self.readTableFile()
 
         elif self.introspector.datatype == "h5": 
@@ -324,12 +326,14 @@ class CinemaDatabase():
             self.valid = True
             self.table = []
             h5db = HDF5ImageDirToCDB(self.expandedpath, ["Phi", "Theta", "FILE"])
+            self.type = "hdf5"
             self.table = h5db.table
 
         else:
             # default 
             self.path = ''
             self.tablefile = '' 
+            self.type = "invalid"
             self.valid = False
 
     def readTableFile(self):

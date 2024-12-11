@@ -14,6 +14,7 @@ class ImageReader(Filter):
 
     def __init__(self):
         self.cache = {}
+        self.type = 'image'
 
         super().__init__(
           inputs={
@@ -57,6 +58,7 @@ class ImageReader(Filter):
                 continue
 
             if extension == 'h5':
+                self.type = 'hdf5'
                 image = Image()
                 file = h5py.File(path, 'r')
                 for (g,v) in [('channels',image.channels), ('meta',image.meta)]:

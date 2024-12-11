@@ -7,20 +7,37 @@ import pycinema.theater.views
 PYCINEMA = { 'VERSION' : '3.1.0'}
 
 # filters
-CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
+TableReader_0 = pycinema.filters.TableReader()
 TableQuery_0 = pycinema.filters.TableQuery()
 ImageReader_0 = pycinema.filters.ImageReader()
 ImageView_0 = pycinema.filters.ImageView()
 
 # properties
-CinemaDatabaseReader_0.inputs.path.set(PYCINEMA_ARG_0, False)
-CinemaDatabaseReader_0.inputs.file_column.set("FILE", False)
-TableQuery_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
+TableReader_0.inputs.path.set(PYCINEMA_ARG_0, False)
+TableReader_0.inputs.file_column.set("FILE", False)
+TableReader_0.update()
+TableQuery_0.inputs.table.set(TableReader_0.outputs.table, False)
 TableQuery_0.inputs.sql.set("SELECT * FROM input LIMIT 100", False)
+
+# image reader
 ImageReader_0.inputs.table.set(TableQuery_0.outputs.table, False)
-ImageReader_0.inputs.file_column.set("FILE", False)
+ImageReader_0.inputs.file_column.set(TableReader_0.inputs.file_column, False)
 ImageReader_0.inputs.cache.set(True, False)
-ImageView_0.inputs.images.set(ImageReader_0.outputs.images, False)
+
+# optional recoloring
+ColorMapping_0 = None
+if TableReader_0.istype("hdf5"):
+    ColorMapping_0 = pycinema.filters.ColorMapping()
+    ColorMapping_0.inputs.map.set("grey", False)
+    ColorMapping_0.inputs.nan.set((1, 1, 1, 1), False)
+    ColorMapping_0.inputs.range.set((0, 1), False)
+    # TODO: get the first available channel
+    ColorMapping_0.inputs.channel.set("Depth", False)
+    ColorMapping_0.inputs.images.set(ImageReader_0.outputs.images, False)
+    ColorMapping_0.inputs.composition_id.set(-1, False)
+    ImageView_0.inputs.images.set(ColorMapping_0.outputs.images, False)
+else:
+    ImageView_0.inputs.images.set(ImageReader_0.outputs.images, False)
 ImageView_0.inputs.selection.set([], False)
 
 # layout
@@ -36,4 +53,4 @@ tabFrame1.setCurrentIndex(0)
 pycinema.theater.Theater.instance.setCentralWidget(tabFrame1)
 
 # execute pipeline
-CinemaDatabaseReader_0.update()
+TableReader_0.update()
