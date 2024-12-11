@@ -226,6 +226,11 @@ class IntrospectPath:
                 self.type = "file"
                 self.datatype = "csv"
 
+            elif self.path.endswith(".db"):
+                self.type = "db"
+                self.datatype = "dsi"
+
+
     #
     # print a report 
     #
@@ -245,6 +250,32 @@ class IntrospectPath:
             else:
                 self.datatype = "unknown"
                 break
+
+################################################################################
+#
+# DSITableReader 
+#
+################################################################################
+class DSITableReader: 
+
+    def __init__(self, db, tablename):
+        self.path = db
+        self.table = []
+
+        from dsi.core import Terminal
+
+        a=Terminal()
+
+        a.load_module('backend','Sqlite','back-read', filename=db)
+        a.transload()
+        table = a.artifact_handler(interaction_type='get', query = "SELECT * FROM " + tablename + ";")
+        for r in table:
+            data = [str(item) for item in r]
+            self.table.append(data)
+
+        # hack to add a set of column names
+        self.table.insert(0, ['value','wind_speed','wdir','smois','fuels','ignition','safe_unsafe_ignition_pattern','safe_unsafe_fire_behavior','does_fire_meet_objectives','burned_area','FILE'])
+
 
 ################################################################################
 #
@@ -280,7 +311,7 @@ class HDF5ImageDirToCDB:
                 extracted[k] = data
 
             # add metadata to the table
-            self.table.append([curid, extracted["Phi"][0], extracted["Theta"][0], i])
+            self.table.append([str(curid), str(extracted["Phi"][0]), str(extracted["Theta"][0]), i])
             curid += 1
 
 ################################################################################
@@ -304,6 +335,7 @@ class TableReaderObject():
         self.path = path
         self.expandedpath = os.path.expanduser(self.path)
         self.introspector = IntrospectPath(self.expandedpath)
+        print(self.introspector.datatype)
         self.introspector.update()
 
         if self.introspector.datatype == "cdb": 
@@ -328,6 +360,14 @@ class TableReaderObject():
             h5db = HDF5ImageDirToCDB(self.expandedpath, ["Phi", "Theta", "FILE"])
             self.type = "hdf5"
             self.table = h5db.table
+
+        elif self.introspector.datatype == "dsi": 
+            self.tablefile = '' 
+            self.valid = True
+            self.table = []
+            dsiTable = DSITableReader(self.path, "wfdata")
+            self.type = "dsi"
+            self.table = dsiTable.table
 
         else:
             # default 

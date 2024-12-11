@@ -13,13 +13,13 @@ TABLEVIEW = { 'VERSION' : '1.0'}
 database = PYCINEMA_ARG_0
 
 # filters
-CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
+TableReader_0 = pycinema.filters.TableReader()
 TableView_0 = pycinema.filters.TableView()
 
 # properties
-CinemaDatabaseReader_0.inputs.path.set(database, False)
-CinemaDatabaseReader_0.inputs.file_column.set("FILE", False)
-TableView_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
+TableReader_0.inputs.path.set(database, False)
+TableReader_0.inputs.file_column.set("FILE", False)
+TableView_0.inputs.table.set(TableReader_0.outputs.table, False)
 TableView_0.inputs.selection.set([], False)
 
 # layout
@@ -35,4 +35,4 @@ tabFrame0.setCurrentIndex(0)
 pycinema.theater.Theater.instance.setCentralWidget(tabFrame0)
 
 # execute pipeline
-CinemaDatabaseReader_0.update()
+TableReader_0.update()
