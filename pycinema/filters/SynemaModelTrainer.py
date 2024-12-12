@@ -41,7 +41,7 @@ class SynemaModelTrainer(Filter):
                 'epochs': 0
             },
             outputs={
-                'model_state': [],
+                'model_state': {},
             }
         )
         self.key = jax.random.PRNGKey(1377)
@@ -131,7 +131,6 @@ class SynemaModelTrainer(Filter):
 
         self.training_loop(poses, depths, scalars)
 
-        # TODO: this does not necessary update/trigger the pipeline
         self.outputs.model_state.set({'model': self.model, 'state': self.state})
 
         return 1

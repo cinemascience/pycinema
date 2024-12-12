@@ -25,19 +25,20 @@ class SynemaViewSynthesis(Filter):
         self.key = jax.random.PRNGKey(1997)
         self.width = 100
         self.height = 100
-        self.pixel_coordinates = Dense(width=self.width, height=self.height)()
-        self.ray_generator = Parallel(width=self.width, height=self.height, viewport_height=1.)
         self.renderer = Hierarchical()
 
-    @partial(jax.jit, static_argnums=0)
-    def generate_images(self, pose, key):
-        ray_bundle = self.ray_generator(self.pixel_coordinates,
-                                        pose,
-                                        t_near=0.,
-                                        t_far=1.)
+    @partial(jax.jit, static_argnums={0, 1})
+    def generate_images(self, model, state, pose, key):
+        pixel_coordinates = Dense(width=self.width, height=self.height)()
+        ray_generator = Parallel(width=self.width, height=self.height, viewport_height=1.)
 
-        _, scalar_recon, _, depth_recon = self.renderer(self.model.bind(self.state.params),
-                                                        self.model.bind(self.state.params),
+        ray_bundle = ray_generator(pixel_coordinates,
+                                   pose,
+                                   t_near=0.,
+                                   t_far=1.)
+
+        _, scalar_recon, _, depth_recon = self.renderer(model.bind(state.params),
+                                                        model.bind(state.params),
                                                         ray_bundle,
                                                         key).values()
         return scalar_recon, depth_recon
@@ -67,14 +68,16 @@ class SynemaViewSynthesis(Filter):
         pose[:3, 3] = camera_pos_normalized
         pose[3, 3] = 1
 
-        self.model = self.inputs.model_state.get()['model']
-        self.state = self.inputs.model_state.get()['state']
-        with jax.transfer_guard("log"), jax.log_compiles():
-            scalar_recon, depth_recon = self.generate_images(pose, jax.random.fold_in(key=self.key, data=self.time))
+        model = self.inputs.model_state.get()['model']
+        state = self.inputs.model_state.get()['state']
+        with jax.log_compiles():
+            scalar_recon, depth_recon = self.generate_images(model, state,
+                                                             pose,
+                                                             jax.random.fold_in(key=self.key, data=self.time))
 
-            channels = {'scalar_recon': scalar_recon.reshape((self.width, self.height)),
-                        'depth_recon': depth_recon.reshape((self.width, self.height, 1))}
-            meta = {'resolution': np.array([self.width, self.height]),
+            channels = {'scalar_recon': scalar_recon.reshape((100, 100)),
+                        'depth_recon': depth_recon.reshape((100, 100, 1))}
+            meta = {'resolution': np.array([100, 100]),
                     'polar': polar, 'azimuthal': azimuthal,
                     'id': id}
             self.outputs.images.set([Image(channels=channels, meta=meta)])
