@@ -59,6 +59,10 @@ try:
 
           self.filter = filter
 
+          self.dx = 10
+          self.dy = 10
+          self.scale_factor = 0.1
+
           self.mode = 0
           self.mouse_data = []
 
@@ -98,6 +102,36 @@ try:
       def keyPressEvent(self,event):
         if event.key()==32:
           self.fitInView()
+
+        elif event.key()==43: 
+          self.scale(1.0 + self.scale_factor, 1.0 + self.scale_factor)
+
+        elif event.key()==95: 
+          self.scale(1.0 - self.scale_factor, 1.0 - self.scale_factor)
+
+        elif event.key()==16777235:
+          # up      
+          self.setTransformationAnchor(QtWidgets.QGraphicsView.ViewportAnchor.NoAnchor)
+          self.translate(0,-self.dy)
+          self.setTransformationAnchor(QtWidgets.QGraphicsView.ViewportAnchor.AnchorUnderMouse)
+
+        elif event.key()==16777237:
+          # down
+          self.setTransformationAnchor(QtWidgets.QGraphicsView.ViewportAnchor.NoAnchor)
+          self.translate(0,self.dy)
+          self.setTransformationAnchor(QtWidgets.QGraphicsView.ViewportAnchor.AnchorUnderMouse)
+
+        elif event.key()==16777234:
+          # left
+          self.setTransformationAnchor(QtWidgets.QGraphicsView.ViewportAnchor.NoAnchor)
+          self.translate(-self.dx,0)
+          self.setTransformationAnchor(QtWidgets.QGraphicsView.ViewportAnchor.AnchorUnderMouse)
+
+        elif event.key()==16777236:
+          # right
+          self.setTransformationAnchor(QtWidgets.QGraphicsView.ViewportAnchor.NoAnchor)
+          self.translate(self.dx,0)
+          self.setTransformationAnchor(QtWidgets.QGraphicsView.ViewportAnchor.AnchorUnderMouse)
 
       def update_selection_rect(self):
         x = (self.mouse_data[0].x(),self.mouse_data[1].x()) if self.mouse_data[0].x()<self.mouse_data[1].x() else (self.mouse_data[1].x(),self.mouse_data[0].x())
