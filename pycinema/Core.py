@@ -268,13 +268,16 @@ class DSITableReader:
 
         a.load_module('backend','Sqlite','back-read', filename=db)
         a.transload()
+
+        # get and add column names
+        cnames = a.artifact_handler(interaction_type='get', query = "PRAGMA table_info(wfdata);")
+        table.append([i[1] for i in cnames])
+
+        # get and add rows
         table = a.artifact_handler(interaction_type='get', query = "SELECT * FROM " + tablename + ";")
         for r in table:
             data = [str(item) for item in r]
             self.table.append(data)
-
-        # hack to add a set of column names
-        self.table.insert(0, ['value','wind_speed','wdir','smois','fuels','ignition','safe_unsafe_ignition_pattern','safe_unsafe_fire_behavior','does_fire_meet_objectives','burned_area','FILE'])
 
 
 ################################################################################
