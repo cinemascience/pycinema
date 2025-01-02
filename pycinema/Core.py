@@ -271,7 +271,7 @@ class DSITableReader:
 
         # get and add column names
         cnames = a.artifact_handler(interaction_type='get', query = "PRAGMA table_info(wfdata);")
-        table.append([i[1] for i in cnames])
+        self.table.append([i[1] for i in cnames])
 
         # get and add rows
         table = a.artifact_handler(interaction_type='get', query = "SELECT * FROM " + tablename + ";")
