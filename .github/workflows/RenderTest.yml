@@ -21,6 +21,7 @@ jobs:
           python -m pip install --upgrade pip
           sudo apt-get install libglu1-mesa-dev xvfb
           python -m pip install pytest pytest-xvfb
+          python -m pip install setuptools
       - name: Dependencies
         run: |
           python setup.py install
@@ -48,6 +49,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools
           python -m pip install pytest
+          python -m pip install setuptools
           python setup.py install
       - name: Test composite script 
         run: |
