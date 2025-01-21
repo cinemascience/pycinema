@@ -147,6 +147,7 @@ def function_meta(args):
 # set up parsers
 #
 parser = argparse.ArgumentParser(description="Cinema  command line tool")
+parser.add_argument( "--version", action="version", version=pycinema.__version__)
 subparsers = parser.add_subparsers(dest='command', help='Sub-commands', required=False)
 
 # Subparser for compose

@@ -338,7 +338,6 @@ class TableReaderObject():
         self.path = path
         self.expandedpath = os.path.expanduser(self.path)
         self.introspector = IntrospectPath(self.expandedpath)
-        print(self.introspector.datatype)
         self.introspector.update()
 
         if self.introspector.datatype == "cdb": 
