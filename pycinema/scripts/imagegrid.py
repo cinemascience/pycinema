@@ -6,6 +6,12 @@ import pycinema.theater.views
 # pycinema settings
 PYCINEMA = { 'VERSION' : '3.1.0'}
 
+# this application settings
+IMAGEGRID = { 'VERSION' : '1.0'}
+
+# reporting
+print("imagegrid v" + IMAGEGRID["VERSION"])
+
 # variables
 inpath = PYCINEMA_ARG_0
 

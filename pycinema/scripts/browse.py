@@ -6,21 +6,33 @@ import pycinema.theater.views
 # pycinema settings
 PYCINEMA = { 'VERSION' : '3.1.0'}
 
+# this application settings
+BROWSE = { 'VERSION' : '1.0'}
+
+# reporting
+print("browse v" + BROWSE["VERSION"])
+
+# variables
+inpath = PYCINEMA_ARG_0
+
+# determine datatype and create reader
+factory = pycinema.filters.ReaderFactory(inpath)
+Reader_0 = factory.create() 
+
 # filters
-CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
 TableQuery_0 = pycinema.filters.TableQuery()
 ImageReader_0 = pycinema.filters.ImageReader()
 TableView_0 = pycinema.filters.TableView()
 ImageView_0 = pycinema.filters.ImageView()
 
 # properties
-CinemaDatabaseReader_0.inputs.path.set(PYCINEMA_ARG_0, False)
-CinemaDatabaseReader_0.inputs.file_column.set("FILE", False)
-CinemaDatabaseReader_0.update()
-TableQuery_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
+Reader_0.inputs.path.set(inpath, False)
+# Reader_0.inputs.file_column.set("FILE", False)
+Reader_0.update()
+TableQuery_0.inputs.table.set(Reader_0.outputs.table, False)
 TableQuery_0.inputs.sql.set("SELECT * FROM input LIMIT 100", False)
 ImageReader_0.inputs.table.set(TableQuery_0.outputs.table, False)
-ImageReader_0.inputs.file_column.set(CinemaDatabaseReader_0.inputs.file_column, False)
+ImageReader_0.inputs.file_column.set(Reader_0.inputs.file_column, False)
 ImageReader_0.inputs.cache.set(True, False)
 
 # optional recoloring
@@ -28,7 +40,7 @@ ColorMapping_0 = pycinema.filters.ColorMapping()
 ColorMapping_0.inputs.map.set("grey", False)
 ColorMapping_0.inputs.nan.set((1, 1, 1, 1), False)
 ColorMapping_0.inputs.range.set((0, 1), False)
-if CinemaDatabaseReader_0.istype("hdf5"):
+if ImageReader_0.type == "hdf5":
     # TODO: get the first channel from the images
     ColorMapping_0.inputs.channel.set("Depth", False)
 else:
@@ -65,4 +77,4 @@ tabFrame1.setCurrentIndex(1)
 pycinema.theater.Theater.instance.setCentralWidget(tabFrame1)
 
 # execute pipeline
-CinemaDatabaseReader_0.update()
+Reader_0.update()

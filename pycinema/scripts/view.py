@@ -4,7 +4,7 @@ import pycinema.theater
 import pycinema.theater.views
 
 # pycinema settings
-PYCINEMA = { 'VERSION' : '2.1.0'}
+PYCINEMA = { 'VERSION' : '3.1.0'}
 
 # this application settings
 VIEW = { 'VERSION' : '1.0'}
@@ -12,8 +12,14 @@ VIEW = { 'VERSION' : '1.0'}
 # reporting
 print("view v" + VIEW["VERSION"])
 
+# variables
+inpath = PYCINEMA_ARG_0
+
+# determine datatype and create reader
+factory = pycinema.filters.ReaderFactory(inpath)
+Reader_0 = factory.create() 
+
 # filters
-CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
 ParametersView_0 = pycinema.filters.ParametersView()
 ImageReader_0 = pycinema.filters.ImageReader()
 DepthCompositing_0 = pycinema.filters.DepthCompositing()
@@ -24,15 +30,15 @@ ImageView_0 = pycinema.filters.ImageView()
 ImageAnnotation_0 = pycinema.filters.ImageAnnotation()
 
 # properties
-CinemaDatabaseReader_0.inputs.path.set(PYCINEMA_ARG_0, False)
-ParametersView_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
+Reader_0.inputs.path.set(inpath, False)
+ParametersView_0.inputs.table.set(Reader_0.outputs.table, False)
 ImageReader_0.inputs.table.set(ParametersView_0.outputs.table, False)
 DepthCompositing_0.inputs.images_a.set(ImageReader_0.outputs.images, False)
 DepthCompositing_0.inputs.compose.set(ParametersView_0.outputs.compose, False)
 ColorMapping_0.inputs.images.set(DepthCompositing_0.outputs.images, False)
 ShaderSSAO_0.inputs.images.set(ColorMapping_0.outputs.images, False)
 ImageAnnotation_0.inputs.images.set(ShaderSSAO_0.outputs.images, False)
-TableView_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
+TableView_0.inputs.table.set(Reader_0.outputs.table, False)
 ImageView_0.inputs.images.set(ImageAnnotation_0.outputs.images, False)
 
 # layout
@@ -58,4 +64,4 @@ tabFrame0.setCurrentIndex(0)
 pycinema.theater.Theater.instance.setCentralWidget(tabFrame0)
 
 # execute pipeline
-CinemaDatabaseReader_0.update()
+Reader_0.update()
