@@ -7,6 +7,7 @@ from .CSVReader import *
 from .TableQuery import *
 from .TableEditor import *
 from .DepthCompositing import *
+from .DSIReader import *
 from .ImageAnnotation import *
 from .ImageBorder import *
 from .ImageCanny import *
@@ -23,6 +24,7 @@ from .Plot import *
 from .PlotLineItem import *
 from .Python import *
 from .GetColumn import *
+from .ReaderFactory import *
 from .RenderView import *
 from .ShaderDemoScene import *
 from .ShaderFXAA import *
@@ -34,8 +36,6 @@ from .ShaderSSAO import *
 from .ShaderLineAO import *
 from .ShaderPointAO import *
 from .SqliteDatabaseReader import *
-from .Table import *
-from .TableReader import *
 from .TableWriter import *
 from .TableView import *
 from .TextEditor import *
