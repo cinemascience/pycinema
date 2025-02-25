@@ -59,3 +59,37 @@ jobs:
           python -m pytest -s testing/QueryWriteTest.py
           python -m pytest -s testing/SqliteDatabaseReader.py
           python -m pytest -s testing/TableQueryTest.py
+
+
+ windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11']
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          release: false
+          install: mingw-w64-x86_64-mesa
+      - name: Test Environment
+        shell: pwsh
+        run: |
+          $env:GLCONTEXT_WIN_LIBGL = "C:\msys64\mingw64\bin\opengl32.dll"
+      - name: Dependencies
+        run: |
+          python setup.py install
+      - name: Test execution
+        run: |
+          cinema --headless examples/theater/TableWriteHeadlessExample.py
+      - name: Test results
+        run: |
+          python -m pytest -s testing/QueryWriteTest.py
+          python -m pytest -s testing/SqliteDatabaseReader.py
+          python -m pytest -s testing/TableQueryTest.py
