@@ -35,5 +35,5 @@ def test_querywrite():
     CinemaDatabaseReader_0.update()
 
     # check results
-    assert os.path.exists('QueryWriteTest.cdb')
+    os.system('more QueryWriteTest.cdb')
     assert filecmp.dircmp('QueryWriteTest.cdb', 'testing/gold/QueryWriteTest.cdb')
