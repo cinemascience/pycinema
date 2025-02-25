@@ -1,4 +1,6 @@
 name: UberTest
+env:
+  TF_ENABLE_ONEDNN_OPTS: 0
 
 on:
   push:
@@ -91,7 +93,6 @@ jobs:
           python examples/theater/TableWriteHeadlessExample.py
       - name: Test results
         run: |
-          set TF_ENABLE_ONEDNN_OPTS=0
           python -m pytest -s testing/QueryWriteTest.py
           python -m pytest -s testing/SqliteDatabaseReader.py
           python -m pytest -s testing/TableQueryTest.py
