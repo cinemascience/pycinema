@@ -60,8 +60,7 @@ jobs:
           python -m pytest -s testing/SqliteDatabaseReader.py
           python -m pytest -s testing/TableQueryTest.py
 
-
- windows:
+  windows:
     runs-on: windows-latest
     strategy:
       matrix:
