@@ -8,7 +8,7 @@ import PIL
 import io
 import logging as log
 import os
-import pkg_resources
+import importlib.resources
 
 CORE_NAN_VALUES = ['NaN', 'NAN', 'nan']
 
@@ -52,7 +52,19 @@ def imageFromMatplotlibFigure(figure,dpi):
 # get the path where this module has been installed
 #
 def getModulePath():
-    return os.path.dirname(pkg_resources.resource_filename(__name__, 'Core.py'))
+    """
+    Returns the file system path to a resource within a package.
+    """
+    try:
+        # Attempt to get the path directly if the resource is a file
+        resource_path = importlib.resources.files('pycinema').joinpath('Core.py')
+        if os.path.isfile(resource_path):
+          return str(os.path.dirname(resource_path))
+
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Resource '{resource}' not found in package '{package}'")
+    except Exception as e:
+        raise Exception(f"An error occurred: {e}")
 
 #
 # return a list of scripts installed with this module
