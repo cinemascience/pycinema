@@ -28,7 +28,7 @@ jobs:
           python setup.py install
       - name: Test execution
         run: |
-          python examples/theater/TableWriteHeadlessExample.py
+          python examples/python/TableWriteExample.py
       - name: Test results
         run: |
           python -m pytest -s testing/QueryWriteTest.py
@@ -55,7 +55,7 @@ jobs:
           python setup.py install
       - name: Test execution
         run: |
-          python examples/theater/TableWriteHeadlessExample.py
+          python examples/python/TableWriteExample.py
       - name: Test results
         run: |
           python -m pytest -s testing/QueryWriteTest.py
@@ -90,7 +90,7 @@ jobs:
           python setup.py install
       - name: Test execution
         run: |
-          python examples/theater/TableWriteHeadlessExample.py
+          python examples/examples/TableWriteExample.py
       - name: Test results
         run: |
           python -m pytest -s testing/QueryWriteTest.py
