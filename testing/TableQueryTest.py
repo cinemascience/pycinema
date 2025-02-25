@@ -2,6 +2,7 @@ import pycinema
 import pycinema.filters
 import pytest
 import filecmp
+import os
 
 def test_writetable():
     # filters
