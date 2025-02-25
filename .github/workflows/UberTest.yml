@@ -7,8 +7,7 @@ jobs:
   linux:
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        python-version: ['3.10','3.11']
+      matrix: python-version: ['3.10','3.11']
 
     steps:
       - uses: actions/checkout@v4
@@ -91,6 +90,7 @@ jobs:
           cinema --headless examples/theater/TableWriteHeadlessExample.py
       - name: Test results
         run: |
+          set TF_ENABLE_ONEDNN_OPTS=0
           python -m pytest -s testing/QueryWriteTest.py
           python -m pytest -s testing/SqliteDatabaseReader.py
           python -m pytest -s testing/TableQueryTest.py
