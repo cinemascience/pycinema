@@ -2,6 +2,7 @@ import pycinema
 import pycinema.filters
 import pytest
 import filecmp
+import os
 
 #
 # pycinema testing script
@@ -34,4 +35,5 @@ def test_querywrite():
     CinemaDatabaseReader_0.update()
 
     # check results
+    assert os.path.exists('QueryWriteTest.cdb')
     assert filecmp.dircmp('QueryWriteTest.cdb', 'testing/gold/QueryWriteTest.cdb')
