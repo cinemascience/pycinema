@@ -1,4 +1,6 @@
 name: RenderTest
+env:
+  TF_ENABLE_ONEDNN_OPTS: 0
 
 on:
   push:
