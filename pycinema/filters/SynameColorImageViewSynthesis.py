@@ -1,7 +1,9 @@
 from functools import partial
 
 import jax
+import jax.numpy as jnp
 import numpy as np
+from skimage.util import img_as_ubyte
 from synema.renderers.ray_gen import Parallel
 from synema.renderers.volume import Hierarchical
 from synema.samplers.pixel import Dense
@@ -10,7 +12,7 @@ from pycinema import Filter
 from pycinema.Core import Image
 
 
-class SynemaViewSynthesis(Filter):
+class SynemaColorImageViewSynthesis(Filter):
 
     def __init__(self):
         super().__init__(
@@ -23,8 +25,8 @@ class SynemaViewSynthesis(Filter):
             }
         )
         self.key = jax.random.PRNGKey(1997)
-        self.width = 128
-        self.height = 128
+        self.width = 200
+        self.height = 200
         self.renderer = Hierarchical()
 
     @partial(jax.jit, static_argnums={0, 1})
@@ -37,11 +39,11 @@ class SynemaViewSynthesis(Filter):
                                    t_near=0.,
                                    t_far=1.)
 
-        _, scalar_recon, _, depth_recon = self.renderer(model.bind(state.params),
-                                                        model.bind(state.params),
-                                                        ray_bundle,
-                                                        key).values()
-        return scalar_recon, depth_recon
+        _, rgb_recon, alpha_recon, _ = self.renderer(model.bind(state.params),
+                                                     model.bind(state.params),
+                                                     ray_bundle,
+                                                     key).values()
+        return jnp.concatenate([rgb_recon, alpha_recon[:, None]], axis=-1)
 
     def _update(self):
         azimuthal, elevation = self.inputs.camera.get()
@@ -49,7 +51,6 @@ class SynemaViewSynthesis(Filter):
         azimuthal = np.radians(azimuthal)
 
         # construct camera orientation matrix
-        # camera_up = np.array([0., 0., 1.])
         camera_u = np.array([-np.sin(azimuthal), np.cos(azimuthal), 0])
         camera_v = -np.array([np.cos(polar) * np.cos(azimuthal),
                               np.cos(polar) * np.sin(azimuthal),
@@ -57,11 +58,6 @@ class SynemaViewSynthesis(Filter):
         camera_w = np.array([np.sin(polar) * np.cos(azimuthal),
                              np.sin(polar) * np.sin(azimuthal),
                              np.cos(polar)])
-
-        # camera_u = np.cross(camera_up, camera_w)
-        # camera_u = camera_u / np.linalg.norm(camera_u)
-        # camera_v = np.cross(camera_w, camera_u)
-        # camera_v = camera_v / np.linalg.norm(camera_v)
 
         # normalize the bbox to [-0.5, 0.5]^3 to prevent vanishing gradient.
         camera_pos_normalized = 0.5 * camera_w
@@ -76,14 +72,14 @@ class SynemaViewSynthesis(Filter):
         model = self.inputs.model_state.get()['model']
         state = self.inputs.model_state.get()['state']
         with jax.log_compiles():
-            scalar_recon, depth_recon = self.generate_images(model, state,
-                                                             pose,
-                                                             jax.random.fold_in(key=self.key, data=self.time))
-
-            channels = {'scalar_recon': scalar_recon.reshape((128, 128)),
-                        'depth_recon': depth_recon.reshape((128, 128, 1))}
-            meta = {'resolution': np.array([128, 128]),
-                    'polar': polar, 'azimuthal': azimuthal,
+            rgb_recon = self.generate_images(model, state,
+                                             pose,
+                                             jax.random.fold_in(key=self.key, data=self.time))
+            rgb_recon = jnp.clip(rgb_recon, 0, 1)
+            channels = {'rgba': img_as_ubyte(jax.device_get(rgb_recon).reshape((self.width, self.height, 4)))}
+            meta = {'resolution': np.array([self.width, self.height]),
+                    'elevation': elevation,
+                    'azimuthal': np.degrees(azimuthal),
                     'id': id}
             self.outputs.images.set([Image(channels=channels, meta=meta)])
 

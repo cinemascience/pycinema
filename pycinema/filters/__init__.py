@@ -15,13 +15,14 @@ from .ImageBorder import *
 from .ImageCanny import *
 from .ImageConvertGrayscale import *
 from .ImageFilterPIL import *
+from .ImageNormalize import *
 from .ImageReader import *
 from .ImageSort import *
 from .ImagesToTable import *
 from .ImageView import *
 from .MaskCompositing import *
-from .MLTFReader import *
-from .MLTFPredictor import *
+#from .MLTFReader import *
+#from .MLTFPredictor import *
 from .Plot import *
 from .PlotLineItem import *
 from .Python import *
@@ -37,6 +38,9 @@ from .ShaderSSAO import *
 from .ShaderLineAO import *
 from .ShaderPointAO import *
 from .SqliteDatabaseReader import *
+from .SynemaColorImageModelFactory import *
+from .SynameColorImageViewSynthesis import *
+from .SynemaColorImageModelTrainer import *
 from .SynemaModelFactory import *
 from .SynemaModelReader import *
 from .SynemaModelWriter import *

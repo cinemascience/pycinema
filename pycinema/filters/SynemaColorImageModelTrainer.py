@@ -2,27 +2,30 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 import optax
+from skimage.util import img_as_float32
 from synema.renderers.ray_gen import Parallel
 from synema.renderers.rays import RayBundle
-from synema.renderers.volume import DepthGuidedTrain
+from synema.renderers.volume import Hierarchical
 from synema.samplers.pixel import UniformRandom
 from tqdm import tqdm
 
 from pycinema import Filter
 
 
-class SynemaModelTrainer(Filter):
+class SynemaColorImageModelTrainer(Filter):
     @staticmethod
     def create_train_steps(model):
-        train_renderer = DepthGuidedTrain()
+        train_renderer = Hierarchical()
 
         def loss_fn(params, ray_bundle: RayBundle, targets, key: jax.random.PRNGKey):
-            scalar, alpha, depth = train_renderer(field_fn=model.bind(params),
-                                                  ray_bundle=ray_bundle,
-                                                  rng_key=key,
-                                                  depth_gt=targets['depth']).values()
-            return (jnp.mean(optax.l2_loss(scalar, targets['scalar'])) +
-                    1.e-3 * jnp.mean(jnp.abs(depth - jnp.nan_to_num(targets['depth']))))
+            _, rgb, alpha, _ = train_renderer(coarse_field=model.bind(params),
+                                              fine_field=model.bind(params),
+                                              ray_bundle=ray_bundle,
+                                              rng_key=key).values()
+            # return jnp.mean(optax.l2_loss(rgb, targets['rgb']))
+            return (jnp.mean(optax.l2_loss(rgb, targets['rgb'])) +
+                    0.1 * jnp.mean(optax.l2_loss(alpha, targets['alpha'])))
+            # 1.e-3 * jnp.mean(jnp.abs(depth - jnp.nan_to_num(targets['depth']))))
 
         @jax.jit
         def train_step(state, ray_bundle: RayBundle, targets, key: jax.random.PRNGKey):
@@ -36,7 +39,7 @@ class SynemaModelTrainer(Filter):
         super().__init__(
             inputs={
                 'model_state': {},
-                'channel': '',
+                'channel': 'rgba',
                 'images': [],
                 'epochs': 0
             },
@@ -46,9 +49,9 @@ class SynemaModelTrainer(Filter):
         )
         self.key = jax.random.PRNGKey(1377)
 
-    def training_loop(self, poses, depths, scalars):
-        height, width = scalars.shape[1], scalars.shape[2]
-        pxiel_sampler = UniformRandom(width=width, height=height, n_samples=4096)
+    def training_loop(self, poses, images):
+        height, width = images.shape[1], images.shape[2]
+        pixel_sampler = UniformRandom(width=width, height=height, n_samples=4096)
         ray_generator = Parallel(width=width, height=height, viewport_height=1.)
 
         key = jax.random.fold_in(self.key, self.time)
@@ -58,16 +61,15 @@ class SynemaModelTrainer(Filter):
             for i in pbar:
                 key, img_key, pixel_key, train_key = jax.random.split(key, 4)
                 image_idx = jax.random.randint(img_key, shape=(1,),
-                                               minval=0, maxval=scalars.shape[0])[0]
+                                               minval=0, maxval=images.shape[0])[0]
                 pose = poses[image_idx]
-                depth = depths[image_idx]
-                scalar = scalars[image_idx]
+                image = images[image_idx]
 
-                pixel_coordinates = pxiel_sampler(rng=pixel_key)
+                pixel_coordinates = pixel_sampler(rng=pixel_key)
 
                 targets = {
-                    'depth': depth[pixel_coordinates[:, 0].astype(int), pixel_coordinates[:, 1].astype(int), None],
-                    'scalar': scalar[pixel_coordinates[:, 0].astype(int), pixel_coordinates[:, 1].astype(int), None]
+                    'rgb': image[pixel_coordinates[:, 0].astype(int), pixel_coordinates[:, 1].astype(int), :3],
+                    'alpha': image[pixel_coordinates[:, 0].astype(int), pixel_coordinates[:, 1].astype(int), 3]
                 }
 
                 ray_bundle = ray_generator(pixel_coordinates,
@@ -86,8 +88,7 @@ class SynemaModelTrainer(Filter):
             return 0
 
         poses = []
-        depths = []
-        scalars = []
+        images = []
         for image in input_images:
             meta = image.meta
             camera_dir = meta['CameraDir']
@@ -112,27 +113,17 @@ class SynemaModelTrainer(Filter):
             poses.append(pose)
 
             channels = image.channels
-            depths.append(channels['Depth'])
-            scalars.append(channels[self.inputs.channel.get()])
+            # depth.append(channels['depth'])
+            images.append(img_as_float32(channels['rgba']))
 
         poses = np.stack(poses, axis=0)
-        depths = np.stack(depths, axis=0)
-        # The ParaView Cinema Export use depth == 1 for background pixels,
-        # replace with NaN.
-        depths = jnp.where(depths == 1., jnp.nan, depths)
-        scalars = np.stack(scalars, axis=0)
-        # The ParaView cinema Export use scalar == NaN for backgroun pixels,
-        # replace with 0.
-        scalars = jnp.nan_to_num(scalars)
-        min = np.amin(scalars)
-        max = np.amax(scalars)
-        scalars = (scalars - min) / (max - min)
+        images = np.stack(images, axis=0)
 
         self.model = self.inputs.model_state.get()['model']
         self.state = self.inputs.model_state.get()['state']
         self.train_step = self.create_train_steps(self.model)
 
-        self.training_loop(poses, depths, scalars)
+        self.training_loop(poses, images)
 
         self.outputs.model_state.set({'model': self.model, 'state': self.state})
 

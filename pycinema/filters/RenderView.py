@@ -74,9 +74,12 @@ try:
         delta = event.pos() - self.mouse_pos_0
         factor = 0.1
         camera_1 = [
-          # round(sorted([0, 360, self.camera_0[0] + delta.x()*factor])[1], 2),
-          round((self.camera_0[0] + delta.x()*factor), 2),
-          round(sorted([-90, 90, self.camera_0[1] + delta.y()*factor])[1], 2),
+              # round(sorted([0, 360, self.camera_0[0] + delta.x()*factor])[1], 2),
+              # round((self.camera_0[0] + delta.x()*factor), 2),
+                 round((self.camera_0[0] - delta.x() * factor) % 360., 2),
+                round((self.camera_0[1] + delta.y() * factor) % 360., 2),
+                # round(sorted([-90, 90, self.camera_0[1] + delta.y()*factor])[1], 2),
+                # round((self.camera_0[1] + delta.y() * factor) % 180., 2)
         ]
         self.filter.inputs.camera.set(camera_1,True,True)
 
@@ -105,7 +108,7 @@ class RenderView(Filter):
           self,
           inputs={
             'images': [],
-            'camera': [30,30] #FIXME: cause gimbal lock at 0, 0
+            'camera': [0,0] #FIXME: cause gimbal lock at 0, 0
           },
           outputs={
             'images': []
