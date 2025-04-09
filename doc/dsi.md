@@ -2,8 +2,7 @@
 
 |![application](img/DSI_test.png)|
 | ---- |
-|*Screen capture of DSIReader and DSICinemaDatabaseReader filters, showing them reading data converted from data.csv file to a data.db file, within
-a cinema database.*|
+|*Screen capture of DSIReader and DSICinemaDatabaseReader filters, showing them reading data converted from data.csv file to a data.db file, within a cinema database.*|
 
 There are two DSI readers:
 
