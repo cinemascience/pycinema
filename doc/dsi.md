@@ -13,7 +13,7 @@ To exercise the DSI capabilities, we create a database in a new scratch area, ex
 
 ```
 python examples/dsi/DSITestCreate.py
-cinema examples/dsi/DSIExample.py
+cinema examples/dsi/DSITestRead.py
 
 rm -rf DSIscratch
 ```
