@@ -38,7 +38,8 @@ setuptools.setup(
         "requests",
         "pyqtgraph",
         "tensorflow",
-        "pyyaml"
+        "pyyaml",
+        "dsi-workflow"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
