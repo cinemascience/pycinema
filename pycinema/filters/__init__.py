@@ -37,6 +37,7 @@ from .SqliteDatabaseReader import *
 from .TableWriter import *
 from .TableView import *
 from .TextEditor import *
+from .TextFileReader import *
 from .ParametersView import *
 from .ParallelCoordinates import *
 from .InspectorView import *
