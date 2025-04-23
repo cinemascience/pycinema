@@ -163,25 +163,8 @@ def getColumnFromTable(table, colname, autocast=False, nan_remove=False, nan_rep
 
         # TODO: create a separate function call to determine column type
         if autocast:
-            t = str
-            for value in cleaned_column:
-                if value != '' and value not in CORE_NAN_VALUES:
-                    t = type(value)
-                    if t == str:
-                        try:
-                            si = int(value)
-                            t = int
-                        except ValueError:
-                            try:
-                                sf = float(value)
-                                t = float
-                            except ValueError:
-                                t = str
-                    break
-            try:
-                cleaned_column = np.asarray(cleaned_column, dtype=t)
-            except ValueError:
-                cleaned_column = []
+          if (any(isNumber(item) for item in cleaned_column) and not (isinstance(cleaned_column, np.ndarray) and np.issubdtype(cleaned_column.dtype, np.floating))):
+              cleaned_column = np.array(cleaned_column, dtype=float)
 
         return cleaned_column
 
