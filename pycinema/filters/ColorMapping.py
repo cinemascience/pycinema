@@ -105,10 +105,40 @@ class ColorMapping(Filter):
           color = (wnan.format(color.redF()),wnan.format(color.greenF()),wnan.format(color.blueF()),wnan.format(color.alphaF()))
           self.inputs.nan.set(color)
 
+
         wnan.clicked.connect(select_color)
         wnan.format = lambda v: float("{:.3f}".format(v))
-        l.addWidget(QtWidgets.QLabel("NAN Color"),3,0)
-        l.addWidget(wnan,3,1)
+        l.addWidget(QtWidgets.QLabel("NAN Color"),4,0)
+        l.addWidget(wnan,4,1)
+
+        # Auto Range
+        ar = QtWidgets.QPushButton("Auto Range")
+        l.addWidget(ar,3,1)
+        def auto_range():
+            images = self.inputs.images.get()
+            try:
+                if len(images)<1:
+                    return 1
+            except TypeError:
+                return 1
+
+            iChannel = self.inputs.channel.get()
+            channels = images[0].channels
+            if iChannel not in channels:
+                log.warning(str(iChannel, " not found in image for file: ", str(image.meta.FILE), "Can't auto scale color range.\n \
+                            Channels available: ", channels))
+                self.outputs.range.set((0,1))
+                return 1
+
+            globalMin = globalMax = 0
+            for image in images:
+                arr = numpy.array(image.getChannel(iChannel)).flatten()
+                globalMin = min(globalMin, numpy.nanmin(arr))
+                globalMax = max(globalMax, numpy.nanmax(arr))
+
+            self.inputs.range.set((globalMin, globalMax))
+
+        ar.clicked.connect(auto_range)
 
         self.widgets.append({
           'c': wc,
