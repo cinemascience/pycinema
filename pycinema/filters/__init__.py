@@ -4,10 +4,12 @@ from .CinemaDatabaseWriter import *
 from .ColorMapping import *
 from .ColorSource import *
 from .CSVReader import *
+from .DBQueryToTable import *
 from .DSICinemaDatabaseReader import *
 from .DSIReader import *
 from .ExportTableToDatabase import *
 from .TableEditor import *
+from .TableToDatabase import *
 from .TableQuery import *
 from .DepthCompositing import *
 from .DSIReader import *

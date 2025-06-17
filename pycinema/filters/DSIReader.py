@@ -8,7 +8,7 @@ class DSIReader(Filter):
         super().__init__(
           inputs={
             'path': '',
-            'tablename' : 'datacsv'
+            'tablename' : 'input'
           },
           outputs={
             'table': [[]]
@@ -30,6 +30,7 @@ class DSIReader(Filter):
         # get and add column names
         table = []
         cnames = a.artifact_handler(interaction_type='get', query = 'PRAGMA table_info(' + self.inputs.tablename.get() + ');')
+        print(cnames)
         table.append([i[1] for i in cnames])
 
         # get and add rows
