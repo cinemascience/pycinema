@@ -25,7 +25,7 @@ jobs:
           python -m pip install pytest pytest-xvfb
       - name: Dependencies
         run: |
-          python setup.py install
+          python -m pip install .
       - name: Test composite script 
         run: |
           cinema compose examples/scalar-images_config.yaml
@@ -50,7 +50,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools
           python -m pip install pytest
-          python setup.py install
+          python -m pip install .
       - name: Test composite script 
         run: |
           cinema compose examples/scalar-images_config.yaml
@@ -83,7 +83,7 @@ jobs:
 #       run: |
 #         python -m pip install --upgrade pip setuptools
 #         python -m pip install pytest
-#         python setup.py install
+#         python -m pip install .
 #     - name: Test using ModernGL
 #       run: |
 #         python -m pytest -s testing/RenderTest.py
