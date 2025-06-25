@@ -7,13 +7,13 @@ test and an ensemble test. Running the create script will create data in
 ## Single
 
 ```
-python example/dsi/DSITestCreateSingle.py
-cinema example/dsi/DSITestReadSingle.py
+python examples/dsi/DSITestCreateSingle.py
+cinema examples/dsi/DSITestReadSingle.py
 ```
 
 ## Ensemble
 
 ```
-python example/dsi/DSITestCreateEnsemble.py
-cinema example/dsi/DSITestReadEnsemble.py
+python examples/dsi/DSITestCreateEnsemble.py
+cinema examples/dsi/DSITestReadEnsemble.py
 ```
