@@ -28,8 +28,8 @@ jobs:
           python -m pip install .
       - name: Test execution
         run: |
-          python examples/dsi/DSICreateSingle.py
-          python examples/dsi/DSICreateEnsemble.py
+          python examples/dsi/DSITestCreateSingle.py
+          python examples/dsi/DSITestCreateEnsemble.py
       - name: Test results
         run: |
           python -m pytest -s testing/DSITest.py
@@ -54,8 +54,8 @@ jobs:
           python -m pip install .
       - name: Test execution
         run: |
-          python examples/dsi/DSICreateSingle.py
-          python examples/dsi/DSICreateEnsemble.py
+          python examples/dsi/DSITestCreateSingle.py
+          python examples/dsi/DSITestCreateEnsemble.py
       - name: Test results
         run: |
           python -m pytest -s testing/DSITest.py
@@ -88,8 +88,8 @@ jobs:
           python -m pip install .
       - name: Test execution
         run: |
-          python examples/dsi/DSICreateSingle.py
-          python examples/dsi/DSICreateEnsemble.py
+          python examples/dsi/DSITestCreateSingle.py
+          python examples/dsi/DSITestCreateEnsemble.py
       - name: Test results
         run: |
           python -m pytest -s testing/DSITest.py
