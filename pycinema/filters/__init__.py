@@ -7,6 +7,8 @@ from .CSVReader import *
 from .TableQuery import *
 from .TableEditor import *
 from .DepthCompositing import *
+from .DSIReader import *
+from .ExportTableToDatabase import *
 from .ImageAnnotation import *
 from .ImageBorder import *
 from .ImageCanny import *

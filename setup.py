@@ -26,6 +26,7 @@ setuptools.setup(
         "numpy<2.0.0",
         "scipy==1.13.1",
         "h5py",
+        "dsi-workflow",
         "matplotlib",
         "py",
         "Pillow",
