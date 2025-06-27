@@ -4,6 +4,7 @@ from .CinemaDatabaseWriter import *
 from .ColorMapping import *
 from .ColorSource import *
 from .CSVReader import *
+from .Libra import *
 from .TableQuery import *
 from .TableEditor import *
 from .DepthCompositing import *
