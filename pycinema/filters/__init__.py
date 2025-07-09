@@ -24,7 +24,6 @@ from .MLTFPredictor import *
 from .Plot import *
 from .PlotLineItem import *
 from .Python import *
-from .GetColumn import *
 from .RenderView import *
 from .ShaderDemoScene import *
 from .ShaderFXAA import *
