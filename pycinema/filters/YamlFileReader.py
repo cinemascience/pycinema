@@ -2,10 +2,13 @@ from pycinema import Filter
 
 import os
 import logging as log
+import yaml
 
-from pycinema import getTableExtent
-
-class TextFileReader(Filter):
+#
+# reads and makes available the data structure from 
+# a yaml file
+#
+class YamlFileReader(Filter):
 
     def __init__(self):
         super().__init__(
@@ -14,28 +17,25 @@ class TextFileReader(Filter):
             'cache': True
           },
           outputs={
-            'text': ''
+            'data': [] 
           }
         )
 
     def _update(self):
 
-        temptext = ''
-        p = self.inputs.file.get()
-
-        if not p:
-            alltext.append('')
+        data = ''
+        p = self.inputs.file.get() 
+        self.outputs.data.set([])
 
         if not os.path.exists(p):
             log.error(" file not found: '" + p + "'")
-            alltext.append('')
 
         try:
+            results = []
             with open(p, 'r', encoding='utf-8') as textfile:
-                file_contents = textfile.read()
-                temptext = file_contents
+                data = yaml.safe_load(textfile)
         except:
-            log.error(" Unable to open file: '" + p + "'")
+             log.error(" Unable to open file: '" + p + "'")
 
-        self.outputs.text.set(temptext)
+        self.outputs.data.set(data)
         return 1

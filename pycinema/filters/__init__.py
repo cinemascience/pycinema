@@ -43,3 +43,4 @@ from .ParametersView import *
 from .ParallelCoordinates import *
 from .InspectorView import *
 from .ValueSource import *
+from .YamlFileReader import *
