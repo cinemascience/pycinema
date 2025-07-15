@@ -15,7 +15,7 @@ Plot_0 = pycinema.filters.Plot()
 ImageView_1 = pycinema.filters.ImageView()
 
 # properties
-CSVReader_0.inputs.path.set("https://data.wa.gov/api/views/f6w7-q2d2/rows.csv", False)
+CSVReader_0.inputs.file.set("https://data.wa.gov/api/views/f6w7-q2d2/rows.csv", False)
 TableView_0.inputs.table.set(TableQuery_0.outputs.table, False)
 TableView_0.inputs.selection.set([], False)
 PlotLineItem_0.inputs.table.set(TableQuery_0.outputs.table, False)

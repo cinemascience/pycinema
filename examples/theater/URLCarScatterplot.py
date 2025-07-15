@@ -13,7 +13,7 @@ Python_0 = pycinema.filters.Python()
 ImageView_0 = pycinema.filters.ImageView()
 
 # properties
-CSVReader_0.inputs.path.set("https://data.wa.gov/api/views/f6w7-q2d2/rows.csv", False)
+CSVReader_0.inputs.file.set("https://data.wa.gov/api/views/f6w7-q2d2/rows.csv", False)
 TableView_0.inputs.table.set(CSVReader_0.outputs.table, False)
 TableView_0.inputs.selection.set([], False)
 Python_0.inputs.inputs.set(CSVReader_0.outputs.table, False)
