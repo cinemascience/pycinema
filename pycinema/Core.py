@@ -131,7 +131,7 @@ def getColumnFromTable(table, colname, autocast=False, nan_remove=False, nan_rep
     colID = getColumnIndexFromTable(table, colname)
 
     if colID == -1:
-        log.Error("ERROR: no column named \'" + colname + "\'")
+        log.error("ERROR: no column named \'" + colname + "\'")
         return None
 
     else:
