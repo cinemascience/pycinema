@@ -97,6 +97,7 @@ def function_compose(args):
         composite = pycinema.scripts.compose.Composite(configdata)
         composite.update()
 
+
 #
 # query metadata from a database of HDF5 images 
 #
@@ -185,9 +186,9 @@ parser_theater.set_defaults(func=function_theater)
 # special cases
 if len(sys.argv) == 1:
     sys.argv.append("theater")
-elif len(sys.argv) == 2:
-    if sys.argv[1].endswith(".py"):
-        sys.argv.insert(1, "theater")
+elif len(sys.argv) > 1 and sys.argv[1].endswith(".py"):
+    sys.argv.insert(1, "theater")
+
 # parse and call subcommand arguments
 args = parser.parse_args()
 
