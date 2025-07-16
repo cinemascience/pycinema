@@ -175,8 +175,16 @@ import pycinema.theater.views
         QtNodeEditorView.auto_connect = False
 
         variables = {}
-        for i,arg in enumerate(args):
-          variables['PYCINEMA_ARG_'+str(i)] = arg
+        # if the args are of the form key=value, then
+        # set those as variables
+        if all('=' in s for s in args):
+            for arg in args:
+                key, value = arg.split("=")
+                variables[key] = value 
+        else:
+            # perform the 'normal' pycinema arg substitution (PYCINEMA_ARG_0, PYCINEMA_ARG_1, etc.)
+            for i,arg in enumerate(args):
+                variables['PYCINEMA_ARG_'+str(i)] = arg
 
         try:
           exec(script,variables)
