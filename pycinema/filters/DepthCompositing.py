@@ -3,6 +3,8 @@ from pycinema import Filter
 import numpy
 import re
 import logging as log
+import pickle
+import hashlib
 
 class DepthCompositing(Filter):
 
@@ -44,12 +46,13 @@ class DepthCompositing(Filter):
     def getKeys(self,image,compose):
         if compose[0]==None:
             return image.meta.keys()
-        ignore = [compose[0]] + ['^id','^file']
+        ignore = [compose[0]] + ['^id','^file','^camera','^resolution','_range']
         return [p for p in image.meta.keys() if not any([re.search(i, p, re.IGNORECASE) for i in ignore])]
 
     def getTupleKey(self,image,keys):
-        meta_keys = [self.toList(image.meta[m]) for m in keys]
-        return tuple(sum(meta_keys, []))
+        meta_keys = [image.meta[m] for m in keys]
+        serialized = pickle.dumps(meta_keys, protocol=pickle.HIGHEST_PROTOCOL)
+        return hashlib.sha256(serialized).hexdigest()
 
     def makeSet(self,data):
         if type(data)==set:
@@ -78,6 +81,7 @@ class DepthCompositing(Filter):
 
     def compose(self,A,B,depthChannel):
         result = A.copy()
+
         mask = A.getChannel(depthChannel) > B.getChannel(depthChannel)
 
         for c in A.channels:
@@ -119,6 +123,10 @@ class DepthCompositing(Filter):
           log.error("Input image lists must be of equal size.")
           self.outputs.images.set(results)
           return 0
+
+        if nImages<1:
+          self.outputs.images.set(results)
+          return 1
 
         depthChannel = self.inputs.depth_channel.get()
 
