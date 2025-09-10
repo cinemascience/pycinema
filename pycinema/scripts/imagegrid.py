@@ -4,7 +4,7 @@ import pycinema.theater
 import pycinema.theater.views
 
 # pycinema settings
-PYCINEMA = { 'VERSION' : '3.1.0'}
+PYCINEMA = { 'VERSION' : '3.2.0'}
 
 # filters
 CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()

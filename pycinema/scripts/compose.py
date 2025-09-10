@@ -1,5 +1,8 @@
 import pycinema
 
+# pycinema settings
+PYCINEMA = { 'VERSION' : '3.2.0'}
+
 def is_channel(images, channel):
     if images and channel:
         return channel in images[0].channels
