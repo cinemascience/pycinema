@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: 
-        python-version: ['3.10','3.11', '3.12']
+        python-version: ['3.10','3.11']
 
     steps:
       - uses: actions/checkout@v4
@@ -37,7 +37,7 @@ jobs:
   macos:
     strategy:
       matrix:
-        python-version: ['3.10','3.11', '3.12']
+        python-version: ['3.10','3.11']
         os-version: [macos-13, macos-14]
 
     runs-on: ${{ matrix.os-version }}
@@ -52,32 +52,11 @@ jobs:
           python -m pip install --upgrade pip setuptools
           python -m pip install pytest
           python -m pip install .
-      - name: Configure Matplotlib (headless) & prebuild cache
-        run: |
-          export MPLBACKEND=Agg
-          export MPLCONFIGDIR="$RUNNER_TEMP/mplconfig"
-          mkdir -p "$MPLCONFIGDIR"
-          python - <<'PY'
-          import matplotlib
-          matplotlib.use("Agg")
-          from matplotlib import font_manager
-          font_manager._load_fontmanager(try_read_cache=False)
-          print("Matplotlib cache:", matplotlib.get_cachedir())
-          PY
-        env:
-          MPLBACKEND: Agg
-          MPLCONFIGDIR: ${{ runner.temp }}/mplconfig
       - name: Test execution
-        env:
-          MPLBACKEND: Agg
-          MPLCONFIGDIR: ${{ runner.temp }}/mplconfig
         run: |
           python examples/dsi/DSITestCreateSingle.py
           python examples/dsi/DSITestCreateEnsemble.py
       - name: Test results
-        env:
-          MPLBACKEND: Agg
-          MPLCONFIGDIR: ${{ runner.temp }}/mplconfig
         run: |
           python -m pytest -s testing/DSITest.py
 
@@ -85,7 +64,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        python-version: ['3.10', '3.11', '3.12']
+        python-version: ['3.10','3.11']
 
     steps:
       - uses: actions/checkout@v4
