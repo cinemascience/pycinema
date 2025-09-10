@@ -52,6 +52,21 @@ jobs:
           python -m pip install --upgrade pip setuptools
           python -m pip install pytest
           python -m pip install .
+      - name: Configure Matplotlib (headless) & prebuild cache
+        run: |
+          export MPLBACKEND=Agg
+          export MPLCONFIGDIR="$RUNNER_TEMP/mplconfig"
+          mkdir -p "$MPLCONFIGDIR"
+          python - <<'PY'
+          import matplotlib
+          matplotlib.use("Agg")
+          from matplotlib import font_manager
+          font_manager._load_fontmanager(try_read_cache=False)
+          print("Matplotlib cache:", matplotlib.get_cachedir())
+          PY
+        env:
+          MPLBACKEND: Agg
+          MPLCONFIGDIR: ${{ runner.temp }}/mplconfig
       - name: Test execution
         run: |
           python examples/dsi/DSITestCreateSingle.py
