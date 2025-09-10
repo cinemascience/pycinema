@@ -24,11 +24,11 @@ class TextFileReader(Filter):
         p = self.inputs.file.get()
 
         if not p:
-            alltext.append('')
+            temptext.append('')
 
         if not os.path.exists(p):
             log.error(" file not found: '" + p + "'")
-            alltext.append('')
+            temptext.append('')
 
         try:
             with open(p, 'r', encoding='utf-8') as textfile:
