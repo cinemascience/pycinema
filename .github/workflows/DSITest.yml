@@ -68,10 +68,16 @@ jobs:
           MPLBACKEND: Agg
           MPLCONFIGDIR: ${{ runner.temp }}/mplconfig
       - name: Test execution
+        env:
+          MPLBACKEND: Agg
+          MPLCONFIGDIR: ${{ runner.temp }}/mplconfig
         run: |
           python examples/dsi/DSITestCreateSingle.py
           python examples/dsi/DSITestCreateEnsemble.py
       - name: Test results
+        env:
+          MPLBACKEND: Agg
+          MPLCONFIGDIR: ${{ runner.temp }}/mplconfig
         run: |
           python -m pytest -s testing/DSITest.py
 
