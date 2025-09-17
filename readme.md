@@ -70,6 +70,10 @@ To upload it to `testpypi` (assuming you have permission):
 make module-test-upload
 ```
 
+# Creating a new release
+
+Instructions for creating a new release are [here](doc/how-to-release-pycinema.md)
+
 # Documentation
 
 Documentation for this project can be found on [readthedocs.org](https://pycinema.readthedocs.org)
