@@ -19,6 +19,17 @@ This toolkit introduces the concept of *filter graphs* and *applications* to Cin
 | ---- |
 |*Screen capture of Cinema:Explorer application, showing the normal view (left) and also revealing the 'filter graph' view (lower right) of the application. pycinema introduces both of these concepts to cinema data application.*|
 
+# Viewers and support for image formats
+
+`pycinema` supports two types of image formats: rgb and cinema-specific hdf5 float image format. Viewers included with the pycinema release support viewing of rgb databases. Select viewers support the hdf5 float image format. The types of data supported are shown below:
+
+- browse (rgb)
+- compose (rgb)
+- discover (rgb)
+- explore (rgb)
+- imagegrid (rgb)
+- view (rgb, hdf5)
+
 # Working with the code and the `pycinema` module
 
 - Installing and running with the pycinema repository:
