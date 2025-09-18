@@ -5,7 +5,7 @@ PYCINEMA = { 'VERSION' : '3.2.0'}
 
 def is_channel(images, channel):
     if images and channel:
-        return channel in images[0].channels
+        return channel in images[0].channels.keys()
     else:
         return False
 
@@ -68,7 +68,7 @@ class Element:
 
     def __init__(self, table, element, config):
         self.name = ""
-        if 'name' in element:
+        if 'name' in element.keys():
             self.name = element['name']
 
         # Error checking

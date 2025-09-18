@@ -97,6 +97,23 @@ def function_compose(args):
         composite = pycinema.scripts.compose.Composite(configdata)
         composite.update()
 
+#
+# recolor a database of HDF5 images into a database of png files
+#
+def function_recolor(args):
+    if args.debug:
+        # enable debug output (e.g., timings)
+        pycinema.Filter._debug = True
+
+    if args.config:
+        # load the config
+        with open(args.config, 'r') as file:
+            configdata = yaml.safe_load(file)
+
+        # create and execute a composite object
+        recolor = pycinema.scripts.recolor.Recolor(configdata)
+        recolor.update()
+
 
 #
 # query metadata from a database of HDF5 images 
@@ -140,6 +157,12 @@ def function_meta(args):
 #
 parser = argparse.ArgumentParser(description="Cinema  command line tool")
 subparsers = parser.add_subparsers(dest='command', help='Sub-commands', required=False)
+
+# Subparser for recolor
+parser_recolor = subparsers.add_parser('recolor', help='recolor Cinema float (hdf5) images to .png')
+parser_recolor.add_argument('--debug', action='store_true', help='set debug mode')
+parser_recolor.add_argument('config', help='define the configuration file')
+parser_recolor.set_defaults(func=function_recolor)
 
 # Subparser for compose
 parser_compose = subparsers.add_parser('compose', help='convert Cinema float (hdf5) images to .png')
