@@ -1,6 +1,6 @@
 # DSI support in pycinema
 
-|![application](view-dsi-database.png)|
+|![application](img/view-dsi-database.png)|
 | ---- |
 |*Screen capture of the results of running `data/view_asteroid_dsi.py`, showing a grid of recolored hdf5 images read through the DSI API*|
 

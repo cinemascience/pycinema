@@ -106,7 +106,7 @@ Instructions for creating a new release are [here](doc/how-to-release-pycinema.m
 ## DSI support
 
 `pycinema` support for LANL's [DSI](https://github.com/lanl/dsi) project is 
-explained [here](doc/dsi/readme.md).
+explained [here](dsi-readme.md).
 
 ## Documentation
 
