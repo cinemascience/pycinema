@@ -12,7 +12,16 @@ In addition, the versions of OS and python should be checked to cover current su
 
 Testing of examples and interactive `cinema` execution is done by hand in two steps:
 
-1. test all example scripts in `examples/` directory.
+## Test all interactive scripts
+
+Run all example scripts in `examples/` directory.
+
+` `examples/compose`
+```
+    cinema examples/compose/<name of script>    tests `compose` subcommand
+```
+
+- `examples/theater` these are examples that run scripts and bring up the theater interactive application.
 
 ```
    cinema examples/theater/<name of script>     these should all run to completion 
