@@ -101,11 +101,16 @@ make module-test-upload
 
 ## Creating a new release
 
-Instructions for creating a new release are [here](doc/how-to-release-pycinema.md)
+Instructions for creating a new release are [here](doc/how-to-release-pycinema.md).
+
+## DSI support
+
+`pycinema` support for LANL's [DSI](https://github.com/lanl/dsi) project is 
+explained [here](doc/dsi/readme.md).
 
 ## Documentation
 
-Documentation for this project can be found on [readthedocs.org](https://pycinema.readthedocs.org)
+Documentation for this project can be found on [readthedocs.org](https://pycinema.readthedocs.org).
 
 ## Related repositories
 
