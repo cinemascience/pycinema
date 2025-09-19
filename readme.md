@@ -21,14 +21,32 @@ This toolkit introduces the concept of *filter graphs* and *applications* to Cin
 
 ## Viewers and support for image formats
 
-`pycinema` supports two types of image formats: rgb and cinema-specific hdf5 float image format. Viewers included with the pycinema release support viewing of rgb databases. Select viewers support the hdf5 float image format. The types of data supported are shown below:
+`pycinema` supports two types of image formats: rgb and cinema-specific hdf5 float image format. Viewers included with the 
+pycinema release support viewing of rgb databases. Select viewers support the hdf5 float image format. The 
+types of data supported are reported by the `cinema --help` command (this is an example ... for the latest information,
+see the online documentation or run the command in a shell).
 
-- browse (rgb)
-- compose (rgb)
-- discover (rgb)
-- explore (rgb)
-- imagegrid (rgb)
-- view (rgb, hdf5)
+```
+usage: cinema [-h] {recolor,compose,meta,browse,discover,explore,imagegrid,view,theater} ...
+
+Cinema command line tool
+
+positional arguments:
+  {recolor,compose,meta,browse,discover,explore,imagegrid,view,theater}
+                        Sub-commands
+    recolor             recolor Cinema float (hdf5) images to .png
+    compose             convert Cinema float (hdf5) images to .png
+    meta                dump descriptive metadata about a cinema database (rgb and hdf5)
+    browse              browse a cinema database (rgb)
+    discover            discover a cinema database (rgb)
+    explore             explore a cinema database (hdf5 and rgb)
+    imagegrid           imagegrid a cinema database (rgb)
+    view                view a cinema database (hdf5 and rgb)
+    theater             run a cinema script in theater
+
+options:
+  -h, --help            show this help message and exit
+``` 
 
 ## Working with the code and the `pycinema` module
 
