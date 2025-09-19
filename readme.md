@@ -19,7 +19,7 @@ This toolkit introduces the concept of *filter graphs* and *applications* to Cin
 | ---- |
 |*Screen capture of Cinema:Explorer application, showing the normal view (left) and also revealing the 'filter graph' view (lower right) of the application. pycinema introduces both of these concepts to cinema data application.*|
 
-# Viewers and support for image formats
+## Viewers and support for image formats
 
 `pycinema` supports two types of image formats: rgb and cinema-specific hdf5 float image format. Viewers included with the pycinema release support viewing of rgb databases. Select viewers support the hdf5 float image format. The types of data supported are shown below:
 
@@ -30,7 +30,7 @@ This toolkit introduces the concept of *filter graphs* and *applications* to Cin
 - imagegrid (rgb)
 - view (rgb, hdf5)
 
-# Working with the code and the `pycinema` module
+## Working with the code and the `pycinema` module
 
 - Installing and running with the pycinema repository:
 
@@ -63,7 +63,7 @@ source pcenv/bin/activate
 cinema view data/sphere.cdb
 ```
 
-# Making and uploading the python module
+## Making and uploading the python module
 
 ```
 make module
@@ -81,25 +81,25 @@ To upload it to `testpypi` (assuming you have permission):
 make module-test-upload
 ```
 
-# Creating a new release
+## Creating a new release
 
 Instructions for creating a new release are [here](doc/how-to-release-pycinema.md)
 
-# Documentation
+## Documentation
 
 Documentation for this project can be found on [readthedocs.org](https://pycinema.readthedocs.org)
 
-# Related repositories
+## Related repositories
 
 - ```pycinema-data``` example Cinema datasets.
 - ```pycinema-examples``` examples referenced in the [readthedocs site](https://pycinema.readthedocs.org)
 - ```pycinema-testdata``` Cinema databases used for unit testing and CI testing.
 
-# Citing this work
+## Citing this work
 
 - Cinema paper (2014): James Ahrens, Sébastien Jourdain, Patrick O'Leary, John Patchett, David H. Rogers, and Mark Petersen. *An image-based approach to extreme scale in situ visualization and analysis*. In Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis (SC '14). IEEE Press, Piscataway, NJ, USA, 424-434, 2014. 
 - ```pycinema``` (this toolkit): Cite this web page
 
-# Contributing
+## Contributing
 
 Contributions can be made by submitting issues and contributing code through pull requests. The code shall be reviewed by the core Cinema team, and accepted when both content and code standards are met.
