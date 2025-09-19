@@ -1,6 +1,10 @@
 # Release procedure
 
 Releasing pycinema is a combination of automatic testing, user testing and module testing.
+For general development, the dev branch is merged into `master` and then a release is created. 
+
+All testing should be done first on the feature-complete `dev` branch. Once this is complete,
+`dev` can be merged with `master`, and the release can be made from `master`.
 
 ## CI testing
 
@@ -12,7 +16,9 @@ In addition, the versions of OS and python should be checked to cover current su
 
 |![application](img/cinema_examples.png)|
 | ---- |
-|*Screen captures of some of the examples that should be run to test a release of pycinema. From left to right: examples/theater/ImageHistogram.py, examples/theater/SubsetSelectExample.py, examples/theater/PythonPlotting.py, examples/recolor/asteroid.py (viewed with `cinema imagegrid`)*|
+|*Screen captures of some of the examples that should be run to test a release of pycinema. From left to right: 
+examples/theater/ImageHistogram.py, examples/theater/SubsetSelectExample.py, examples/theater/PythonPlotting.py, 
+examples/recolor/asteroid.py (viewed with `cinema imagegrid`)*|
 
 Testing of examples and interactive `cinema` execution is done by hand in two steps:
 
@@ -55,6 +61,7 @@ Testing of examples and interactive `cinema` execution is done by hand in two st
 ## Updating version
 
 After CI and user testing is complete, update the version number, make and test the module release.
+Once the modules are tested, merge `dev` into `master` and re-make and release the module.
 
 - Update `pycinema/_version.py` to current version
 - make, upload and test `pycinema` python module at test.pypi.org, using the makefile directives:
