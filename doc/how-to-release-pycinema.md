@@ -12,11 +12,15 @@ In addition, the versions of OS and python should be checked to cover current su
 
 |![application](img/cinema_examples.png)|
 | ---- |
-|*Screen captures of some of the examples that should be run to test a release of pycinema. From left to right: examples/theater/ImageHistogram.py, examples/theater/SubsetSelectExample.py, examples/theater/PythonPlotting.py, examples/recolor/asteroid.py (viewed with `cinema imagegrid`*|
+|*Screen captures of some of the examples that should be run to test a release of pycinema. From left to right: examples/theater/ImageHistogram.py, examples/theater/SubsetSelectExample.py, examples/theater/PythonPlotting.py, examples/recolor/asteroid.py (viewed with `cinema imagegrid`)*|
 
 Testing of examples and interactive `cinema` execution is done by hand in two steps:
 
-1. Run the relevant example scripts in `examples/` directory.
+1. Run `cinema` viewer subcommands on the datasets in `data/` subdirectory. Some subcommands
+   support `rgb` databases, some support `hdf5` databases, and some support both. The `cinema --help`
+   command will report which databases are supported by which subcommands.
+
+2. Run the relevant example scripts in `examples/` directory.
 
 - `examples/compose` these test the `compose` subcommand
 ```
