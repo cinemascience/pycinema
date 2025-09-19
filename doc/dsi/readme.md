@@ -1,5 +1,9 @@
 # DSI support in pycinema
 
+|![application](view-dsi-database.png)|
+| ---- |
+|*Screen capture of the results of running `data/view_asteroid_dsi.py`, showing a grid of recolored hdf5 images read through the DSI API*|
+
 `pycinema` is developing support for LANL's [DSI](https://github.com/lanl/dsi) project.
 At the moment, the best way to think about this is that `pycinema` accesses the DSI
 API to read DSI databases in exactly the same way that `pycinema` reads cinema databases.
