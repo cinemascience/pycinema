@@ -12,13 +12,30 @@ In addition, the versions of OS and python should be checked to cover current su
 
 Testing of examples and interactive `cinema` execution is done by hand in two steps:
 
-## Test all interactive scripts
+1. Run the relevant example scripts in `examples/` directory.
 
-Run all example scripts in `examples/` directory.
-
-` `examples/compose`
+- `examples/compose` these test the `compose` subcommand
 ```
     cinema examples/compose/<name of script>    tests `compose` subcommand
+```
+
+- `examples/dsi` these test `DSI`-related capability and are currently automatically
+  run under github actions, so they do not need to be run by hand. 
+
+- `examples/ipynb` these test python notebook capability, and are deprecated 
+
+- `examples/python` these test python capability (they do not need the **Theater** application,
+  and are currently automatically run under github actions, so they do not need to be run by hand.
+
+- `examples/pythonfilter` these are scripts run by the `Python` filter, and are
+  used by other examples or tests. They do not need to be run by hand.
+
+- `examples/recolor` these test the `recolor` subcommand. Run the command and then view the 
+  results with `imagegrid`
+
+```
+    cinema recolor examples/recolor/<name of script>
+    cinema imagegrid <result directory as reported by script>
 ```
 
 - `examples/theater` these are examples that run scripts and bring up the theater interactive application.
