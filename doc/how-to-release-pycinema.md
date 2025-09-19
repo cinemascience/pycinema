@@ -24,13 +24,19 @@ Testing of examples and interactive `cinema` execution is done by hand in two st
 
 1. Run `cinema` viewer subcommands on the datasets in `data/` subdirectory. Some subcommands
    support `rgb` databases, some support `hdf5` databases, and some support both. The `cinema --help`
-   command will report which databases are supported by which subcommands.
+   command will report which databases are supported by which subcommands. Some example tests include:
 
-2. Run the relevant example scripts in `examples/` directory.
+```
+    cinema explore data/asteroid_scalar_images.cdb
+    cinema imagegrid data/sphere.cdb
+```
+
+2. Run the relevant example scripts in `examples/` directory. Note that `cinema compose` takes
+   a configuration file (yaml) as an argument. This file defines input, output and other settings.
 
 - `examples/compose` these test the `compose` subcommand
 ```
-    cinema examples/compose/<name of script>    tests `compose` subcommand
+    cinema examples/compose/<name of configuration file>    tests `compose` subcommand
 ```
 
 - `examples/dsi` these test `DSI`-related capability and are currently automatically
@@ -45,10 +51,11 @@ Testing of examples and interactive `cinema` execution is done by hand in two st
   used by other examples or tests. They do not need to be run by hand.
 
 - `examples/recolor` these test the `recolor` subcommand. Run the command and then view the 
-  results with `imagegrid`
+  results with `imagegrid`. Note that `cinema recolor` takes a configuration (yaml) file as
+  an argument. This file defines the input, output and other settings.
 
 ```
-    cinema recolor examples/recolor/<name of script>
+    cinema recolor examples/recolor/<name of configuration file>
     cinema imagegrid <result directory as reported by script>
 ```
 
@@ -67,7 +74,8 @@ Once the modules are tested, merge `dev` into `master` and re-make and release t
 - make, upload and test `pycinema` python module at test.pypi.org, using the makefile directives:
     - `make module`
     - `make module-test-upload`
-	- `pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple pycinema`
+	- to test the module on `test.pypi.org`:
+        - `pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple pycinema`
 - upload `pycinema` python module, using the makefile directives:
     - `make module-upload`
 
