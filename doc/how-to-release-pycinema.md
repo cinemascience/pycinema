@@ -10,7 +10,7 @@ In addition, the versions of OS and python should be checked to cover current su
 
 # User/hand testing
 
-|![application](doc/img/cinema_examples.png)|
+|![application](img/cinema_examples.png)|
 | ---- |
 |*Screen captures of some of the examples that should be run to test a release of pycinema. From left to right: examples/theater/ImageHistogram.py, examples/theater/SubsetSelectExample.py, examples/theater/PythonPlotting.py, examples/recolor/asteroid.py (viewed with `cinema imagegrid`*|
 
