@@ -2,13 +2,13 @@
 
 Releasing pycinema is a combination of automatic testing, user testing and module testing.
 
-# CI testing
+## CI testing
 
 CI testing is automatically executed with github actions. These should be adjusted per the capabilities
 in the release. In general, all checkins to `dev` should be verified to not break any existing tests.
 In addition, the versions of OS and python should be checked to cover current supported releases.
 
-# User/hand testing
+## User/hand testing
 
 |![application](img/cinema_examples.png)|
 | ---- |
@@ -52,7 +52,7 @@ Testing of examples and interactive `cinema` execution is done by hand in two st
    cinema examples/theater/<name of script>     these should all run to completion 
 ```
 
-# Updating version
+## Updating version
 
 After CI and user testing is complete, update the version number, make and test the module release.
 
