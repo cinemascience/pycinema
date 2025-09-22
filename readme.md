@@ -50,7 +50,13 @@ options:
 
 ## Working with the code and the `pycinema` module
 
-- Installing and running with the pycinema repository:
+The `pycinema` module can be installed as part of a python environment:
+
+```
+pip install pycinema
+```
+
+Or you can install the module and run by using the pycinema repository:
 
 ```
 git clone git@github.com:cinemascience/pycinema.git
