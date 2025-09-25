@@ -512,6 +512,7 @@ class Filter():
                     print('PROCESS',f)
                 try:
                     f._update()
+                    Filter.trigger('filter_updated',f)
                 except Exception:
                     traceback.print_exc()
                     Filter._processing = False
