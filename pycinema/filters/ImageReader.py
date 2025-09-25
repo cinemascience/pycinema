@@ -64,8 +64,8 @@ class ImageReader(Filter):
                     if group==None:
                         raise ValueError('h5 file not formatted correctly')
                     for k in group.keys():
-                        data = numpy.squeeze(numpy.array(group.get(k)))
-                        if data.dtype == '|S10' and len(data)==1:
+                        data = numpy.atleast_1d(numpy.squeeze(numpy.array(group.get(k))))
+                        if data.dtype == '|S10' and data.size==1:
                             data = data[0].decode('UTF-8')
                         v[k] = data
                 file.close()
