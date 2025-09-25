@@ -39,6 +39,10 @@ setuptools.setup(
         "requests",
         "pyqtgraph",
         "tensorflow",
+        "trame",
+        "trame-vuetify",
+        "trame-plotly",
+        "pandas",
         "pyyaml"
     ],
     classifiers=[
