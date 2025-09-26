@@ -63,6 +63,12 @@ Testing of examples and interactive `cinema` execution is done by hand in two st
    cinema examples/theater/<name of script>     these should all run to completion 
 ```
 
+- `examples/trame` these are examples that run trame
+
+```
+   python examples/trame/<name of script>     these should bring up a trame example in a browser 
+```
+
 ## Updating version
 
 After CI and user testing is complete, update the version number, make and test the module release.
