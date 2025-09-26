@@ -45,5 +45,16 @@ class Recolor:
         self.CinemaDatabaseWriter_0.inputs.ignore.set(['^id', '^camera', '^FILE'], False)
         self.CinemaDatabaseWriter_0.inputs.hdf5.set(False, False)
 
+        # settings
+        if not 'verbose' in config['config']:
+            self.verbose = False
+        else:
+            self.verbose = config['config']['verbose']
+
+        if self.verbose:
+            print("printing verbose output")
+            print("  Reading: " + config['database']['path'])
+            print("  Writing: " + config['config']['output'])
+
     def update(self):
         self.CinemaDatabaseReader_0.update()

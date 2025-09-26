@@ -72,10 +72,10 @@ class Element:
             self.name = element['name']
 
         # Error checking
-        if not 'name' in element:
-            print('ERROR: name \'name\' not present in element')
-        if not 'channel' in element:
-            print('ERROR: name \'channel\' not present in element')
+        # if not 'name' in element:
+            # print('ERROR: name \'name\' not present in element')
+        # if not 'channel' in element:
+            # print('ERROR: name \'channel\' not present in element')
 
         # set defaults
         if not 'channelrange' in element:
