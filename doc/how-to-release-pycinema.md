@@ -16,7 +16,7 @@ In addition, the versions of OS and python should be checked to cover current su
 
 |![application](img/cinema_examples.png)|
 | ---- |
-|*Screen captures of some of the examples that should be run to test a release of pycinema. From left to right: examples/theater/ImageHistogram.py, examples/theater/SubsetSelectExample.py, examples/theater/PythonPlotting.py, examples/recolor/asteroid.py (viewed with `cinema imagegrid`)*|
+|*Screen captures of some of the examples that should be run to test a release of pycinema. From left to right: examples/theater/ImageHistogram.py, examples/theater/SubsetSelectExample.py, examples/theater/PythonPlotting.py, examples/recolor/asteroid.py (deprecated)*|
 
 Testing of examples and interactive `cinema` execution is done by hand in two steps:
 
@@ -25,7 +25,7 @@ Testing of examples and interactive `cinema` execution is done by hand in two st
    command will report which databases are supported by which subcommands. Some example tests include:
 
 ```
-    cinema explore data/asteroid_scalar_images.cdb
+    cinema explore data/sphere.cdb
     cinema imagegrid data/sphere.cdb
 ```
 
