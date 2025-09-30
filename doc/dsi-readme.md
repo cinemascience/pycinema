@@ -2,7 +2,7 @@
 
 |![application](img/dsi-and-cdb.png)|
 | ---- |
-|*Comparison of screen capture of the results of running `data/view_asteroid.py` and `data/view_asteroid_dsi.py`. The left image shows data accessed through cinema API, and the right image shows data accessed through the DSI API.*|
+|*Comparison of screen capture of the results of viewing a database of images read from a CinemaDatabaseReader (left) and a DSIReader (right) on the same.*|
 
 `pycinema` is developing support for LANL's [DSI](https://github.com/lanl/dsi) project.
 At the moment, the best way to think about this is that `pycinema` accesses the DSI
@@ -19,9 +19,6 @@ then be operated on as expected with other filters.
   a DSI-compliant database in the cinema database that is equivalent to the `data.csv`
   file in the database. This new database (`data.db`) can then be read by the 
   DSIReader filter.
-
-- `data/view_asteroid_dsi.py` This script is an example of accessing, recoloring and
-  viewing a DSI-compliant database in a cinema database.
 
 - `.github/workflow/DSITest.yaml` This CI action automatically tests basic DSI capability.
 
