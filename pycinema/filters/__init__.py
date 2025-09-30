@@ -17,6 +17,9 @@ from .ImageReader import *
 from .ImageSort import *
 from .ImagesToTable import *
 from .ImageView import *
+from .ImageInterpolator import *
+from .ImageInterpolator2 import *
+from .InterpolationCompression import *
 from .MaskCompositing import *
 from .MLTFReader import *
 from .MLTFPredictor import *
@@ -43,3 +46,4 @@ from .ParametersView import *
 from .ParallelCoordinates import *
 from .InspectorView import *
 from .ValueSource import *
+from .VideoWriter import *

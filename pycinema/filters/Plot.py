@@ -25,8 +25,11 @@ class Plot(Filter):
       items = self.inputs.items.get()
       items = items if isinstance(items,list) else [items]
 
+      print(items)
       key_lambda = lambda i: i['x']['label']
+      print(items)
       items.sort(key=key_lambda)
+      print(items)
       grouped_items = [list(group) for key, group in groupby(items, key=key_lambda)]
 
       res = []

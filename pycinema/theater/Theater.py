@@ -108,7 +108,7 @@ import pycinema.theater.views
                 if iPort.valueIsPort():
                     script += filter.id + '.inputs.'+iPortName+ '.set(' + iPort._value.parent.id +'.'+getPortType(iPort._value)+'.'+ iPort._value.name +', False)\n'
                 elif iPort.valueIsPortList():
-                    script += filter.id + '.inputs.'+iPortName+ '.set([' + ','.join([p.parent.id +'.'+getPortType(p._value)+'.'+p.name for p in iPort._value]) +'], False)\n'
+                    script += filter.id + '.inputs.'+iPortName+ '.set([' + ','.join([p.parent.id +'.'+getPortType(p)+'.'+p.name for p in iPort._value]) +'], False)\n'
                 else:
                     v = iPort.get()
                     if iPort.type == int or iPort.type == float:

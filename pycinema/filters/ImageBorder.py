@@ -10,7 +10,8 @@ class ImageBorder(Filter):
           inputs={
             'images': [],
             'width': 10,
-            'color': 'AUTO'
+            'color': 'AUTO',
+            'condition': '',
           },
           outputs={
             'images': []
@@ -34,18 +35,20 @@ class ImageBorder(Filter):
             else:
                 color = (0,0,0)
 
+        condition = self.inputs.condition.get()
         for image in images:
-            # copy the input image
+            outImage = image.copy()
+            results.append( outImage )
+
+            if condition!='' and not eval(condition, {}, outImage.meta):
+              continue
+
             rgba = image.channels['rgba']
             rgbImage = PIL.Image.fromarray( rgba )
-
             I1 = PIL.ImageDraw.Draw(rgbImage)
             shape = ((0,0), (rgba.shape[1] - 1, rgba.shape[0] - 1))
             I1.rectangle( shape, outline=color, width = self.inputs.width.get() )
-
-            outImage = image.copy()
             outImage.channels['rgba'] = numpy.array(rgbImage)
-            results.append( outImage )
 
         self.outputs.images.set(results)
 

@@ -27,9 +27,11 @@ class PlotLineItem(Filter):
     yLabel = self.inputs.y.get()
 
     header = table[0]
+    print(header)
     if yLabel not in header:
       self.outputs.item.set(None)
       return 1
+    print('go')
     yData = getColumnFromTable(table,yLabel,autocast=True)
 
     if xLabel!='index' and xLabel in header:
