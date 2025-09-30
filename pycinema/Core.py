@@ -9,6 +9,8 @@ import io
 import logging as log
 import os
 import pkg_resources
+import json
+import asyncio
 
 CORE_NAN_VALUES = ['NaN', 'NAN', 'nan']
 
@@ -188,6 +190,15 @@ def getTableExtent(table):
     except:
         return (-1,-1)
 
+
+import base64
+def encodeNumpyArray(arr):
+  return {
+    'data': base64.b64encode(arr.tobytes()).decode('utf-8'),
+    'dtype': str(arr.dtype),
+    'shape': arr.shape
+  }
+
 ################################################################################
 # Image Class
 ################################################################################
@@ -237,6 +248,41 @@ class Image():
     def resolution(self):
         return self.shape[:2][::-1]
 
+    def toJSON(self,level=0):
+      data = {'meta':{},'channels':{}}
+      for key in self.meta:
+        if hasattr(self.meta[key], 'tolist'):
+          data['meta'][key] = self.meta[key].tolist()
+        else:
+          data['meta'][key] = self.meta[key]
+      for channel in self.channels:
+        if hasattr(self.channels[channel], 'tolist'):
+          data['channels'][channel] = 'DATA POINTER'
+          # data['channels'][channel] = encodeNumpyArray(self.channels[channel])
+          # data['channels'][key] = self.channels[channel].tolist()
+        else:
+          data['channels'][channel] = self.channels[channel]
+
+      # if level<1:
+      #   for key in self.meta:
+      #     data['meta'][key] = None
+      #   for c in self.channels:
+      #     data['channels'][c] = {
+      #       'shape': self.channels[c].shape
+      #     }
+      # else:
+      #   for g in data:
+      #     g_ = getattr(self,g)
+      #     for id in g_:
+      #       try:
+      #         json.dumps(g_[id])
+      #         data[g][id] = g_[id]
+      #       except TypeError:
+      #         data[g][id] = []
+      #         # data[g][id] = g_[id].tolist()
+
+      return data
+
 ################################################################################
 # Port Class
 ################################################################################
@@ -277,7 +323,15 @@ class Port():
         if not eventName in self._listeners:
             return
         for listener in self._listeners[eventName]:
-            listener(data)
+            if asyncio.iscoroutinefunction(listener):
+                try:
+                    asyncio.get_running_loop()
+                except RuntimeError:
+                    raise RuntimeError("No running event loop. Wrap in asyncio.run or call from async context.")
+                asyncio.create_task(listener(data))
+            else:
+                listener(data)
+
 
     def valueIsPort(self):
         return isinstance(self._value, Port)
@@ -333,6 +387,7 @@ class Port():
         # replace old value with new value
         self._value = value
         self.trigger('value_set', value)
+        Filter.trigger('value_set', [self,value])
 
         # if new value is a port listen for push events
         if isinstance(self._value, Port):
@@ -347,7 +402,37 @@ class Port():
 
         # if value of a port was changed trigger update of listeners
         if self.is_input and update and not Filter._processing:
-            self.parent.update()
+            asyncio.create_task(self.parent.update())
+
+    def toJSON(self,level=0):
+      value_raw = self.get()
+
+      try:
+        json.dumps(value_raw)
+        value = value_raw
+      except TypeError:
+        if hasattr(value_raw, 'toJSON'):
+          value = value_raw.toJSON(level)
+        else:
+          if isinstance(value_raw, list):
+            value = []
+            for item in value_raw:
+              if hasattr(item, 'toJSON'):
+                value.append(item.toJSON(level))
+              else:
+                value.append(str(item))
+
+      return {
+        'name': self.name,
+        'parent': self.parent.id,
+        'is_input': self.is_input,
+        'time': self.time,
+        'default': self.default,
+        'type': str(self.type),
+        'value': value,
+        'value_str': str(value_raw),
+        'portRef': {'name':self._value.name,'parent':self._value.parent.id} if self.valueIsPort() else None
+      }
 
 class PortList():
     def __init__(self, filter, ports, areInputs=True):
@@ -355,6 +440,9 @@ class PortList():
         for name in ports:
             setattr(self, name, Port(name, ports[name], filter, areInputs))
             self.__ports[name] = getattr(self,name)
+
+    def get(self,name):
+        return self.__ports.get(name)
 
     def ports(self):
         return self.__ports.items()
@@ -390,7 +478,20 @@ class Filter():
         if not eventName in Filter._listeners:
             return
         for listener in Filter._listeners[eventName]:
-            listener(data)
+            if asyncio.iscoroutinefunction(listener):
+                asyncio.create_task(listener(data))
+            else:
+                listener(data)
+    @staticmethod
+    async def triggerAsync(eventName, data):
+        if not eventName in Filter._listeners:
+            return
+        for listener in Filter._listeners[eventName]:
+            if asyncio.iscoroutinefunction(listener):
+                asyncio.create_task(listener(data))
+            else:
+                listener(data)
+        await asyncio.sleep(0)
 
     def __init__(self, inputs={}, outputs={}):
         if Filter._debug:
@@ -443,7 +544,7 @@ class Filter():
         self.trigger('filter_deleted',self)
 
         # update pipeline
-        self.update()
+        asyncio.create_task(self.update())
 
     def _update(self):
         # needs to be overriden
@@ -484,8 +585,10 @@ class Filter():
                   S.append(m)
       return L
 
-    def update(self):
+    async def update(self):
         if Filter._processing: return 0
+
+        await Filter.triggerAsync('update_status',0)
 
         Filter._processing = True
 
@@ -501,6 +604,8 @@ class Filter():
               print('  ',f,edges[f])
             print("--------------------------------")
 
+        await Filter.triggerAsync('filter_status',[-1,0])
+
         for i,f in enumerate(filters):
             lt = f.time
             needsUpdate = False
@@ -513,6 +618,7 @@ class Filter():
                     needsUpdate = True
             if f==self or needsUpdate:
                 t0 = time.time()
+                await Filter.triggerAsync('filter_status',[f.id,1])
                 if Filter._debug:
                     print('PROCESS',f)
                 try:
@@ -520,15 +626,28 @@ class Filter():
                 except Exception:
                     traceback.print_exc()
                     Filter._processing = False
+                    await Filter.triggerAsync('filter_status',[f.id,3,traceback.format_exc()])
+                    await Filter.triggerAsync('update_status',1)
                     return 0
                 f.time = time.time()
+
                 if Filter._debug:
                     print(" -> Done (%.2fs)" % (f.time-t0))
             elif Filter._debug:
                 print('SKIP',f)
+            await Filter.triggerAsync('filter_status',[f.id,2])
 
         Filter._processing = False
+        await Filter.triggerAsync('update_status',1)
         return 1
 
     def help(self):
         print('Documentation Missing')
+
+    def toJSON(self,level=0):
+      return {
+        'id': self.id,
+        'inputs': [p.toJSON(level) for _, p in self.inputs.ports()],
+        'outputs': [p.toJSON(level) for _, p in self.outputs.ports()],
+      }
+

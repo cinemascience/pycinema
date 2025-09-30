@@ -38,6 +38,8 @@ setuptools.setup(
         "requests",
         "pyqtgraph",
         "tensorflow",
+        "websockets",
+        "aiohttp",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -47,7 +49,8 @@ setuptools.setup(
     scripts=[
         'doc/pycinema-description.md',
         'scripts/cinema',
-        'scripts/cinematic'
+        'scripts/cinematic',
+        'scripts/web.py',
     ],
-    data_files=[('fonts',['fonts/NotoSansMono-VariableFont_wdth,wght.ttf'])]
+    data_files=[('.',['fonts/NotoSansMono-VariableFont_wdth,wght.ttf'])]
 )

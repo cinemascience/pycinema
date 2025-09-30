@@ -10,3 +10,4 @@ icsenv
 csenv
 examples/.ipynb_checkpoints
 .python-version
+node_modules
