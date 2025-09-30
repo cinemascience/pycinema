@@ -108,7 +108,7 @@ import pycinema.theater.views
                 if iPort.valueIsPort():
                     script += filter.id + '.inputs.'+iPortName+ '.set(' + iPort._value.parent.id +'.'+getPortType(iPort._value)+'.'+ iPort._value.name +', False)\n'
                 elif iPort.valueIsPortList():
-                    script += filter.id + '.inputs.'+iPortName+ '.set([' + ','.join([p.parent.id +'.'+getPortType(p._value)+'.'+p.name for p in iPort._value]) +'], False)\n'
+                    script += filter.id + '.inputs.'+iPortName+ '.set([' + ','.join([p.parent.id +'.'+getPortType(p)+'.'+p.name for p in iPort._value]) +'], False)\n'
                 else:
                     v = iPort.get()
                     if iPort.type == int or iPort.type == float:
@@ -175,8 +175,16 @@ import pycinema.theater.views
         QtNodeEditorView.auto_connect = False
 
         variables = {}
-        for i,arg in enumerate(args):
-          variables['PYCINEMA_ARG_'+str(i)] = arg
+        # if the args are of the form key=value, then
+        # set those as variables
+        if all('=' in s for s in args):
+            for arg in args:
+                key, value = arg.split("=")
+                variables[key] = value 
+        else:
+            # perform the 'normal' pycinema arg substitution (PYCINEMA_ARG_0, PYCINEMA_ARG_1, etc.)
+            for i,arg in enumerate(args):
+                variables['PYCINEMA_ARG_'+str(i)] = arg
 
         try:
           exec(script,variables)
@@ -203,18 +211,21 @@ import pycinema.theater.views
         if not script_file_name:
             script_file_name = QtWidgets.QFileDialog.getOpenFileName(self, "Load Script")[0]
         if script_file_name and len(script_file_name)>0:
-            try:
-                script_file = open(script_file_name, "r")
-                script = script_file.read()
-                script_file.close()
-                self.reset(True)
-                if not scriptkey:
-                    self.setWindowTitle("Cinema:Theater (" + script_file_name + ")")
-                else:
-                    self.setWindowTitle("Cinema:" + scriptkey)
-                self.executeScript(script,args)
-            except:
-                return
+            if os.path.isfile(script_file_name):
+                try:
+                    script_file = open(script_file_name, "r")
+                    script = script_file.read()
+                    script_file.close()
+                    self.reset(True)
+                    if not scriptkey:
+                        self.setWindowTitle("Cinema:Theater (" + script_file_name + ")")
+                    else:
+                        self.setWindowTitle("Cinema:" + scriptkey)
+                    self.executeScript(script,args)
+                except:
+                    return
+            else:
+                print("CINEMA ERROR: script file \'" + script_file_name + "\' does not exist")
 
 class Theater():
 

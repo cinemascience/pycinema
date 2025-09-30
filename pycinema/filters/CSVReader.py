@@ -9,7 +9,7 @@ class CSVReader(Filter):
     def __init__(self):
         super().__init__(
           inputs={
-            'path': ''
+            'file': ''
           },
           outputs={
             'table': [[]]
@@ -19,7 +19,7 @@ class CSVReader(Filter):
     def _update(self):
 
         table = []
-        csvPath = self.inputs.path.get()
+        csvPath = self.inputs.file.get()
 
         if isURL(csvPath):
             with requests.Session() as s:

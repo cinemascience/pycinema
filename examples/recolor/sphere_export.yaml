@@ -1,0 +1,19 @@
+config:
+  debug: False
+  verbose: True
+  output: sphere_export_recolored.cdb
+
+database:
+  path: data/sphere_export.cdb
+  filecolumn: FILE
+
+recolor:
+  channel: Result
+  colormap: plasma
+  channelrange: [-0.975, 0.975]
+  nancolor: [1, 1, 1, 1]
+
+shadow:
+  radius: 0.3
+  samples: 32
+  diff: 0.5

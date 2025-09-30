@@ -4,25 +4,28 @@ from .CinemaDatabaseWriter import *
 from .ColorMapping import *
 from .ColorSource import *
 from .CSVReader import *
-from .TableQuery import *
 from .TableEditor import *
+from .TableQuery import *
 from .DepthCompositing import *
+from .DSIReader import *
+from .ExportTableToDatabase import *
 from .ImageAnnotation import *
 from .ImageBorder import *
 from .ImageCanny import *
 from .ImageConvertGrayscale import *
 from .ImageFilterPIL import *
+from .ImageMetrics import *
 from .ImageReader import *
 from .ImageSort import *
 from .ImagesToTable import *
 from .ImageView import *
 from .MaskCompositing import *
-from .MLTFReader import *
-from .MLTFPredictor import *
+# from .MLTFReader import *
+# from .MLTFPredictor import *
 from .Plot import *
+from .PlotTables import *
 from .PlotLineItem import *
 from .Python import *
-from .GetColumn import *
 from .RenderView import *
 from .ShaderDemoScene import *
 from .ShaderFXAA import *
@@ -42,3 +45,4 @@ from .ParametersView import *
 from .ParallelCoordinates import *
 from .InspectorView import *
 from .ValueSource import *
+from .YamlFileReader import *

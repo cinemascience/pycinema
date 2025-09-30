@@ -1,6 +1,6 @@
 # Cinema python toolkit 
+![DSITest](https://github.com/cinemascience/pycinema/actions/workflows/DSITest.yml/badge.svg)
 ![RenderTest](https://github.com/cinemascience/pycinema/actions/workflows/RenderTest.yml/badge.svg)
-![MLPredictionTest](https://github.com/cinemascience/pycinema/actions/workflows/MLPredictionTest.yml/badge.svg)
 ![UberTest](https://github.com/cinemascience/pycinema/actions/workflows/UberTest.yml/badge.svg)
 
 `pycinema` is a toolkit of python-based components for creating, filtering, transforming and viewing Cinema databases. Cinema databases are a compact and interactive output format that can be created from scientific visualization tools and infrastructures (ParaView, Ascent, etc.) or created through other code by writing to the common output format. There is more information about the Cinema project [here](https://cinemascience.github.io).
@@ -19,9 +19,44 @@ This toolkit introduces the concept of *filter graphs* and *applications* to Cin
 | ---- |
 |*Screen capture of Cinema:Explorer application, showing the normal view (left) and also revealing the 'filter graph' view (lower right) of the application. pycinema introduces both of these concepts to cinema data application.*|
 
-# Working with the code and the `pycinema` module
+## Viewers and support for image formats
 
-- Installing and running with the pycinema repository:
+`pycinema` supports two types of image formats: rgb and cinema-specific hdf5 float image format. Viewers included with the 
+pycinema release support viewing of rgb databases. Select viewers support the hdf5 float image format. The 
+types of data supported are reported by the `cinema --help` command (this is an example ... for the latest information,
+see the online documentation or run the command in a shell).
+
+```
+usage: cinema [-h] {recolor,compose,meta,browse,discover,explore,imagegrid,view,theater} ...
+
+Cinema command line tool
+
+positional arguments:
+  {recolor,compose,meta,browse,discover,explore,imagegrid,view,theater}
+                        Sub-commands
+    recolor             recolor Cinema float (hdf5) images to .png
+    compose             convert Cinema float (hdf5) images to .png
+    meta                dump descriptive metadata about a cinema database (rgb and hdf5)
+    browse              browse a cinema database (rgb)
+    discover            discover a cinema database (rgb)
+    explore             explore a cinema database (hdf5 and rgb)
+    imagegrid           imagegrid a cinema database (rgb)
+    view                view a cinema database (hdf5 and rgb)
+    theater             run a cinema script in theater
+
+options:
+  -h, --help            show this help message and exit
+``` 
+
+## Working with the code and the `pycinema` module
+
+The `pycinema` module can be installed as part of a python environment:
+
+```
+pip install pycinema
+```
+
+Or you can install the module and run by using the pycinema repository:
 
 ```
 git clone git@github.com:cinemascience/pycinema.git
@@ -52,7 +87,7 @@ source pcenv/bin/activate
 cinema view data/sphere.cdb
 ```
 
-# Making and uploading the python module
+## Making and uploading the python module
 
 ```
 make module
@@ -70,21 +105,30 @@ To upload it to `testpypi` (assuming you have permission):
 make module-test-upload
 ```
 
-# Documentation
+## Creating a new release
 
-Documentation for this project can be found on [readthedocs.org](https://pycinema.readthedocs.org)
+Instructions for creating a new release are [here](doc/how-to-release-pycinema.md).
 
-# Related repositories
+## DSI support
+
+`pycinema` support for LANL's [DSI](https://github.com/lanl/dsi) project is 
+explained [here](doc/dsi-readme.md).
+
+## Documentation
+
+Documentation for this project can be found on [readthedocs.org](https://pycinema.readthedocs.org).
+
+## Related repositories
 
 - ```pycinema-data``` example Cinema datasets.
 - ```pycinema-examples``` examples referenced in the [readthedocs site](https://pycinema.readthedocs.org)
 - ```pycinema-testdata``` Cinema databases used for unit testing and CI testing.
 
-# Citing this work
+## Citing this work
 
 - Cinema paper (2014): James Ahrens, Sébastien Jourdain, Patrick O'Leary, John Patchett, David H. Rogers, and Mark Petersen. *An image-based approach to extreme scale in situ visualization and analysis*. In Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis (SC '14). IEEE Press, Piscataway, NJ, USA, 424-434, 2014. 
 - ```pycinema``` (this toolkit): Cite this web page
 
-# Contributing
+## Contributing
 
 Contributions can be made by submitting issues and contributing code through pull requests. The code shall be reviewed by the core Cinema team, and accepted when both content and code standards are met.

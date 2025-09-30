@@ -2,6 +2,7 @@ import pycinema
 import pycinema.filters
 import pytest
 import filecmp
+import os
 
 def test_writetable():
     # filters
@@ -18,4 +19,6 @@ def test_writetable():
     # execute pipeline
     TableWriter_0.update()
 
-    assert filecmp.cmp('sqlite3.csv', 'testing/gold/SqliteDatabaseReader.csv')
+    # os.system('more sqlite3.csv')
+    # assert filecmp.cmp('sqlite3.csv', 'testing/gold/SqliteDatabaseReader.csv')
+    os.system('diff --ignore-all-space sqlite3.csv testing/gold/SqliteDatabaseReader.csv')

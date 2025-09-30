@@ -1,19 +1,16 @@
 from pycinema import Filter
 
-import csv
 import os
-import re
 import logging as log
 
 from pycinema import getTableExtent
 
-class TextFileSource(Filter):
+class TextFileReader(Filter):
 
     def __init__(self):
         super().__init__(
           inputs={
-            'table': [[]],
-            'file_column': 'FILE',
+            'file': '', 
             'cache': True
           },
           outputs={
@@ -23,34 +20,22 @@ class TextFileSource(Filter):
 
     def _update(self):
 
-        table = self.inputs.table.get()
-        tableExtent = getTableExtent(table)
-        fileColumn = self.inputs.file_column.get()
+        temptext = ''
+        p = self.inputs.file.get()
+
+        if not p:
+            temptext.append('')
+
+        if not os.path.exists(p):
+            log.error(" file not found: '" + p + "'")
+            temptext.append('')
 
         try:
-            fileColumnIdx = [i for i, item in enumerate(table[0]) if re.search(fileColumn, item, re.IGNORECASE)].pop()
-        except Exception as e:
-            log.error("table does not contain '" + fileColumn + "' column!")
-            return 0
+            with open(p, 'r', encoding='utf-8') as textfile:
+                file_contents = textfile.read()
+                temptext = file_contents
+        except:
+            log.error(" Unable to open file: '" + p + "'")
 
-        text = ''
-        for i in range(1, len(table)):
-
-            row = table[i]
-            filePath = row[fileColumnIdx]
-
-            if not filePath:
-                text = text
-
-            if not os.path.exists(filePath):
-                log.error(" file not found: '" + filePath + "'")
-                text = text
-
-            try:
-                with open(filePath, 'r') as textfile:
-                    text = text + '\n' + filePath + '\n' + textfile.read()
-            except:
-                log.error(" Unable to open file: '" + filePath + "'")
-                text = text
-        self.outputs.text.set(text)
+        self.outputs.text.set(temptext)
         return 1

@@ -4,7 +4,7 @@ The `pycinema` python module (https://github.com/cinemascience/pycinema) is a se
 
 Documentation for this module is available at http://pycinema.readthedocs.io
 
-You can find out more about Cinema at http://cinemascience.org.
+You can find out more about Cinema at http://cinemascience.github.io
 
 ## Installing and running the pycinema module
 

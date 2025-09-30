@@ -26,6 +26,7 @@ setuptools.setup(
         "numpy<2.0.0",
         "scipy==1.13.1",
         "h5py",
+        "dsi-workflow",
         "matplotlib",
         "py",
         "Pillow",
@@ -38,6 +39,11 @@ setuptools.setup(
         "requests",
         "pyqtgraph",
         "tensorflow",
+        "trame",
+        "trame-vuetify",
+        "trame-plotly",
+        "pandas",
+        "pyyaml"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

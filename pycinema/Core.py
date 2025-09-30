@@ -8,7 +8,7 @@ import PIL
 import io
 import logging as log
 import os
-import pkg_resources
+import importlib.resources
 
 CORE_NAN_VALUES = ['NaN', 'NAN', 'nan']
 
@@ -52,7 +52,19 @@ def imageFromMatplotlibFigure(figure,dpi):
 # get the path where this module has been installed
 #
 def getModulePath():
-    return os.path.dirname(pkg_resources.resource_filename(__name__, 'Core.py'))
+    """
+    Returns the file system path to a resource within a package.
+    """
+    try:
+        # Attempt to get the path directly if the resource is a file
+        resource_path = importlib.resources.files('pycinema').joinpath('Core.py')
+        if os.path.isfile(resource_path):
+          return str(os.path.dirname(resource_path))
+
+    except FileNotFoundError:
+        raise FileNotFoundError(f"Resource '{resource}' not found in package '{package}'")
+    except Exception as e:
+        raise Exception(f"An error occurred: {e}")
 
 #
 # return a list of scripts installed with this module
@@ -119,7 +131,7 @@ def getColumnFromTable(table, colname, autocast=False, nan_remove=False, nan_rep
     colID = getColumnIndexFromTable(table, colname)
 
     if colID == -1:
-        log.Error("ERROR: no column named \'" + colname + "\'")
+        log.error("ERROR: no column named \'" + colname + "\'")
         return None
 
     else:
@@ -151,25 +163,8 @@ def getColumnFromTable(table, colname, autocast=False, nan_remove=False, nan_rep
 
         # TODO: create a separate function call to determine column type
         if autocast:
-            t = str
-            for value in cleaned_column:
-                if value != '' and value not in CORE_NAN_VALUES:
-                    t = type(value)
-                    if t == str:
-                        try:
-                            si = int(value)
-                            t = int
-                        except ValueError:
-                            try:
-                                sf = float(value)
-                                t = float
-                            except ValueError:
-                                t = str
-                    break
-            try:
-                cleaned_column = np.asarray(cleaned_column, dtype=t)
-            except ValueError:
-                cleaned_column = []
+          if (any(isNumber(item) for item in cleaned_column) and not (isinstance(cleaned_column, np.ndarray) and np.issubdtype(cleaned_column.dtype, np.floating))):
+              cleaned_column = np.array(cleaned_column, dtype=float)
 
         return cleaned_column
 
@@ -517,6 +512,7 @@ class Filter():
                     print('PROCESS',f)
                 try:
                     f._update()
+                    Filter.trigger('filter_updated',f)
                 except Exception:
                     traceback.print_exc()
                     Filter._processing = False
