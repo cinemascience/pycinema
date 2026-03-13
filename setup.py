@@ -23,8 +23,7 @@ setuptools.setup(
     zip_safe=False,
     packages=[  "pycinema", "pycinema.filters", "pycinema.scripts", "pycinema.theater", "pycinema.theater.node_editor", "pycinema.theater.views", "pycinema.ipy" ],
     install_requires=[
-        "numpy<2.0.0",
-        "scipy==1.13.1",
+        "numpy",
         "h5py",
         "dsi-workflow",
         "matplotlib",
@@ -38,7 +37,6 @@ setuptools.setup(
         "igraph",
         "requests",
         "pyqtgraph",
-        "tensorflow",
         "trame",
         "trame-vuetify",
         "trame-plotly",
