@@ -3,7 +3,7 @@ import pycinema.filters
 import yaml
 
 # pycinema settings
-PYCINEMA = { 'VERSION' : '3.2.0'}
+PYCINEMA = { 'VERSION' : '3.3.0'}
 
 #
 # A class that performs a recolor

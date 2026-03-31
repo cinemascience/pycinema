@@ -92,13 +92,20 @@ import pycinema.theater
 import pycinema.theater.views
 
 '''
+        for _,filter in pycinema.Filter._filters.items():
+          if "Synema" in filter.id:
+            script += 'import pycinema.filters.synema\n'
+            break
 
         script += '# pycinema settings\n'
         script += 'PYCINEMA = { \'VERSION\' : \'' + pycinema.__version__ + '\'}\n'
 
         script += '\n# filters\n'
         for _,filter in pycinema.Filter._filters.items():
-          script += filter.id + ' = pycinema.filters.' + filter.__class__.__name__+'()\n'
+          if "Synema" in filter.id:
+            script += filter.id + ' = pycinema.filters.synema.' + filter.__class__.__name__+'()\n'
+          else:
+            script += filter.id + ' = pycinema.filters.' + filter.__class__.__name__+'()\n'
 
         getPortType = lambda p: 'inputs' if p.is_input else 'outputs'
 
