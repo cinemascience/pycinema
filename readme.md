@@ -56,6 +56,12 @@ The `pycinema` module can be installed as part of a python environment:
 pip install pycinema
 ```
 
+Optionally if you want to install with [Synema](https://github.com/cinemascience/synema) for neural radiance field (NeRF-style) view-synthesis
+
+```
+pip install pycinema[synema]
+```
+
 Or you can install the module and run by using the pycinema repository:
 
 ```
