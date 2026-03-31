@@ -21,7 +21,7 @@ setuptools.setup(
     url="https://github.com/cinemascience/pycinema",
     include_package_data=True,
     zip_safe=False,
-    packages=[  "pycinema", "pycinema.filters", "pycinema.scripts", "pycinema.theater", "pycinema.theater.node_editor", "pycinema.theater.views", "pycinema.ipy" ],
+    packages=[  "pycinema", "pycinema.filters", "pycinema.scripts", "pycinema.theater", "pycinema.theater.node_editor", "pycinema.theater.views", "pycinema.ipy", "pycinema.filters.synema" ],
     install_requires=[
         "numpy",
         "h5py",
@@ -43,6 +43,9 @@ setuptools.setup(
         "pandas",
         "pyyaml"
     ],
+    extras_require={
+        "synema": ["synema", "scikit-image"]
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: BSD License",

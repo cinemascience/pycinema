@@ -1,5 +1,6 @@
 import pycinema
 import pycinema.filters
+import pycinema.filters.synema
 import pycinema.theater
 import pycinema.theater.views
 
@@ -9,9 +10,9 @@ PYCINEMA = { 'VERSION' : '3.2.0'}
 # filters
 CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
 ImageReader_0 = pycinema.filters.ImageReader()
-SynemaColorImageModelFactory_0 = pycinema.filters.SynemaColorImageModelFactory()
-SynemaColorImageModelTrainer_0 = pycinema.filters.SynemaColorImageModelTrainer()
-SynemaColorImageViewSynthesis_0 = pycinema.filters.SynemaColorImageViewSynthesis()
+SynemaColorImageModelFactory_0 = pycinema.filters.synema.SynemaColorImageModelFactory()
+SynemaColorImageModelTrainer_0 = pycinema.filters.synema.SynemaColorImageModelTrainer()
+SynemaColorImageViewSynthesis_0 = pycinema.filters.synema.SynemaColorImageViewSynthesis()
 ImageView_0 = pycinema.filters.ImageView()
 RenderView_0 = pycinema.filters.RenderView()
 

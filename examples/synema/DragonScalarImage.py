@@ -1,5 +1,6 @@
 import pycinema
 import pycinema.filters
+import pycinema.filters.synema
 import pycinema.theater
 import pycinema.theater.views
 
@@ -12,9 +13,9 @@ ImageReader_0 = pycinema.filters.ImageReader()
 ColorMapping_0 = pycinema.filters.ColorMapping()
 ImageView_0 = pycinema.filters.ImageView()
 RenderView_0 = pycinema.filters.RenderView()
-SynemaScalarImageModelFactory_0 = pycinema.filters.SynemaScalarImageModelFactory()
-SynemaScalarImageModelTrainer_0 = pycinema.filters.SynemaScalarImageModelTrainer()
-SynemaScalarImageViewSynthesis_0 = pycinema.filters.SynemaScalarImageViewSynthesis()
+SynemaScalarImageModelFactory_0 = pycinema.filters.synema.SynemaScalarImageModelFactory()
+SynemaScalarImageModelTrainer_0 = pycinema.filters.synema.SynemaScalarImageModelTrainer()
+SynemaScalarImageViewSynthesis_0 = pycinema.filters.synema.SynemaScalarImageViewSynthesis()
 ColorMapping_1 = pycinema.filters.ColorMapping()
 
 # properties

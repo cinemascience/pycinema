@@ -37,12 +37,6 @@ from .ShaderSSAO import *
 from .ShaderLineAO import *
 from .ShaderPointAO import *
 from .SqliteDatabaseReader import *
-from .SynemaColorImageModelFactory import *
-from .SynemaColorImageModelTrainer import *
-from .SynemaColorImageViewSynthesis import *
-from .SynemaScalarImageModelFactory import *
-from .SynemaScalarImageModelTrainer import *
-from .SynemaScalarImageViewSynthesis import *
 from .TableWriter import *
 from .TableView import *
 from .TextEditor import *
