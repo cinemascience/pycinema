@@ -1,3 +1,17 @@
+#!/usr/bin/env -S uv run
+# /// script
+# dependencies = [
+#   "trame",
+#   "trame-vuetify",
+#   "trame-plotly",
+#   "plotly",
+#   "pandas",
+#   "pycinema",
+#   "pillow",
+# ]
+# ///
+
+
 from trame.app import get_server
 from trame.ui.vuetify3 import SinglePageLayout
 from trame.widgets import vuetify3, plotly
