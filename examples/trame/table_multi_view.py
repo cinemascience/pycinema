@@ -1,13 +1,14 @@
 #!/usr/bin/env -S uv run
 # /// script
+# requires-python = ">=3.11,<3.12"
 # dependencies = [
 #   "trame",
 #   "trame-vuetify",
 #   "trame-plotly",
 #   "plotly",
 #   "pandas",
-#   "pycinema",
 #   "pillow",
+#   "pycinema @ git+https://github.com/cinemascience/pycinema/@uv_test",
 # ]
 # ///
 
@@ -39,7 +40,7 @@ CinemaDatabaseReader_0 = pycinema.filters.CinemaDatabaseReader()
 TableQuery_0 = pycinema.filters.TableQuery()
 ImageReader_0 = pycinema.filters.ImageReader()
 
-CinemaDatabaseReader_0.inputs.path.set("./data/sphere.cdb", False)
+CinemaDatabaseReader_0.inputs.path.set("https://raw.githubusercontent.com/cinemascience/pycinema/master/data/sphere.cdb", False)
 TableQuery_0.inputs.table.set(CinemaDatabaseReader_0.outputs.table, False)
 ImageReader_0.inputs.table.set(TableQuery_0.outputs.table, False)
 
