@@ -4,6 +4,7 @@ import PIL
 import numpy
 import h5py
 import os
+import io
 import re
 import requests
 import logging as log
@@ -58,17 +59,30 @@ class ImageReader(Filter):
 
             if extension == 'h5':
                 image = Image()
-                file = h5py.File(path, 'r')
-                for (g,v) in [('channels',image.channels), ('meta',image.meta)]:
-                    group = file.get(g)
-                    if group==None:
-                        raise ValueError('h5 file not formatted correctly')
-                    for k in group.keys():
-                        data = numpy.atleast_1d(numpy.squeeze(numpy.array(group.get(k))))
-                        if data.dtype == '|S10' and data.size==1:
-                            data = data[0].decode('UTF-8')
-                        v[k] = data
-                file.close()
+
+                if isURL(path):
+                    log.debug("requesting " + path)
+                    response = requests.get(path)
+                    response.raise_for_status()
+                    h5_source = io.BytesIO(response.content)
+                    file = h5py.File(h5_source, 'r')
+                else:
+                    file = h5py.File(path, 'r')
+
+                try:
+                    for (g, v) in [('channels', image.channels), ('meta', image.meta)]:
+                        group = file.get(g)
+                        if group is None:
+                            raise ValueError('h5 file not formatted correctly')
+                        for k in group.keys():
+                            data = numpy.atleast_1d(
+                                numpy.squeeze(numpy.array(group.get(k)))
+                            )
+                            if data.dtype.kind == 'S' and data.size == 1:
+                                data = data[0].decode('UTF-8')
+                            v[k] = data
+                finally:
+                    file.close()
 
             elif str.lower(extension) in ['png','jpg','jpeg']:
                 if isURL(path):
