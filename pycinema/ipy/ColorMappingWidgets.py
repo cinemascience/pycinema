@@ -109,7 +109,7 @@ class ColorMappingWidgets(Filter):
 
         # add widgets to container
         container = self.inputs.container.get()
-        if container!=None and len(container.children)==0:
+        if container is not None and len(container.children)==0:
             container.children = [
               self.channelWidget,
               self.mapWidget,

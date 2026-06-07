@@ -23,7 +23,7 @@ class ImageViewer(Filter):
     def _update(self):
 
         container = self.inputs.container.get()
-        if container==None:
+        if container is None:
             container = ipywidgets.HBox()
             IPython.display.display(container)
 

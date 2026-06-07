@@ -11,7 +11,15 @@ class Shader(Filter):
     quad = None
     fbo = None
 
-    def __init__(self, inputs={}, outputs={}, textures=[], varyings=['uv'], quad=True):
+    def __init__(self, inputs=None, outputs=None, textures=None, varyings=None, quad=True):
+        if inputs is None:
+            inputs = {}
+        if outputs is None:
+            outputs = {}
+        if textures is None:
+            textures = []
+        if varyings is None:
+            varyings = ['uv']
 
         # program
         self.program = Shader.ctx.program(
@@ -34,8 +42,8 @@ class Shader(Filter):
         super().__init__(inputs, outputs)
 
     def initFramebuffer(self,res,components=[1],dtypes=['f1']):
-        if Shader.fbo==None or Shader.fbo.size!=res:
-            if Shader.fbo!=None:
+        if Shader.fbo is None or Shader.fbo.size!=res:
+            if Shader.fbo is not None:
                 Shader.fbo.release()
             if len(components)==1 and dtypes[0]=='f1':
                 Shader.fbo = Shader.ctx.simple_framebuffer(res)
@@ -110,5 +118,5 @@ try:
              1.0,  1.0
         ]).astype('f4').tobytes()
     )
-except:
+except Exception:
     log.warning("Unable to setup OpenGL context.")

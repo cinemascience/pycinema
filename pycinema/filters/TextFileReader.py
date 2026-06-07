@@ -34,7 +34,7 @@ class TextFileReader(Filter):
             with open(p, 'r', encoding='utf-8') as textfile:
                 file_contents = textfile.read()
                 temptext = file_contents
-        except:
+        except (IOError, OSError, PermissionError, UnicodeDecodeError):
             log.error(" Unable to open file: '" + p + "'")
 
         self.outputs.text.set(temptext)

@@ -142,10 +142,9 @@ import pycinema.theater.views
             if not script_file_name.endswith('.py'):
                 script_file_name += '.py'
             try:
-                f = open(script_file_name, "w")
-                f.write(script)
-                f.close()
-            except:
+                with open(script_file_name, "w") as f:
+                    f.write(script)
+            except (IOError, OSError, PermissionError):
                 return
 
         return script
@@ -177,7 +176,9 @@ import pycinema.theater.views
         msgBox = QtWidgets.QMessageBox.about(self, "About", "pycinema v" + pycinema.__version__);
         return
 
-    def executeScript(self, script, args=[]):
+    def executeScript(self, script, args=None):
+        if args is None:
+            args = []
         QtNodeEditorView.auto_layout = False
         QtNodeEditorView.auto_connect = False
 
@@ -214,22 +215,23 @@ import pycinema.theater.views
           return
         QtCore.QTimer.singleShot(0, lambda: call())
 
-    def loadScript(self, script_file_name=None, scriptkey=None, args=[]):
+    def loadScript(self, script_file_name=None, scriptkey=None, args=None):
+        if args is None:
+            args = []
         if not script_file_name:
             script_file_name = QtWidgets.QFileDialog.getOpenFileName(self, "Load Script")[0]
         if script_file_name and len(script_file_name)>0:
             if os.path.isfile(script_file_name):
                 try:
-                    script_file = open(script_file_name, "r")
-                    script = script_file.read()
-                    script_file.close()
+                    with open(script_file_name, "r") as script_file:
+                        script = script_file.read()
                     self.reset(True)
                     if not scriptkey:
                         self.setWindowTitle("Cinema:Theater (" + script_file_name + ")")
                     else:
                         self.setWindowTitle("Cinema:" + scriptkey)
                     self.executeScript(script,args)
-                except:
+                except (IOError, OSError, PermissionError, UnicodeDecodeError):
                     return
             else:
                 print("CINEMA ERROR: script file \'" + script_file_name + "\' does not exist")
@@ -238,7 +240,9 @@ class Theater():
 
     instance = None
 
-    def __init__(self, args=[]):
+    def __init__(self, args=None):
+        if args is None:
+            args = []
 
         # show UI
         app = QtWidgets.QApplication([])

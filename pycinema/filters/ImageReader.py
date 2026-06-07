@@ -61,7 +61,7 @@ class ImageReader(Filter):
                 file = h5py.File(path, 'r')
                 for (g,v) in [('channels',image.channels), ('meta',image.meta)]:
                     group = file.get(g)
-                    if group==None:
+                    if groupis None:
                         raise ValueError('h5 file not formatted correctly')
                     for k in group.keys():
                         data = numpy.atleast_1d(numpy.squeeze(numpy.array(group.get(k))))
