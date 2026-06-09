@@ -2,7 +2,6 @@ from pycinema import Filter
 
 try:
   from PySide6 import QtGui, QtCore, QtWidgets
-  from pycinema.theater.Icons import Icons
 except Exception:
   pass
 
@@ -27,6 +26,8 @@ class TextEditor(Filter):
       )
 
     def generateWidgets(self):
+        from pycinema.theater.Icons import Icons
+
         widget = QtWidgets.QTextEdit()
         self.widgets.append(widget)
 

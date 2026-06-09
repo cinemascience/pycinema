@@ -7,7 +7,6 @@ from pycinema.filters.TableQuery import executeSQL, createTable, insertData, que
 
 try:
   from PySide6 import QtGui, QtCore, QtWidgets
-  from pycinema.theater.Icons import Icons
 except Exception:
   pass
 
@@ -123,7 +122,7 @@ class ParametersView(Filter):
 
           m = QtWidgets.QPushButton()
           m.setCheckable(True)
-          m.setIcon( Icons.toQIcon(Icons.icon_list) )
+          m.setIcon( self.Icons.toQIcon(self.Icons.icon_list) )
           m.setCursor(QtCore.Qt.PointingHandCursor)
           m.setToolTip('Toggle slider/list widget')
           m.toggled.connect( make_callback(p,update_mode) )
@@ -181,6 +180,9 @@ class ParametersView(Filter):
       return
 
     def generateWidgets(self):
+        from pycinema.theater.Icons import Icons
+        self.Icons = Icons
+
         widgets = QtWidgets.QFrame()
         widgets.setLayout(QtWidgets.QHBoxLayout())
         widgets.container = QtWidgets.QWidget()
