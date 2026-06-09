@@ -63,7 +63,7 @@ class MLTFReader(Filter):
                     models[int(row[0])] = model
             
             #check if training configuration exists, if not give error
-        except:
+        except (IOError, OSError, PermissionError, csv.Error, ValueError, IndexError):
             log.error('[ERROR] Unable to open ML Model Directory')
             self.outputs.models.set([])
             return 0

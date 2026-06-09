@@ -170,7 +170,7 @@ class ParameterWidgets(Filter):
             self.widgets.append(wt)
 
         container = self.inputs.container.get()
-        if container!=None:
+        if container is not None:
           items = []
           for i,wt in enumerate(self.widgets):
               items.append(wt['B'])

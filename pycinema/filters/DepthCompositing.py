@@ -44,7 +44,7 @@ class DepthCompositing(Filter):
         return [data]
 
     def getKeys(self,image,compose):
-        if compose[0]==None:
+        if compose[0] is None:
             return image.meta.keys()
         ignore = [compose[0]] + ['^id','^file','^camera','^resolution','_range']
         return [p for p in image.meta.keys() if not any([re.search(i, p, re.IGNORECASE) for i in ignore])]
@@ -145,7 +145,7 @@ class DepthCompositing(Filter):
             try:
                 for i in imagesA:
                     i.getChannel(depthChannel)
-            except:
+            except Exception:
               self.outputs.images.set(imagesA)
               return 1
 
@@ -158,7 +158,7 @@ class DepthCompositing(Filter):
             for key, images in imagesMap.items():
                 result = images[0].copy()
 
-                if metaCompositing[0]!=None and 'composition_mask' not in result.channels:
+                if metaCompositing[0] is not None and 'composition_mask' not in result.channels:
                     result.channels['composition_mask'] = numpy.full(result.shape[:2], metaCompositing[1][str(result.meta[metaCompositing[0]])], dtype=numpy.ubyte)
                 for i in range(1,len(images)):
                     result = self.compose(result,images[i],depthChannel)

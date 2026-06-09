@@ -252,16 +252,20 @@ void main(){
         images = self.inputs.images.get()
 
         # set uniforms
-        self.program['uAmbient'].value = float(self.inputs.ambient.get())
-        self.program['uDiffuse'].value = float(self.inputs.diffuse.get())
-        self.program['uRoughness'].value = float(self.inputs.roughness.get())
-        self.program['uMetallic'].value = float(self.inputs.metallic.get())
+        try:
+            self.program['uAmbient'].value = float(self.inputs.ambient.get())
+            self.program['uDiffuse'].value = float(self.inputs.diffuse.get())
+            self.program['uRoughness'].value = float(self.inputs.roughness.get())
+            self.program['uMetallic'].value = float(self.inputs.metallic.get())
+        except (ValueError, TypeError):
+            self.outputs.images.set(images)
+            return 1
 
         # render images
         try:
           for image in images:
               results.append( self.render(image) )
-        except:
+        except Exception:
           self.outputs.images.set(images)
           return 1
 

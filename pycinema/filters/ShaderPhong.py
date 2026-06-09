@@ -114,16 +114,20 @@ void main(){
         images = self.inputs.images.get()
 
         # set uniforms
-        self.program['uAmbient'].value = float(self.inputs.ambient.get())
-        self.program['uDiffuse'].value = float(self.inputs.diffuse.get())
-        self.program['uSpecular'].value = float(self.inputs.specular.get())
-        self.program['uExponent'].value = float(self.inputs.exponent.get())
+        try:
+            self.program['uAmbient'].value = float(self.inputs.ambient.get())
+            self.program['uDiffuse'].value = float(self.inputs.diffuse.get())
+            self.program['uSpecular'].value = float(self.inputs.specular.get())
+            self.program['uExponent'].value = float(self.inputs.exponent.get())
+        except (ValueError, TypeError):
+            self.outputs.images.set(images)
+            return 1
 
         # render images
         try:
           for image in images:
               results.append( self.render(image) )
-        except:
+        except Exception:
           self.outputs.images.set(images)
           return 1
 

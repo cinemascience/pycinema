@@ -283,7 +283,7 @@ void main(){
         try:
           for image in images:
               results.append( self.render(image) )
-        except:
+        except Exception:
           self.outputs.images.set(images)
           return 1
 
