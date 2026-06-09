@@ -35,7 +35,7 @@ class CinemaDatabaseReader(Filter):
 
         try:
             dataCsvPath = dbPath + '/data.csv'
-            with open(dataCsvPath, 'r+') as csvfile:
+            with open(dataCsvPath, 'r') as csvfile:
                 rows = csv.reader(csvfile, delimiter=',')
                 for row in rows:
                     table.append(row)
