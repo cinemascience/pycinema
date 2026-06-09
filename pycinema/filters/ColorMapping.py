@@ -34,7 +34,7 @@ class ColorMapping(Filter):
       images = self.inputs.images.get()
 
       for widgets in self.widgets:
-        widgets['c'].setEnabled(len(images)>0 and len(images[0].channels)>0)
+        widgets['c'][1].setEnabled(len(images)>0 and len(images[0].channels)>0)
 
       if len(images)<1 or self.channel_model==None:
         return
@@ -47,11 +47,11 @@ class ColorMapping(Filter):
         if self.channel_model.stringList()!=channels:
           self.channel_model.setStringList(channels)
         for widgets in self.widgets:
-          widgets['c'].setCurrentIndex(channels.index(iChannel))
-          widgets['m'].setCurrentIndex(self.maps_model.stringList().index(iMap))
-          widgets['r'][0].setText(str(iRange[0]))
-          widgets['r'][1].setText(str(iRange[1]))
-          widgets['nan'].setText(str(iNAN))
+          widgets['c'][1].setCurrentIndex(channels.index(iChannel))
+          widgets['m'][1].setCurrentIndex(self.maps_model.stringList().index(iMap))
+          widgets['r'][2].setText(str(iRange[0]))
+          widgets['r'][3].setText(str(iRange[1]))
+          widgets['nan'][1].setText(str(iNAN))
 
     def generateWidgets(self):
         if not self.channel_model or not self.maps_model:
@@ -66,25 +66,31 @@ class ColorMapping(Filter):
         l.setAlignment(QtCore.Qt.AlignTop)
         l.setSpacing(0)
         l.setContentsMargins(0,0,0,0)
+        l.setHorizontalSpacing(8)
+        l.setColumnStretch(0, 0)
+        l.setColumnStretch(1, 1)
         widgets.setLayout(l)
 
         # Channel
         wc = QtWidgets.QComboBox()
+        wcl = QtWidgets.QLabel("Channel")
         wc.channels = []
-        l.addWidget(QtWidgets.QLabel('Channel'),0,0)
+        l.addWidget(wcl,0,0)
         l.addWidget(wc,0,1)
         wc.setModel(self.channel_model)
 
         # Color Map
         wm = QtWidgets.QComboBox()
-        l.addWidget(QtWidgets.QLabel("Color Map"),1,0)
+        wml = QtWidgets.QLabel("Color Map")
+        l.addWidget(wml,1,0)
         l.addWidget(wm,1,1)
         wm.setModel(self.maps_model)
 
         # Range
         f = QtWidgets.QFrame()
+        fl = QtWidgets.QLabel("Range")
         f.setLayout( QtWidgets.QHBoxLayout())
-        l.addWidget(QtWidgets.QLabel("Range"),2,0)
+        l.addWidget(fl,2,0)
         l.addWidget(f,2,1)
 
         wr0 = QtWidgets.QLineEdit()
@@ -105,10 +111,10 @@ class ColorMapping(Filter):
           color = (wnan.format(color.redF()),wnan.format(color.greenF()),wnan.format(color.blueF()),wnan.format(color.alphaF()))
           self.inputs.nan.set(color)
 
-
         wnan.clicked.connect(select_color)
         wnan.format = lambda v: float("{:.3f}".format(v))
-        l.addWidget(QtWidgets.QLabel("NAN Color"),4,0)
+        wnanl=QtWidgets.QLabel("NAN Color")
+        l.addWidget(wnanl,4,0)
         l.addWidget(wnan,4,1)
 
         # Auto Range
@@ -141,15 +147,26 @@ class ColorMapping(Filter):
         ar.clicked.connect(auto_range)
 
         self.widgets.append({
-          'c': wc,
-          'm': wm,
-          'r': [wr0,wr1],
-          'nan': wnan,
+          'c': [wcl,wc],
+          'm': [wml,wm],
+          'r': [fl,f,wr0,wr1,ar],
+          'nan': [wnanl,wnan],
         })
         self.updateWidgets()
 
+        def toggleVisibility(show,widgets):
+            if show:
+                for i in ['m','r','nan']:
+                    for w in widgets[i]:
+                        w.show()
+            else:
+                for i in ['m','r','nan']:
+                    for w in widgets[i]:
+                        w.hide()
+
         # change listeners
         wc.currentIndexChanged.connect( lambda i: self.inputs.channel.set(self.channel_model.stringList()[i]) )
+        wc.currentIndexChanged.connect( lambda i: toggleVisibility(self.channel_model.stringList()[i].lower()!='rgba',self.widgets[0]) )
         wm.currentIndexChanged.connect( lambda i: self.inputs.map.set(self.maps_model.stringList()[i]) )
         wr0.editingFinished.connect(r_lambda)
         wr1.editingFinished.connect(r_lambda)
