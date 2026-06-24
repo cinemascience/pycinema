@@ -73,10 +73,11 @@ try:
 
         delta = event.pos() - self.mouse_pos_0
         factor = 0.1
+        ylimit = 89
         camera_1 = [
           # round(sorted([0, 360, self.camera_0[0] + delta.x()*factor])[1], 2),
           round((self.camera_0[0] + delta.x()*factor), 2),
-          round(sorted([-90, 90, self.camera_0[1] + delta.y()*factor])[1], 2),
+          round(sorted([-ylimit, ylimit, self.camera_0[1] + delta.y()*factor])[1], 2),
         ]
         self.filter.inputs.camera.set(camera_1,True,True)
 
