@@ -15,6 +15,32 @@ class Libra(Filter):
           inputs={
             'imagesA': [],
             'imagesB': [],
+            'metrics': [
+                'MSE',
+                'SSIM',
+                'MS-SSIM',
+                'PSNR',
+                'VSI',
+                'SR-SIM',
+                'MS-GMSD',
+                'LPIPS',
+                'PieAPP',
+                'DISTS',
+                "MDSI",
+                "DSS",
+                "IW-SSIM",
+                "VIFp",
+                "GMSD",
+                "HaarPSI",
+                "PHASH",
+                # "BRISQUE", # expensive
+                # "NIQE", # expensive
+                # "MUSIQ", # expensive
+                # "NIMA", # expensive
+
+                # 'FSIM', # broken
+                # "CLIPIQA", # broken
+            ]
           },
           outputs={
             'images': []
@@ -28,40 +54,13 @@ class Libra(Filter):
 
       outputs = []
 
-      metrics = [
-        'MSE',
-        'SSIM',
-        'MS-SSIM',
-        'PSNR',
-        'VSI',
-        'SR-SIM',
-        'MS-GMSD',
-        'LPIPS',
-        'PieAPP',
-        'DISTS',
-        "MDSI",
-        "DSS",
-        "IW-SSIM",
-        "VIFp",
-        "GMSD",
-        "HaarPSI",
-        "PHASH",
-
-        # "BRISQUE", # expensive
-        # "NIQE", # expensive
-        # "MUSIQ", # expensive
-        # "NIMA", # expensive
-
-        # 'FSIM', # broken
-        # "CLIPIQA", # broken
-      ]
-          # metrics = libra.list_metrics()
+      metrics = self.inputs.metrics.get()
 
       for i in range(0,len(imagesA)):
         a = imagesA[i].channels['rgba']
         b = imagesB[i].channels['rgba']
 
-        heatmap, heatmapEq = libra.diff_images_(a, b, 0,'HSV')
+        heatmap, heatmapEq = libra.diff_images_(a, b, 0,'RGB')
         outputs.append(
           Image({
               'error': heatmap

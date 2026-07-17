@@ -295,9 +295,9 @@ class Model:
                 return param
         if rank <= 0:
             if torch.cuda.is_available():
-                self.flownet.load_state_dict(convert(torch.load('data/RIFE/flownet.pkl')))
+                self.flownet.load_state_dict(convert(torch.load('/home/jones/projects/catalyst-demo/pycinema/data/RIFE/flownet.pkl')))
             else:
-                self.flownet.load_state_dict(convert(torch.load('data/RIFE/flownet.pkl', map_location ='cpu')))
+                self.flownet.load_state_dict(convert(torch.load('/home/jones/projects/catalyst-demo/pycinema/data/RIFE/flownet.pkl', map_location ='cpu')))
 
     def inference(self, img0, img1, scale=1.0):
         imgs = torch.cat((img0, img1), 1)

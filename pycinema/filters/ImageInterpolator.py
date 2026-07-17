@@ -87,7 +87,7 @@ class ImageInterpolator(Filter):
         np.ascontiguousarray(np.concatenate(
           [((tensor[0] * 255).byte().permute(1, 2, 0).numpy()[y1:y2, x1:x2]), np.ones((y2 - y1, x2 - x1, 1), dtype=np.uint8) * 255], axis=-1
         ))
-        for tensor in results[1:-1]
+        for tensor in results
       ]
 
     def inference_adaptive(model, channel1, channel2, nFrames, half=False):
