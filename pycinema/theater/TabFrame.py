@@ -82,11 +82,11 @@ class TabFrame(QtWidgets.QTabWidget):
     bar.__edit = None
 
   def insertTab(self,idx,splitFrame=None,name=None):
-      if splitFrame==None:
+      if splitFrame is None:
         splitFrame = pycinema.theater.SplitFrame()
         splitFrame.insertView(0,pycinema.theater.views.SelectionView())
 
-      if name==None:
+      if name is None:
         name = "Layout %d"%self.tab_counter
         self.tab_counter += 1
 

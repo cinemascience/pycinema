@@ -18,8 +18,8 @@ class TableWriter(Filter):
           }
         );
 
-    def writeCSV(self):
-        with open(self.inputs.path.get(), 'w') as csvfile:
+    def writeCSV(self, path):
+        with open(path, 'w') as csvfile:
             write = csv.writer(csvfile)
             write.writerows(self.inputs.table.get())
 
@@ -37,7 +37,7 @@ class TableWriter(Filter):
             if not os.path.exists(directory):
                 os.makedirs(directory)
 
-        self.writeCSV()
+        self.writeCSV(path)
 
 
         return 1

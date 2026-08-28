@@ -36,7 +36,7 @@ class ColorMapping(Filter):
       for widgets in self.widgets:
         widgets['c'][1].setEnabled(len(images)>0 and len(images[0].channels)>0)
 
-      if len(images)<1 or self.channel_model==None:
+      if len(images)<1 or self.channel_model is None:
         return
       else:
         iChannel = self.inputs.channel.get()

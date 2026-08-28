@@ -39,7 +39,7 @@ class CinemaDatabaseReader(Filter):
                 rows = csv.reader(csvfile, delimiter=',')
                 for row in rows:
                     table.append(row)
-        except:
+        except (IOError, OSError, PermissionError, csv.Error):
             log.error(" Unable to open data.csv")
             self.outputs.table.set([[]])
             return 0

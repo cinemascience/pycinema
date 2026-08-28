@@ -181,18 +181,22 @@ void main(){
         images = self.inputs.images.get()
 
         # set uniforms
-        self.program['radius'].value = float(self.inputs.radius.get())
-        self.program['samples'].value = int(self.inputs.samples.get())
-        self.program['diff_area'].value = float(self.inputs.diff.get())
-        self.program['silhouette'].value = float(self.inputs.silhouette.get()*500)
-        self.program['ambient'].value = float(self.inputs.ambient.get())
-        self.program['luminance'].value = float(self.inputs.luminance.get())
+        try:
+            self.program['radius'].value = float(self.inputs.radius.get())
+            self.program['samples'].value = int(self.inputs.samples.get())
+            self.program['diff_area'].value = float(self.inputs.diff.get())
+            self.program['silhouette'].value = float(self.inputs.silhouette.get()*500)
+            self.program['ambient'].value = float(self.inputs.ambient.get())
+            self.program['luminance'].value = float(self.inputs.luminance.get())
+        except (ValueError, TypeError):
+            self.outputs.images.set(images)
+            return 1
 
         # render images
         try:
           for image in images:
               results.append( self.render(image) )
-        except:
+        except Exception:
           self.outputs.images.set(images)
           return 1
 

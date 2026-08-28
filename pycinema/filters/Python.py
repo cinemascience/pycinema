@@ -35,9 +35,8 @@ class Python(Filter):
           self.watcher.addPath(code)
 
         # fetch code
-        script_file = open(code, "r")
-        code = script_file.read()
-        script_file.close()
+        with open(code, "r") as script_file:
+            code = script_file.read()
       elif len(watched_files)>0:
         self.watcher.removePaths(watched_files)
 

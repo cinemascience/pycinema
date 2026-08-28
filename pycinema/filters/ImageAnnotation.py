@@ -42,7 +42,7 @@ class ImageAnnotation(Filter):
             except IOError:
                 continue
 
-        if font==None:
+        if font is None:
           print('unable to detect font')
 
         return font

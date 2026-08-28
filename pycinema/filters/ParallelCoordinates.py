@@ -150,6 +150,8 @@ try:
       self.bar.hide()
 
     def snapToValueIdx(self,y):
+      if self.y1 == self.y0:
+          return 0
       l = (y - self.y0) / (self.y1 - self.y0)
       l = max(min(l,1),0)
       return round(l*(self.n_values-1))

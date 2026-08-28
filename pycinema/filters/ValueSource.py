@@ -1,4 +1,5 @@
 from pycinema import Filter
+import ast
 
 class ValueSource(Filter):
 
@@ -16,6 +17,6 @@ class ValueSource(Filter):
     def _update(self):
         value = self.inputs.value.get()
         if isinstance(value, str):
-          value = eval(value)
+          value = ast.literal_eval(value)
         self.outputs.value.set( value )
         return 1

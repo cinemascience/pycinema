@@ -11,7 +11,7 @@ from pycinema.theater.FilterBrowser import FilterBrowser
 use_pgv = True
 try:
     import pygraphviz as pgv
-except:
+except ImportError:
     use_pgv = False
 import igraph
 

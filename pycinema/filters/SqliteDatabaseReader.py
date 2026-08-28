@@ -38,22 +38,30 @@ class SqliteDatabaseReader(Filter):
             conn = sqlite3.connect(dbPath)
             cursor = conn.cursor()
 
-            # capture the names of each column
-            cdata = cursor.execute(f'PRAGMA table_info({tname});').fetchall()
+            # Validate table name exists (safe parameterized query)
+            cursor.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+                (tname,)
+            )
+            if not cursor.fetchone():
+                log.error(f"Table '{tname}' does not exist in database")
+                self.outputs.table.set([[]])
+                return 0
 
+            # Now safe to use validated table name with identifier quoting
+            cdata = cursor.execute(f'PRAGMA table_info("{tname}")').fetchall()
             cnames = [entry[1] for entry in cdata]
             table.append(cnames)
 
-            # capture row data
-            data = cursor.execute("SELECT * FROM " + tname + "").fetchall() #LIMIT 10
+            # Use identifier quoting for table name
+            data = cursor.execute(f'SELECT * FROM "{tname}"').fetchall()
             for row in data:
-                # tuple output convert to list
                 table.append(list(row))
 
             cursor.close()
 
         except sqlite3.Error as error:
-            log.error(" Error while connecting to sqlite: " + error)
+            log.error(f" Error while connecting to sqlite: {str(error)}")
             self.outputs.table.set([[]])
             return 0
         finally:
@@ -66,7 +74,7 @@ class SqliteDatabaseReader(Filter):
         # add dbPath prefix to file column
         try:
             fileColumnIdx = [i for i, item in enumerate(table[0]) if re.search(self.inputs.file_column.get(), item, re.IGNORECASE)].pop()
-        except:
+        except (IndexError, re.error):
             log.error(" file column not found: '" + self.inputs.file_column.get() + "'")
             self.outputs.table.set([[]])
             return 0

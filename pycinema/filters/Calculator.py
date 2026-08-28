@@ -2,6 +2,7 @@ from pycinema import Filter, getTableExtent, isNumber
 
 import copy
 import numpy as np
+from asteval import Interpreter
 
 class Calculator(Filter):
 
@@ -33,14 +34,18 @@ class Calculator(Filter):
         if isNumber(oTable[1][c]):
           variables[oTable[0][c]] = np.array([float(row[c]) for row in oTable[1:]])
 
-      variables['__result'] = ''
-
       expression = self.inputs.expression.get().strip()
       if expression=='':
         expression = '0'
 
-      exec('__result = '+expression,variables)
-      result = variables['__result']
+      aeval = Interpreter()
+      aeval.symtable.update(variables)
+
+      result = aeval(expression)
+
+      if aeval.error:
+          err = aeval.error[0]
+          raise RuntimeError(err.get_error())
 
       if type(result) not in [list, np.ndarray]:
         result = [result for i in range(0,extent[0]-1)]

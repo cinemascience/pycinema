@@ -8,6 +8,7 @@ import PIL
 import io
 import logging as log
 import os
+import glob
 import importlib.resources
 
 CORE_NAN_VALUES = ['NaN', 'NAN', 'nan']
@@ -62,7 +63,7 @@ def getModulePath():
           return str(os.path.dirname(resource_path))
 
     except FileNotFoundError:
-        raise FileNotFoundError(f"Resource '{resource}' not found in package '{package}'")
+        raise FileNotFoundError(f"Resource 'Core.py' not found in package 'pycinema'")
     except Exception as e:
         raise Exception(f"An error occurred: {e}")
 
@@ -107,8 +108,8 @@ def getPathForScript(name):
             else:
                 if os.path.isfile(possible_script + ".py"):
                     scriptpath = possible_script + ".py"
-    else:
-        log.debug("script directory does not exist: \'" + scriptdir + "\'")
+        else:
+            log.debug("script directory does not exist: \'" + scriptdir + "\'")
 
     return scriptpath
 
@@ -119,6 +120,9 @@ def getPathForScript(name):
 # get the column index from a table, return -1 on failure
 def getColumnIndexFromTable(table, colname):
     ID = -1
+
+    if len(table) < 1:
+        return ID
 
     colnames = table[0]
     if colname in colnames:
@@ -162,9 +166,9 @@ def getColumnFromTable(table, colname, autocast=False, nan_remove=False, nan_rep
                 i += 1
 
         # TODO: create a separate function call to determine column type
-        if autocast:
-          if (any(isNumber(item) for item in cleaned_column) and not (isinstance(cleaned_column, np.ndarray) and np.issubdtype(cleaned_column.dtype, np.floating))):
-              cleaned_column = np.array(cleaned_column, dtype=float)
+        if autocast and not isinstance(cleaned_column, np.ndarray):
+            if any(isNumber(item) for item in cleaned_column):
+                cleaned_column = np.array(cleaned_column, dtype=float)
 
         return cleaned_column
 
@@ -173,28 +177,28 @@ def getColumnFromTable(table, colname, autocast=False, nan_remove=False, nan_rep
 def getTableExtent(table):
     try:
         nRows = len(table)
-        if nRows < 1:
+        if nRows < 2:
             return (0,0)
         nCols = len(table[1])
         for i in range(2,nRows):
             if len(table[i]) != nCols:
                 return (nRows,-1)
         return (nRows,nCols)
-    except:
+    except (TypeError, IndexError, KeyError, AttributeError):
         return (-1,-1)
 
 ################################################################################
 # Image Class
 ################################################################################
 class Image():
-    image_id_counter = -1
+    image_id_counter = 0
 
     def __init__(self, channels=None, meta=None):
         self.meta = meta or {}
         self.channels = channels or {}
         if 'id' not in self.meta:
           self.meta['id'] = Image.image_id_counter
-          Image.image_id_counter += -1
+          Image.image_id_counter += 1
 
     def __str__(self):
         result =  '{ PyCinemaImage:\n'
@@ -302,7 +306,7 @@ class Port():
         try:
           np.testing.assert_equal(self._value,value)
           return
-        except:
+        except Exception:
           pass
         # if self._value == value:
         #     return
@@ -387,7 +391,11 @@ class Filter():
         for listener in Filter._listeners[eventName]:
             listener(data)
 
-    def __init__(self, inputs={}, outputs={}):
+    def __init__(self, inputs=None, outputs=None):
+        if inputs is None:
+            inputs = {}
+        if outputs is None:
+            outputs = {}
         if Filter._debug:
             print('created',self)
         cls = self.__class__.__name__

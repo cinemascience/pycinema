@@ -76,7 +76,7 @@ class InputText(QtWidgets.QWidget):
                 v = float(text)
             else:
                 v = eval(text)
-        except:
+        except (ValueError, SyntaxError, NameError):
             v = None
 
         self.skip = True

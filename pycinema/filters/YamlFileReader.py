@@ -34,7 +34,7 @@ class YamlFileReader(Filter):
             results = []
             with open(p, 'r', encoding='utf-8') as textfile:
                 data = yaml.safe_load(textfile)
-        except:
+        except (IOError, OSError, PermissionError, yaml.YAMLError):
              log.error(" Unable to open file: '" + p + "'")
 
         self.outputs.data.set(data)

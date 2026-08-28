@@ -41,7 +41,8 @@ setuptools.setup(
         "trame-vuetify",
         "trame-plotly",
         "pandas",
-        "pyyaml"
+        "pyyaml",
+        "asteval"
     ],
     extras_require={
         "synema": ["synema", "scikit-image"]
